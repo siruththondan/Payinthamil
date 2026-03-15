@@ -1,0 +1,217 @@
+@import url('https://fonts.cdnfonts.com/css/coiny');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil&display=swap');   
+/* --------------------- color schemes ----------------- */
+
+/* cromatic themes reference :  https://piktochart.com/tips/monochrome-color-palette */
+
+/* Slate blues :
+    dark - light 
+    1. #2a2d34
+    2. #4b4e55
+    3. #6c6f76
+    4. #8d9097
+    5. #aeb1b8
+
+    Creamy Neutrals :
+    light - dark
+    1. #f2f2f2
+    2. #e6e6e6
+    3. #d9d9d9
+    4. #cccccc
+    5. #bfbfbf
+
+    Smokey hues:
+    light - dark
+    1. #d7d7d7
+    2. #b4b4b4
+    3. #919191
+    4. #6e6e6e
+    5. #4b4b4b
+*/
+:root {
+    /* default to dark theme */
+    --color-bg: #2a2d34;
+    --color-bg-alt: #4b4e55;
+    --color-border: #6c6f76;
+    --color-fg: #aeb1b8;
+    --color-correct: #6ea467;
+    --color-correct-alt: #65686f;
+    --color-in-correct: #b85c5c;
+}
+
+[data-theme="light"] {
+    --color-bg: #d7d7d7;
+    --color-bg-alt: #cccccc;
+    --color-border: #bfbfbf;
+    --color-fg: #6e6e6e;
+    --color-correct: #387d39;
+    --color-correct-alt : #9f9f9f;
+    --color-in-correct: #a83232;
+}
+
+/* ---------------------  / color schemes ----------------- */
+
+body{
+    font-family: 'Noto Sans Tamil', 'Latha', sans-serif;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+    border-color: var(--color-border);
+    width:100dvw;
+}
+
+
+/* ------------------------- nav-bar ---------------------------------*/
+#navbar {
+    height: 40px;
+    width: 94dvw;
+    margin-top: 10px;
+    margin-left: 3%;
+    margin-right: 5%;
+    display: flex;
+    justify-content: space-between;
+}
+
+#navbar > #logo {
+    font-size: 1.5em;
+    align-self: center;
+    color: var(--color-fg);
+      text-shadow: 2px 2px var(--color-bg-alt);
+
+    font-family: 'Coiny', sans-serif;
+}
+
+#navbar > button {
+  all: unset;
+  cursor: pointer;
+}
+
+#navbar > button > #moon-icon{
+    display: none;
+    margin-top: 5px;
+
+}
+
+#navbar > button > #sun-icon{
+    margin-top: 5px;
+}
+
+/*------------------------ / nav-bar ---------------------------------*/
+
+/* ----------------------- main container --------------------------- */
+
+#main-container {
+    width: 100dvw;
+    height: calc(100dvh - 10dvh);
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    outline: none;
+}
+
+
+
+#main-container > #focus-text {
+    font-size: 3em;
+    position: absolute;
+    color  : #ffffff;
+    top: 18dvh;
+}
+#main-container:focus  #lesson-container{
+    filter: blur(0px);
+}
+#main-container:focus #focus-text {
+    display: none;
+}
+
+
+
+
+#lesson-container {
+    color : var(--color-bg-alt);
+    height: 200px;
+    width: 70dvw;
+    display: grid;
+    grid-template-columns: repeat(9, auto); /* 9 spans per row */
+    justify-content: center;
+    gap: 1.5rem;
+    font-size: 2em;
+    margin-top: 3dvh;
+    filter: blur(5px);
+}
+
+.letter{
+    width: 1.2em;
+    height: 1.5em;
+    text-align: center;
+    line-height: 1.5em;
+    border: 1px solid var(--color-bg-alt);
+    padding : 5px;
+    padding-left: 15px;
+    padding-right: 15px;
+    border-radius: 7px;
+    font-size:1.5em;
+}
+
+.space-letter{
+    width: 6em;
+    margin-top: 1.25em;
+    font-size: 0.8em;
+    margin-left: auto;
+    margin-right: auto;
+
+}
+
+
+/* ----------------------- / main container --------------------------- */
+
+/* ----------------------- keyboard ----------------------------------- */
+#keyboard {
+    height: 30dvh;
+    width: 50dvw;
+}
+
+#keyboard svg {
+    border-radius: 10px;
+    opacity: 0.6;
+    fill: var(--color-bg-alt);
+    border: 2px solid var(--color-border);
+}
+
+#keyboard > svg > #Tamil99 > rect{
+    fill: var(--color-bg);
+}
+/* ----------------------- / keyboard ----------------------------------- */
+
+/* ----------------------- dynamic styles ------------------------------ */
+.correct{
+    color: var(--color-correct);
+    background-color: #6ea4671d;
+    border-color: var(--color-correct);
+}
+.in-correct{
+    color: var(--color-in-correct);
+    border-color: var(--color-in-correct);
+}
+.current{
+    border-color: var(--color-bg-alt);
+    box-shadow: 0 0 10px var(--color-fg);
+}
+
+/* ----------------------- footer ----------------------------------- */
+#footer {
+    display: block;
+    position: static;
+    text-align: center;
+    font-size: 0.7em;
+}
+#footer > #github {
+    color: var(--color-fg);
+    padding-bottom :2px;
+    text-decoration: dashed underline;
+}
+/* ----------------------- / footer ----------------------------------- */

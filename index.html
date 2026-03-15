@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>பைந்தமிழ்</title>
+    <link rel="stylesheet" href="styles/style.css" />
+  </head>
+  <script src="js/practice.js" type="module"></script>
+  <script src="js/keyboard.js" type="module"></script>
+  <body>
+    <div id="home">
+      <!-- navbar -->
+      <div id="navbar">
+        <div id="logo">பைந்தமிழ்</div>
+        <button onclick="toggleTheme()">
+          <svg width="30" height="30" id="moon-icon">
+            <path
+              fill="currentColor"
+                d="
+                M 15,1.5
+                A 13.5,13.5 0 1,0 28.5,15
+                A 10.5,10.5 0 1,1 15,1.5
+                Z
+                "
+            />
+          </svg>
+          <svg width="30" height="30" id="sun-icon">
+            <circle cx="15" cy="15" r="7" fill="currentColor" />
+            <line
+              id="ray"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              x1="15"
+              y1="1"
+              x2="15"
+              y2="1"
+            ></line>
+            <use href="#ray" transform="rotate(45 15 15)" />
+            <use href="#ray" transform="rotate(90 15 15)" />
+            <use href="#ray" transform="rotate(135 15 15)" />
+            <use href="#ray" transform="rotate(180 15 15)" />
+            <use href="#ray" transform="rotate(225 15 15)" />
+            <use href="#ray" transform="rotate(270 15 15)" />
+            <use href="#ray" transform="rotate(315 15 15)" />
+          </svg>
+        </button>
+      </div>
+      <!-- / navbar -->
+
+      <div id="main-container" tabindex="0" >
+          <div id="focus-text">Hey.. There...Click to Practice</div>
+        <div id="lesson-container"></div>
+        <div id="keyboard">keyboard</div>
+      </div>
+      <span id="footer">
+        With &#10084;&#65039; Make in Tamil Nadu ➤
+        <a
+          target="_blank"
+          href="https://github.com/mastergokul/thattachu"
+          id="github"
+        >
+          GitHub</a
+        >
+      </span>
+    </div>
+  </body>
+</html>
