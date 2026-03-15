@@ -1,39 +1,96 @@
+/**
+ * mapping.js — Tamil99 keyboard: English key → Tamil character
+ *
+ * Each exported constant / function is pure (no DOM access).
+ */
+
+/* ── Core key → Tamil character map ─────────────────────────────── */
 export const MAPPING = {
-    // uyir ezhuthu
-    'a':'அ', 'q': 'ஆ', 's': 'இ', 'w': 'ஈ', 'd': 'உ', 'e': 'ஊ', 'g': 'எ', 't': 'ஏ', 'r': 'ஐ', 'c': 'ஒ', 'x': 'ஓ', 'z': 'ஔ',
-    // otru
-    // 'f':'ஂ',
-    'f':'்',
-    // uyir mei ezhuthu
-    'h':'க', 'b':'ங', '[':'ச', ']':'ஞ', 'o':'ட', 'p':'ண', 'l':'த', ';':'ந', 'j':'ப', 'k':'ம',
-    '\'':'ய', 'Rm':'ர', 'n':'ல', 'v':'வ', '/':'ழ', 'y':'ள', 'u':'ற', 'i':'ன',
-    // krantham
-    'Q':'ஸ', 'W':'ஷ', 'E':'ஜ', 'R':'ஹ','T':'க்ஷ','Y':'ஸ்ரீ',
+  /* Uyir Ezhuthu — 12 Vowels */
+  a: 'அ',   // short-a
+  q: 'ஆ',   // long-aa
+  s: 'இ',   // short-i
+  w: 'ஈ',   // long-ii
+  d: 'உ',   // short-u
+  e: 'ஊ',   // long-uu
+  g: 'எ',   // short-e
+  t: 'ஏ',   // long-ee
+  r: 'ஐ',   // ai
+  c: 'ஒ',   // short-o
+  x: 'ஓ',   // long-oo
+  z: 'ஔ',   // au
 
-    // rupee
-    'A':'௹',
-    // numeral
-    'S':'௺',
-    //as above	
-    'D':'௸',
-    //day
-    'Z':'௳',
-    //month
-    'X':'௴',
-    //year
-    'C':'௵',
-    //decimal
-    'V':'௶',
-    //currency
-    'B':'௷',
-    // ayutha ezhuthu
-    'F':'ஃ',
-    // other characters
-    ' ':'Space',
+  /* Otru / Pulli — vowel silencer */
+  f: '்',
 
+  /* Mei Ezhuthu — 18 Consonants */
+  h: 'க',   // ka
+  b: 'ங',   // nga
+  '[': 'ச', // cha
+  ']': 'ஞ', // nja
+  o: 'ட',   // tta
+  p: 'ண',   // nna (retroflex)
+  l: 'த',   // tha
+  ';': 'ந', // na
+  j: 'ப',   // pa
+  k: 'ம',   // ma
+  "'": 'ய', // ya
+  n: 'ல',   // la
+  v: 'வ',   // va
+  '/': 'ழ', // zha
+  y: 'ள',   // lla
+  u: 'ற',   // rra
+  i: 'ன',   // nna (dental)
+
+  /* Ayutha Ezhuthu */
+  F: 'ஃ',
+
+  /* Grantha letters (Shift + key) */
+  Q: 'ஸ',
+  W: 'ஷ',
+  E: 'ஜ',
+  R: 'ஹ',
+  T: 'க்ஷ',
+  Y: 'ஸ்ரீ',
+
+  /* Rupee & Tamil-specific symbols */
+  A: '₹',
+  Z: '௳',   // Tamil day
+  X: '௴',   // Tamil month
+  C: '௵',   // Tamil year
+
+  /* Space */
+  ' ': '␣',
 };
 
-export const LESSON_1 = {
-    title: "Lesson 1: Tamil Vowels (Uyir Ezhuthu)",
-    content: "a_s_d_f_ _j_k_l_;_a_s_d_f_ _j_k_l_;"
+/* ── Helper: get Tamil char for a key ───────────────────────────── */
+export function tamilOf(key) {
+  return MAPPING[key] ?? key;
+}
+
+/* ── Helper: key → SVG group ID in Tamil99.svg ──────────────────── */
+export function svgIdOf(key) {
+  if (key === ' ') return 'Space';
+  if (/^[a-z]$/.test(key)) return key.toUpperCase();
+  return key; // uppercase letters, symbols — already match SVG ids
+}
+
+/* ── Helper: does this key need Shift? ──────────────────────────── */
+export function needsShift(key) {
+  return /^[A-Z]$/.test(key);
+}
+
+/* ── Display text for the hint bar ──────────────────────────────── */
+export function hintLabel(key) {
+  if (key === ' ') return 'Space';
+  if (needsShift(key)) return `Shift + ${key.toLowerCase()}`;
+  const labels = {
+    f:   'f  (்)',
+    "'": "' (ய)",
+    '[': '[ (ச)',
+    ']': '] (ஞ)',
+    ';': '; (ந)',
+    '/': '/ (ழ)',
+  };
+  return labels[key] ?? key;
 }
