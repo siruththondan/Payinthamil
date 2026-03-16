@@ -1,26 +1,48 @@
 <!DOCTYPE html>
-<html lang="ta" data-theme="dark">
+<html lang="ta" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>பைந்தமிழ் — Tamil Typing</title>
-  <meta name="description" content="Minimalist Tamil typing practice — Tamil99 keyboard from vowels to full speed." />
+  <meta name="description" content="Tamil typing practice — keybr-style, 34 lessons, per-key metrics." />
   <link rel="stylesheet" href="styles/style.css" />
+  <style>
+    /* Mini toggle */
+    .mini-toggle{position:relative;width:30px;height:17px;flex-shrink:0}
+    .mini-toggle input{opacity:0;width:0;height:0;position:absolute}
+    .mt-track{position:absolute;inset:0;background:var(--bg-raised);border:1px solid var(--border);
+              border-radius:999px;cursor:pointer;transition:background .13s,border-color .13s}
+    .mt-track::before{content:'';position:absolute;width:11px;height:11px;top:2px;left:2px;
+                      background:var(--fg-3);border-radius:50%;transition:transform .13s,background .13s}
+    .mini-toggle input:checked + .mt-track{background:var(--fg-2);border-color:var(--fg-2)}
+    .mini-toggle input:checked + .mt-track::before{transform:translateX(13px);background:var(--bg-alt)}
+  </style>
 </head>
 <body>
 <div id="app">
 
-  <!-- ══════════════════════════════════ NAVBAR -->
+  <!-- ═══ NAVBAR ══════════════════════════════════ -->
   <nav id="navbar">
     <div id="logo">பைந்தமிழ்</div>
     <span id="lesson-title-bar"></span>
     <div id="nav-right">
+      <!-- Hints toggle lives here — always visible -->
+      <label style="display:flex;align-items:center;gap:.35rem;cursor:pointer;font-size:.7rem;color:var(--fg-3)" title="Toggle key hints">
+        <span>Hints</span>
+        <label class="mini-toggle"><input type="checkbox" id="toggle-hints" checked /><span class="mt-track"></span></label>
+      </label>
 
-      <!-- Lessons list -->
-      <button class="icon-btn" id="btn-lessons" title="Browse lessons (all 34)">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+      <span style="width:1px;height:1rem;background:var(--border-sub);margin:0 .1rem"></span>
+
+      <!-- View cycle -->
+      <button class="icon-btn" id="btn-view" title="Cycle view"></button>
+
+      <!-- Lessons -->
+      <button class="icon-btn" id="btn-lessons" title="All lessons">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="8" y1="6"  x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+          <line x1="8" y1="6"  x2="21" y2="6"/>
+          <line x1="8" y1="12" x2="21" y2="12"/>
           <line x1="8" y1="18" x2="21" y2="18"/>
           <circle cx="3" cy="6"  r="1" fill="currentColor" stroke="none"/>
           <circle cx="3" cy="12" r="1" fill="currentColor" stroke="none"/>
@@ -29,37 +51,19 @@
       </button>
 
       <!-- Finger guide -->
-      <button class="icon-btn" id="btn-finger" title="Finger guide — which finger for which key?">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+      <button class="icon-btn" id="btn-finger" title="Finger guide">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
-          <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/>
-          <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/>
+          <path d="M18 11V6a2 2 0 0 0-4 0v0M14 10V4a2 2 0 0 0-4 0v2M10 10.5V6a2 2 0 0 0-4 0v8"/>
           <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
         </svg>
       </button>
 
-      <!-- Settings -->
-      <button class="icon-btn" id="btn-settings-open" title="Settings & Privacy">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06
-                   a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09
-                   A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83
-                   l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09
-                   A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83
-                   l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09
-                   a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83
-                   l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09
-                   a1.65 1.65 0 0 0-1.51 1z"/>
-        </svg>
-      </button>
-
-      <!-- Theme toggle -->
+      <!-- Theme -->
       <button class="icon-btn" id="btn-theme" title="Toggle theme">
         <svg id="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+             style="display:none">
           <circle cx="12" cy="12" r="5"/>
           <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
           <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
@@ -67,79 +71,68 @@
           <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
         </svg>
         <svg id="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-             style="display:none">
+             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
         </svg>
       </button>
     </div>
   </nav>
 
-  <!-- ══════════════════════════════════ PRACTICE -->
+  <!-- ═══ PRACTICE ════════════════════════════════ -->
   <main id="practice-main">
 
-    <!-- Lesson meta + progress -->
-    <div id="lesson-meta">
+    <!-- 1. TOP BAR: stats strip + lesson nav -->
+    <div id="top-bar">
+      <div id="stats-strip"><!-- rendered by metrics.js --></div>
+      <div id="top-right-nav">
+        <span id="stat-time" style="font-size:.68rem;color:var(--fg-3);min-width:2.8rem;text-align:right;font-variant-numeric:tabular-nums">0:00</span>
+        <button class="nav-btn" id="btn-prev-lesson"     disabled title="Previous">←</button>
+        <span   id="lesson-counter">1 / 34</span>
+        <button class="nav-btn" id="btn-restart"         title="Restart">↺</button>
+        <button class="nav-btn" id="btn-next-lesson-nav" title="Next">→</button>
+      </div>
+    </div>
+
+    <!-- 2. KEY PANEL (metrics: keys heatmap + current + streaks) -->
+    <div id="key-panel"><!-- rendered by metrics.js --></div>
+
+    <!-- 3. PROGRESS + TYPING TEXT -->
+    <div id="progress-row">
       <span id="lesson-label"></span>
       <div id="progress-track"><div id="progress-fill"></div></div>
       <span id="progress-text">0 / 0</span>
     </div>
 
-    <!-- Typing area -->
     <div id="typing-wrapper">
-      <div id="focus-overlay">
-        <span>Click to start typing</span>
-      </div>
-      <div id="typing-area" tabindex="0" role="textbox" aria-label="Tamil typing area">
+      <div id="focus-overlay"><span>Click here to start typing</span></div>
+      <div id="typing-area" tabindex="0" role="textbox" aria-label="Tamil typing practice area">
         <div id="lesson-container"></div>
-      </div>
-    </div>
-
-    <!-- Stats -->
-    <div id="stats-line">
-      <div class="stat-item">
-        <span class="stat-val" id="stat-wpm">—</span>
-        <span class="stat-lbl">wpm</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-val" id="stat-accuracy">100%</span>
-        <span class="stat-lbl">acc</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-val" id="stat-time">0:00</span>
       </div>
     </div>
 
     <!-- Key hint bar -->
     <div id="key-guide">
-      <span style="color:var(--fg-3);font-size:.7rem">press</span>
+      <span style="font-size:.68rem;color:var(--fg-3)">press</span>
       <kbd id="hint-key">—</kbd>
       <span id="hint-char"></span>
+      <span id="hint-shift-wrap" style="display:none">
+        <span class="shift-badge">+ Shift</span>
+      </span>
     </div>
 
-    <!-- Keyboard -->
+    <!-- 4. SVG KEYBOARD -->
     <div id="keyboard"></div>
-
-    <!-- Lesson navigation -->
-    <div id="practice-nav">
-      <button class="nav-btn" id="btn-prev-lesson"    title="Previous lesson" disabled>←</button>
-      <span   id="lesson-counter">1 / 34</span>
-      <button class="nav-btn" id="btn-restart"        title="Restart lesson">↺</button>
-      <button class="nav-btn" id="btn-next-lesson-nav" title="Next lesson">→</button>
-    </div>
 
   </main>
 
   <footer id="footer">
     Made with care in Tamil Nadu &nbsp;·&nbsp;
     <a href="https://github.com/mastergokul/thattachu" target="_blank" rel="noopener">GitHub</a>
-    &nbsp;·&nbsp;
-    <span style="color:var(--correct)">Data stays on your device</span>
   </footer>
 
 </div><!-- /app -->
 
-<!-- ════════════════════════════════ LESSONS MODAL -->
+<!-- ═══ LESSONS MODAL ═══════════════════════════ -->
 <div id="modal-lessons" class="modal-overlay">
   <div class="modal-box wide">
     <div class="modal-header">
@@ -157,7 +150,7 @@
   </div>
 </div>
 
-<!-- ════════════════════════════════ FINGER GUIDE MODAL -->
+<!-- ═══ FINGER GUIDE MODAL ══════════════════════ -->
 <div id="modal-finger" class="modal-overlay">
   <div class="modal-box wide">
     <div class="modal-header">
@@ -165,29 +158,21 @@
       <button class="modal-close" id="btn-close-finger">✕</button>
     </div>
     <div class="modal-body">
-      <p style="font-size:.8rem;color:var(--fg-2);margin-bottom:.6rem">
-        The keyboard below is colour-coded by finger. Each colour = one finger.
+      <p style="font-size:.75rem;color:var(--fg-2);margin-bottom:.5rem">
+        Each colour = one finger. Rest on home row (க ப ம த ந ய) and reach from there.
       </p>
-
-      <!-- The main SVG keyboard with finger colours applied via guide-mode class -->
-      <div id="finger-kb-wrap"><!-- mirrored keyboard SVG injected by JS --></div>
-
-      <!-- Legend -->
-      <div id="finger-legend"></div>
-
-      <p class="fg-note">
-        Home row (A S D F — H J K L) keys require the least finger travel.
-        Keep fingers resting on the home row and reach for other keys.
-      </p>
+      <div id="finger-kb-wrap"></div>
+      <div id="finger-legend" style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem .9rem;margin-top:.45rem"></div>
+      <p class="fg-note">Home-row keys need no finger movement. Reach all other keys from that resting position.</p>
     </div>
   </div>
 </div>
 
-<!-- ════════════════════════════════ RESULTS MODAL -->
+<!-- ═══ RESULTS MODAL ═══════════════════════════ -->
 <div id="modal-results" class="modal-overlay">
   <div class="modal-box">
     <div class="modal-header">
-      <span class="modal-title result-msg" id="result-msg"></span>
+      <span class="modal-title" id="result-msg"></span>
       <button class="modal-close"
               onclick="document.getElementById('modal-results').classList.remove('visible')">✕</button>
     </div>
@@ -210,65 +195,8 @@
       <div class="modal-actions">
         <button class="mbtn primary" id="btn-next-lesson">Next →</button>
         <button class="mbtn"         id="btn-retry">↺ Retry</button>
-        <button class="mbtn"         id="btn-back-lessons">Lessons</button>
+        <button class="mbtn"         id="btn-back-lessons">All Lessons</button>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- ════════════════════════════════ SETTINGS MODAL -->
-<div id="modal-settings" class="modal-overlay">
-  <div class="modal-box">
-    <div class="modal-header">
-      <span class="modal-title">Settings</span>
-      <button class="modal-close" id="btn-close-settings">✕</button>
-    </div>
-    <div class="modal-body">
-
-      <div class="s-section">
-        <div class="s-section-title">Theme</div>
-        <div class="s-pills">
-          <button class="s-pill" data-theme-pill="dark">Dark</button>
-          <button class="s-pill" data-theme-pill="light">Light</button>
-        </div>
-      </div>
-
-      <div class="s-section">
-        <div class="s-section-title">Character Size</div>
-        <div class="s-pills">
-          <button class="s-pill" data-font-pill="sm">Small</button>
-          <button class="s-pill" data-font-pill="md">Medium</button>
-          <button class="s-pill active" data-font-pill="lg">Large</button>
-          <button class="s-pill" data-font-pill="xl">XL</button>
-        </div>
-      </div>
-
-      <div class="s-section">
-        <div class="s-section-title">Display</div>
-        <div class="s-row">
-          <span class="s-label">Show keyboard</span>
-          <label class="toggle"><input type="checkbox" id="setting-keyboard" checked/><span class="tog-track"></span></label>
-        </div>
-        <div class="s-row">
-          <span class="s-label">Show key hints</span>
-          <label class="toggle"><input type="checkbox" id="setting-hints" checked/><span class="tog-track"></span></label>
-        </div>
-        <div class="s-row">
-          <span class="s-label">Sound effects</span>
-          <label class="toggle"><input type="checkbox" id="setting-sound"/><span class="tog-track"></span></label>
-        </div>
-      </div>
-
-      <div class="s-section">
-        <div class="s-section-title">🔒 Stored on your device only</div>
-        <ul class="storage-list" id="storage-list"></ul>
-        <p class="storage-note">
-          Size: <span id="storage-bytes">—</span> &nbsp;·&nbsp; <span id="storage-note"></span>
-        </p>
-        <p class="storage-note">Nothing is sent to any server. Ever.</p>
-        <button class="danger-btn" id="btn-clear-data">Clear all data</button>
-      </div>
-
     </div>
   </div>
 </div>
