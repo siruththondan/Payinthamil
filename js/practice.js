@@ -24,6 +24,16 @@ const S = {
 };
 const HINT_DELAY = 2000;
 
+/* ═══════════════ WPM (real calculation) ══════════
+   WPM = (correct chars / 5) / elapsed minutes.
+   Called AFTER handleCorrect updates S.correctKeys.  */
+function calcCurrentWpm() {
+  if (!S.startTime || S.correctKeys < 3) return 0;
+  const mins = (Date.now() - S.startTime) / 60000;
+  if (mins < 0.08) return 0;
+  return Math.round((S.correctKeys / 5) / mins);
+}
+
 /* ═══════════════ DOM ═════════════════════════════ */
 const $ = id => document.getElementById(id);
 const $$ = sel => document.querySelectorAll(sel);
@@ -37,11 +47,8 @@ const hideModal = id => $(id).classList.remove('visible');
 */
 const CHAR_SIZES = ['1.85rem', '2.4rem', '3.2rem'];
 const VIEW_ICONS = [
-  // 0: keyboard shown
   `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="12.01"/><line x1="8" y1="12" x2="8" y2="12.01"/><line x1="16" y1="12" x2="16" y2="12.01"/><line x1="10" y1="16" x2="14" y2="16"/></svg>`,
-  // 1: keyboard hidden, large text
   `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>`,
-  // 2: zen
   `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`,
 ];
 
@@ -57,7 +64,10 @@ function applyViewMode(mode) {
   $('key-panel').classList.toggle('hidden', !showKpanel);
 
   $('btn-view').innerHTML = VIEW_ICONS[mode];
-  $('btn-view').title = ['Hide keyboard (click)', 'Larger text (click)', 'Zen mode (click to reset'][mode];
+  $('btn-view').title = ['Hide keyboard (click)', 'Larger text (click)', 'Zen mode (click to reset)'][mode];
+
+  // data-view on practice-main drives CSS height/centering rules
+  $('practice-main').dataset.view = mode;
 }
 
 function cycleView() {
@@ -101,7 +111,7 @@ function startLesson(lesson) {
   resetStats();
   applyViewMode(storage.getSettings().viewMode);
   storage.saveProgress({ lastLessonId: lesson.id });
-  renderTopBar();   // update values only — DOM already built
+  renderTopBar();
   renderKeyPanel($('key-panel'), S.content[0] ?? '', lesson.focusKeys ?? []);
 
   setTimeout(() => { $('typing-area').focus(); handleFocus(); }, 60);
@@ -132,10 +142,8 @@ function renderChars() {
   updateHintBar();
 }
 
-/* ── WINDOWED SCROLL ─────────────────────────────
-   Track which visual line we're on and scroll by
-   exactly one row-height when we advance to a new line. */
-let currentLineY = -1;  // offsetTop of the current row
+/* ── Windowed scroll ──────────────────────────── */
+let currentLineY = -1;
 
 function scrollToChar(idx) {
   const area  = $('typing-area');
@@ -144,7 +152,6 @@ function scrollToChar(idx) {
 
   const charY = chars[idx].offsetTop;
 
-  // First call or line changed
   if (currentLineY < 0) {
     currentLineY = charY;
     area.scrollTop = 0;
@@ -152,10 +159,8 @@ function scrollToChar(idx) {
   }
 
   if (charY > currentLineY) {
-    // Advanced to a new line — compute one row height from first two different lines
     const rowH = charY - currentLineY;
     currentLineY = charY;
-    // Smooth scroll: show row 0 = done (grey), row 1 = current, row 2 = upcoming
     area.scrollTop = Math.max(0, area.scrollTop + rowH);
   }
 }
@@ -178,10 +183,14 @@ function onKeyDown(e) {
   cancelHint();
 
   const correct = pressed === expected;
-  recordKeypress(expected, correct, +sessionWpm() || 0);
 
+  // Handle correct/wrong FIRST so S.correctKeys is up to date
   if (correct) handleCorrect();
   else         handleWrong(pressed, expected);
+
+  // WPM calculated from actual elapsed time — no circular dependency
+  const wpm = calcCurrentWpm();
+  recordKeypress(expected, correct, wpm);
   updateStats();
 }
 
@@ -203,7 +212,6 @@ function handleCorrect() {
   const next = chars[S.pointer];
   if (next) next.classList.add('current');
 
-  // Windowed scroll — smooth
   scrollToChar(S.pointer);
   updateHintBar();
   updateProgress();
@@ -281,10 +289,12 @@ function finishLesson() {
   clearInterval(S.metricsInt);
   cancelHint();
 
-  const wpm      = +sessionWpm() || 0;
+  const wpm      = calcCurrentWpm();
   const accuracy = sessionAccuracy();
   const timeSec  = S.startTime ? Math.round((Date.now() - S.startTime) / 1000) : 0;
-  const stars    = wpm >= S.lesson.targetWPM * 1.2 ? 3 : wpm >= S.lesson.targetWPM ? 2 : wpm >= S.lesson.targetWPM * 0.6 ? 1 : 0;
+  const stars    = wpm >= S.lesson.targetWPM * 1.2 ? 3
+                 : wpm >= S.lesson.targetWPM        ? 2
+                 : wpm >= S.lesson.targetWPM * 0.6  ? 1 : 0;
 
   storage.recordResult(S.lesson.id, wpm, accuracy, S.totalKeys, S.correctKeys);
   refreshMetrics();
@@ -294,8 +304,9 @@ function finishLesson() {
   $('results-time').textContent     = fmtTime(timeSec);
   $('results-stars').textContent    = '★'.repeat(stars) + '☆'.repeat(3 - stars);
   $('result-msg').textContent       =
-    stars >= 3 ? 'நன்று! Excellent!' : stars >= 2 ? 'நல்லது! Well done!' :
-    stars >= 1 ? 'தொடர்க!' : 'மீண்டும் முயற்சி!';
+    stars >= 3 ? 'நன்று! Excellent!'  :
+    stars >= 2 ? 'நல்லது! Well done!' :
+    stars >= 1 ? 'தொடர்க! Keep going!' : 'மீண்டும் முயற்சி! Try again!';
 
   const next = getNextLesson(S.lesson.id);
   const $nxt = $('btn-next-lesson');
@@ -370,15 +381,15 @@ function buildFingerLegend() {
   }
   const legend = $('finger-legend');
   if (legend.children.length) return;
-  ['lp','lr','lm','li'].forEach(f => legend.appendChild(mkFgRow(f, false)));
-  ['ri','rm','rr','rp'].forEach(f => legend.appendChild(mkFgRow(f, false)));
+  ['lp','lr','lm','li'].forEach(f => legend.appendChild(mkFgRow(f)));
+  ['ri','rm','rr','rp'].forEach(f => legend.appendChild(mkFgRow(f)));
   const thumb = document.createElement('div');
   thumb.className = 'fg-thumb-row';
   thumb.innerHTML = `<span class="fg-swatch" style="background:${FINGER_INFO.th.css}"></span><span>Thumbs — Space bar</span>`;
   legend.appendChild(thumb);
 }
 
-function mkFgRow(f, _unused) {
+function mkFgRow(f) {
   const info = FINGER_INFO[f];
   const div  = document.createElement('div');
   div.className = 'fg-row';
@@ -391,15 +402,13 @@ async function init() {
   await loadKeyboard('keyboard');
 
   const s = storage.getSettings();
-  initTopBar($('stats-strip'));  // Build top-bar DOM once
+  initTopBar($('stats-strip'));
   document.documentElement.setAttribute('data-theme', s.theme);
   applyViewMode(s.viewMode);
   syncThemeIcon(s.theme);
 
-  // Sync hints toggle
   $('toggle-hints').checked = s.showHints;
 
-  // Start lesson
   const p    = storage.getProgress();
   const startL = p.lastLessonId
     ? (getLessonById(p.lastLessonId) ?? getFirstIncomplete(p.completedLessons))
@@ -432,7 +441,7 @@ async function init() {
   $('typing-area').addEventListener('blur',    handleBlur);
   $('focus-overlay').addEventListener('click', () => $('typing-area').focus());
 
-  /* Inline hints toggle */
+  /* Hints toggle */
   $('toggle-hints').addEventListener('change', e => {
     storage.saveSettings({ showHints: e.target.checked });
     const vm = storage.getSettings().viewMode;

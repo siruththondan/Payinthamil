@@ -1,14 +1,12 @@
 /**
  * storage.js — All data in YOUR browser. Zero server uploads.
  */
-
 const K = {
   SETTINGS: 'paintamil_settings',
   PROGRESS: 'paintamil_progress',
   KEYDATA:  'paintamil_keydata',
   DAILY:    'paintamil_daily',
 };
-
 function parse(key, fallback) {
   try {
     const raw = localStorage.getItem(key);
@@ -20,15 +18,14 @@ function save(key, obj) {
   return obj;
 }
 const today = () => new Date().toISOString().slice(0, 10);
-
 export const storage = {
   getSettings() {
-    return parse(K.SETTINGS, { theme: 'light', showHints: true, viewMode: 0 });
+    // Default theme is dark
+    return parse(K.SETTINGS, { theme: 'dark', showHints: true, viewMode: 0 });
   },
   saveSettings(patch) {
     return save(K.SETTINGS, { ...this.getSettings(), ...patch });
   },
-
   getProgress() {
     return parse(K.PROGRESS, {
       completedLessons: [], lessonBests: {},
@@ -51,7 +48,6 @@ export const storage = {
     p.lastLessonId    = lessonId;
     return this.saveProgress(p);
   },
-
   getKeyData() { return parse(K.KEYDATA, { keys: {} }); },
   recordKey(key, correct) {
     if (!key || key === ' ') return;
@@ -70,7 +66,6 @@ export const storage = {
     if (s.length > 20) s.shift();
     save(K.KEYDATA, d);
   },
-
   getDailyGoal() {
     const raw = parse(K.DAILY, { date: '', seconds: 0 });
     return raw.date === today() ? raw : { date: today(), seconds: 0 };
@@ -85,7 +80,6 @@ export const storage = {
   getDailyPct() {
     return Math.min(100, Math.round((this.getDailyGoal().seconds / (30 * 60)) * 100));
   },
-
   clearAll() {
     Object.values(K).forEach(k => { try { localStorage.removeItem(k); } catch {} });
   },

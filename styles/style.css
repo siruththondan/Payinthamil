@@ -588,3 +588,42 @@ body {
 }
 
 .hidden { display: none !important; }
+
+/* ═══════════════════════════════════════════════════
+   VIEW MODE OVERRIDES
+   #practice-main gets data-view="0|1|2" from JS.
+   Views 1 & 2 hide the keyboard → typing area expands
+   to use the freed vertical space.
+═══════════════════════════════════════════════════ */
+
+/* View 1 — no keyboard, larger text, 5 visible lines */
+#practice-main[data-view="1"] #typing-area {
+  height: calc(var(--char-size) * 9.5 + 0.8rem);
+}
+
+/* View 2 — zen mode, max text, 6 visible lines */
+#practice-main[data-view="2"] #typing-area {
+  height: calc(var(--char-size) * 11.5 + 0.8rem);
+}
+
+/* In zen mode (view 2): hide progress row, key guide, stats strip */
+#practice-main[data-view="2"] #progress-row {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Center the layout vertically when keyboard is gone */
+#practice-main[data-view="1"],
+#practice-main[data-view="2"] {
+  justify-content: center;
+}
+
+/* Responsive: scale down on mobile too */
+@media (max-width: 600px) {
+  #practice-main[data-view="1"] #typing-area {
+    height: calc(var(--char-size) * 0.82 * 9.5 + 0.8rem);
+  }
+  #practice-main[data-view="2"] #typing-area {
+    height: calc(var(--char-size) * 0.82 * 11.5 + 0.8rem);
+  }
+}
