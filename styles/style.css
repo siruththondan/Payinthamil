@@ -626,4 +626,897 @@ body {
   #practice-main[data-view="2"] #typing-area {
     height: calc(var(--char-size) * 0.82 * 11.5 + 0.8rem);
   }
+}/* ═══════════════════════════════════════════════════
+   TAB BAR
+   Sits between the navbar and the active main section.
+═══════════════════════════════════════════════════ */
+#tab-bar {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-bottom: 1px solid var(--border-sub);
+  background: var(--bg-alt);
+  padding: 0 1.25rem;
+  flex-shrink: 0;
+}
+
+.tab-btn {
+  all: unset;
+  cursor: pointer;
+  padding: .52rem 1rem;
+  font-family: var(--font-tamil);
+  font-size: .82rem;
+  color: var(--fg-3);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;           /* sit on top of the border-sub */
+  transition: color var(--t), border-color var(--t);
+  position: relative;
+}
+.tab-btn:hover { color: var(--fg-2); }
+.tab-btn.active {
+  color: var(--fg);
+  border-bottom-color: var(--fg-2);
+}
+
+/* ═══════════════════════════════════════════════════
+   KURAL MAIN — mirrors #practice-main layout
+═══════════════════════════════════════════════════ */
+#kural-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.25rem 1.25rem .75rem;
+  gap: .75rem;
+  max-width: 860px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ── Top bar ──────────────────────────────────── */
+#kural-top-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+#kural-stats-bar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: .15rem;
+  font-size: .78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.ks-stat {
+  display: flex;
+  align-items: baseline;
+  gap: .22rem;
+  padding: 0 .45rem;
+  flex-shrink: 0;
+}
+.ks-val { font-size: .9rem; color: var(--fg); min-width: 2.2rem; font-variant-numeric: tabular-nums; }
+.ks-lbl { font-size: .62rem; color: var(--fg-3); }
+.ks-sep { width: 1px; height: 1.1rem; background: var(--border-sub); flex-shrink: 0; }
+
+#kural-controls {
+  display: flex;
+  align-items: center;
+  gap: .28rem;
+  flex-shrink: 0;
+}
+
+.kural-ctrl-btn {
+  all: unset;
+  cursor: pointer;
+  padding: .22rem .62rem;
+  border: 1px solid var(--border-sub);
+  border-radius: 5px;
+  font-size: .7rem;
+  color: var(--fg-3);
+  font-family: var(--font-ui);
+  transition: all var(--t);
+  white-space: nowrap;
+}
+.kural-ctrl-btn:hover { border-color: var(--border); color: var(--fg-2); }
+
+/* ── Kural card ───────────────────────────────── */
+#kural-card {
+  width: 100%;
+  background: var(--bg-alt);
+  border: 1px solid var(--border-sub);
+  border-radius: 8px;
+  padding: .85rem 1.1rem;
+  transition: border-color var(--t);
+}
+
+.kc-loading {
+  font-family: var(--font-tamil);
+  font-size: .85rem;
+  color: var(--fg-3);
+  text-align: center;
+  padding: .5rem 0;
+}
+
+.kc-header {
+  display: flex;
+  align-items: baseline;
+  gap: .6rem;
+  margin-bottom: .5rem;
+}
+.kc-num {
+  font-size: .65rem;
+  color: var(--fg-3);
+  font-variant-numeric: tabular-nums;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-sub);
+  border-radius: 3px;
+  padding: .06rem .32rem;
+  flex-shrink: 0;
+}
+.kc-meta {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  flex-wrap: wrap;
+}
+.kc-book {
+  font-size: .62rem;
+  color: var(--fg-3);
+  font-family: var(--font-tamil);
+}
+.kc-chapter {
+  font-size: .65rem;
+  color: var(--fg-2);
+  font-family: var(--font-tamil);
+  background: var(--bg-raised);
+  border: 1px solid var(--border-sub);
+  border-radius: 3px;
+  padding: .05rem .3rem;
+}
+
+.kc-lines {
+  margin-bottom: .55rem;
+}
+.kc-line {
+  font-family: var(--font-tamil);
+  font-size: 1.18rem;
+  color: var(--fg);
+  line-height: 1.75;
+  letter-spacing: .01em;
+}
+
+.kc-urai {
+  font-family: var(--font-tamil);
+  font-size: .82rem;
+  color: var(--fg-2);
+  line-height: 1.65;
+  margin-top: .4rem;
+  padding-top: .45rem;
+  border-top: 1px solid var(--border-sub);
+}
+
+.kc-english {
+  font-size: .72rem;
+  color: var(--fg-3);
+  line-height: 1.5;
+  margin-top: .3rem;
+  font-style: italic;
+}
+
+/* ── Progress bar ─────────────────────────────── */
+#kural-progress-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+#kural-progress-track {
+  flex: 1;
+  height: 2px;
+  background: var(--bg-raised);
+  border-radius: 999px;
+  overflow: hidden;
+}
+#kural-progress-fill {
+  height: 100%;
+  background: var(--fg-3);
+  border-radius: 999px;
+  transition: width .2s ease;
+  width: 0%;
+}
+#kural-progress-txt {
+  font-size: .68rem;
+  color: var(--fg-3);
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Typing area ──────────────────────────────── */
+#kural-typing-wrapper { width: 100%; position: relative; }
+
+#kural-focus-overlay {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10; cursor: pointer;
+  border-radius: 8px;
+  background: rgba(245,245,244,.90);
+  backdrop-filter: blur(2px);
+}
+[data-theme="dark"] #kural-focus-overlay { background: rgba(29,30,32,.90); }
+#kural-focus-overlay.hidden { display: none; }
+#kural-focus-overlay span  { font-size: .8rem; color: var(--fg-2); }
+
+#kural-typing-area {
+  width: 100%;
+  height: calc(1.85rem * 5.8 + 0.8rem);
+  overflow: hidden;
+  padding: .4rem 1.4rem;
+  background: var(--bg-alt);
+  border: 1px solid var(--border-sub);
+  border-radius: 8px;
+  outline: none;
+  cursor: text;
+  transition: border-color var(--t);
+  position: relative;
+}
+#kural-typing-area:focus-within { border-color: var(--border); }
+
+#kural-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  font-family: var(--font-tamil);
+  font-size: 1.85rem;
+  line-height: 1.9;
+  user-select: none;
+  /* reuses .char, .correct, .incorrect, .current, .space-char from main CSS */
+}
+
+/* ── Hint bar ─────────────────────────────────── */
+#kural-key-guide {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .75rem;
+  color: var(--fg-3);
+  min-height: 24px;
+}
+#kural-hint-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  padding: .14rem .5rem;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-bottom: 2px solid var(--border);
+  border-radius: 4px;
+  font-size: .75rem;
+  color: var(--fg-2);
+}
+#kural-hint-char {
+  font-family: var(--font-tamil);
+  font-size: 1.15rem;
+  color: var(--fg-2);
+}
+
+/* ── Result panel ─────────────────────────────── */
+#kural-result {
+  width: 100%;
+  animation: mfade .22s ease;
+}
+.kr-inner {
+  background: var(--bg-alt);
+  border: 1px solid var(--border-sub);
+  border-radius: 8px;
+  padding: .9rem 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.kr-msg {
+  font-family: var(--font-tamil);
+  font-size: .88rem;
+  color: var(--fg-2);
+  flex: none;
+}
+.kr-stars {
+  font-size: 1.05rem;
+  color: var(--fg-2);
+  flex: none;
+}
+.kr-grid {
+  display: flex;
+  gap: .5rem;
+  flex: 1;
+  flex-wrap: wrap;
+}
+.kr-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 60px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-sub);
+  border-radius: 5px;
+  padding: .35rem .6rem;
+}
+.kr-val { font-size: 1.1rem; color: var(--fg); font-variant-numeric: tabular-nums; line-height: 1.2; }
+.kr-lbl { font-size: .58rem; color: var(--fg-3); text-transform: uppercase; letter-spacing: .04em; margin-top: 2px; }
+
+/* ── Responsive ───────────────────────────────── */
+@media (max-width: 600px) {
+  #kural-main { padding: .85rem .85rem .6rem; gap: .6rem; }
+  #kural-typing-area { padding: .4rem .85rem; }
+  #kural-container { font-size: calc(1.85rem * .82); }
+  .kc-line { font-size: 1.02rem; }
+  .kr-inner { flex-direction: column; align-items: flex-start; gap: .5rem; }
+  #kural-controls { flex-wrap: wrap; gap: .22rem; }
+}
+
+/* ═══════════════════════════════════════════════════
+   TAB BAR
+═══════════════════════════════════════════════════ */
+#tab-bar {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--border-sub);
+  background: var(--bg-alt);
+  padding: 0 1.25rem;
+  flex-shrink: 0;
+}
+.tab-btn {
+  all: unset;
+  cursor: pointer;
+  padding: .52rem 1rem;
+  font-family: var(--font-tamil);
+  font-size: .82rem;
+  color: var(--fg-3);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color var(--t), border-color var(--t);
+}
+.tab-btn:hover  { color: var(--fg-2); }
+.tab-btn.active { color: var(--fg); border-bottom-color: var(--fg-2); }
+
+/* ═══════════════════════════════════════════════════
+   KURAL MAIN
+═══════════════════════════════════════════════════ */
+#kural-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.25rem 1.25rem .75rem;
+  gap: .65rem;
+  max-width: 860px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* ── Metadata strip ───────────────────────────────
+   Shows: [1084]  அகத்திணையியல் › அழகு நலன்
+   Then English translation in italic below.       */
+#kural-meta {
+  width: 100%;
+  background: var(--bg-alt);
+  border: 1px solid var(--border-sub);
+  border-radius: 7px;
+  padding: .6rem .9rem;
+}
+
+.km-top {
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  flex-wrap: wrap;
+}
+.km-num {
+  font-size: .65rem;
+  color: var(--fg-3);
+  font-variant-numeric: tabular-nums;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-sub);
+  border-radius: 3px;
+  padding: .06rem .36rem;
+  flex-shrink: 0;
+  font-family: var(--font-ui);
+}
+.km-book {
+  font-size: .72rem;
+  color: var(--fg-3);
+  font-family: var(--font-tamil);
+}
+.km-arrow {
+  font-size: .65rem;
+  color: var(--fg-3);
+  flex-shrink: 0;
+}
+.km-chapter {
+  font-size: .75rem;
+  color: var(--fg-2);
+  font-family: var(--font-tamil);
+  font-weight: 500;
+}
+.km-english, .km-urai {
+  font-size: .7rem;
+  color: var(--fg-3);
+  font-style: italic;
+  margin-top: .32rem;
+  line-height: 1.5;
+}
+.kc-loading {
+  font-family: var(--font-tamil);
+  font-size: .82rem;
+  color: var(--fg-3);
+}
+
+/* ── Top bar: stats + controls ────────────────── */
+#kural-top-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+#kural-stats-bar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: .15rem;
+  font-variant-numeric: tabular-nums;
+}
+.ks-stat {
+  display: flex;
+  align-items: baseline;
+  gap: .22rem;
+  padding: 0 .45rem;
+  flex-shrink: 0;
+}
+.ks-val { font-size: .9rem; color: var(--fg); min-width: 2.2rem; font-variant-numeric: tabular-nums; }
+.ks-lbl { font-size: .62rem; color: var(--fg-3); }
+.ks-sep { width: 1px; height: 1.1rem; background: var(--border-sub); flex-shrink: 0; }
+
+#kural-controls {
+  display: flex;
+  align-items: center;
+  gap: .28rem;
+  flex-shrink: 0;
+}
+
+/* Inline number input */
+.kural-num-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid var(--border-sub);
+  border-radius: 5px;
+  overflow: hidden;
+  background: var(--bg-alt);
+  transition: border-color var(--t);
+}
+.kural-num-wrap:focus-within { border-color: var(--border); }
+
+.kural-num-input {
+  all: unset;
+  width: 4rem;
+  padding: .22rem .45rem;
+  font-size: .7rem;
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  background: transparent;
+}
+/* Hide spinner arrows */
+.kural-num-input::-webkit-outer-spin-button,
+.kural-num-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.kural-num-input[type=number] { -moz-appearance: textfield; }
+
+.kural-go-btn {
+  padding: .22rem .5rem !important;
+  border: none !important;
+  border-left: 1px solid var(--border-sub) !important;
+  border-radius: 0 !important;
+  background: var(--bg-raised) !important;
+  color: var(--fg-2) !important;
+  cursor: pointer;
+  font-size: .75rem !important;
+  transition: background var(--t), color var(--t);
+}
+.kural-go-btn:hover { background: var(--border) !important; color: var(--fg) !important; }
+
+.kural-ctrl-btn {
+  all: unset;
+  cursor: pointer;
+  padding: .22rem .62rem;
+  border: 1px solid var(--border-sub);
+  border-radius: 5px;
+  font-size: .7rem;
+  color: var(--fg-3);
+  font-family: var(--font-ui);
+  transition: all var(--t);
+  white-space: nowrap;
+}
+.kural-ctrl-btn:hover { border-color: var(--border); color: var(--fg-2); }
+
+/* ── Progress bar ─────────────────────────────── */
+#kural-progress-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+#kural-progress-track {
+  flex: 1; height: 2px;
+  background: var(--bg-raised);
+  border-radius: 999px;
+  overflow: hidden;
+}
+#kural-progress-fill {
+  height: 100%; width: 0%;
+  background: var(--fg-3);
+  border-radius: 999px;
+  transition: width .2s ease;
+}
+#kural-progress-txt {
+  font-size: .68rem; color: var(--fg-3);
+  white-space: nowrap; flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Typing area ──────────────────────────────── */
+#kural-typing-wrapper { width: 100%; position: relative; }
+
+#kural-focus-overlay {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10; cursor: pointer; border-radius: 8px;
+  background: rgba(245,245,244,.90);
+  backdrop-filter: blur(2px);
+}
+[data-theme="dark"] #kural-focus-overlay { background: rgba(29,30,32,.90); }
+#kural-focus-overlay.hidden { display: none; }
+#kural-focus-overlay span  { font-size: .8rem; color: var(--fg-2); }
+
+#kural-typing-area {
+  width: 100%;
+  height: calc(1.55rem * 5.8 + 0.8rem);  /* fits ~5 lines of urai */
+  overflow: hidden;
+  padding: .5rem 1.4rem;
+  background: var(--bg-alt);
+  border: 1px solid var(--border-sub);
+  border-radius: 8px;
+  outline: none;
+  cursor: text;
+  transition: border-color var(--t);
+  position: relative;
+}
+#kural-typing-area:focus-within { border-color: var(--border); }
+
+/* Container: kural text + divider + urai in one flow */
+#kural-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  font-family: var(--font-tamil);
+  line-height: 1.85;
+  user-select: none;
+}
+
+/* Kural couplet: larger font so 2 lines fill naturally */
+#kural-container .char {
+  font-size: 1.55rem;
+}
+
+/* Visual divider between kural and urai — full-width, not typed */
+.kural-divider {
+  width: 100%;
+  height: 0;
+  margin: .28rem 0 .12rem;
+  border-top: 1px dashed var(--border-sub);
+  flex-basis: 100%;  /* force line break in flex context */
+  flex-shrink: 0;
+}
+
+/* After the divider, urai chars get smaller font */
+.kural-divider ~ .char {
+  font-size: 1.15rem;
+}
+
+/* Space char reuses main CSS .space-char styling —
+   font-size override needed for both sections */
+.kural-divider ~ .char.space-char {
+  font-size: .7rem;
+}
+
+/* ── Hint bar ─────────────────────────────────── */
+#kural-key-guide {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .75rem;
+  color: var(--fg-3);
+  min-height: 24px;
+  transition: opacity .2s;
+}
+#kural-key-guide.hint-hidden { opacity: 0; pointer-events: none; }
+
+#kural-hint-key {
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  min-width: 44px;
+  padding: .14rem .5rem;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-bottom: 2px solid var(--border);
+  border-radius: 4px;
+  font-size: .75rem;
+  color: var(--fg-2);
+}
+#kural-hint-char {
+  font-family: var(--font-tamil);
+  font-size: 1.15rem;
+  color: var(--fg-2);
+}
+
+/* ── Result panel ─────────────────────────────── */
+#kural-result { width: 100%; animation: mfade .22s ease; }
+
+.kr-inner {
+  background: var(--bg-alt);
+  border: 1px solid var(--border-sub);
+  border-radius: 8px;
+  padding: .8rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.kr-left { display: flex; align-items: center; gap: .55rem; flex-shrink: 0; }
+.kr-msg  { font-family: var(--font-tamil); font-size: .88rem; color: var(--fg-2); }
+.kr-stars { font-size: 1rem; color: var(--fg-2); }
+.kr-grid {
+  display: flex; gap: .5rem; flex: 1; flex-wrap: wrap;
+}
+.kr-cell {
+  display: flex; flex-direction: column; align-items: center;
+  min-width: 58px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-sub);
+  border-radius: 5px;
+  padding: .32rem .55rem;
+}
+.kr-val { font-size: 1.05rem; color: var(--fg); font-variant-numeric: tabular-nums; line-height: 1.2; }
+.kr-lbl { font-size: .58rem; color: var(--fg-3); text-transform: uppercase; letter-spacing: .04em; margin-top: 2px; }
+
+/* ── Responsive ───────────────────────────────── */
+@media (max-width: 600px) {
+  #kural-main { padding: .85rem .85rem .6rem; gap: .5rem; }
+  #kural-typing-area { padding: .4rem .85rem; }
+  #kural-container .char { font-size: calc(1.55rem * .82); }
+  .kural-divider ~ .char { font-size: calc(1.15rem * .82); }
+  .km-english { display: none; }  /* hide on very small screens */
+  #kural-controls { flex-wrap: wrap; gap: .22rem; }
+  .kr-inner { flex-direction: column; align-items: flex-start; gap: .5rem; }
+} 
+
+/* ═══════════════════════════════════════════════════
+   SYLLABLE PARTIAL STATE
+   Applied when the consonant key of a CV pair (e.g. க in கா)
+   has been typed correctly, but the vowel/pulli key is still needed.
+
+   Visual:
+   • Full composed character turns green  → consonant typed ✓
+   • Steady thick underline in cursor color → vowel still pending
+   • Differs from .current::after (which blinks)
+     → steady = "in progress", blinking = "waiting to start"
+═══════════════════════════════════════════════════ */
+
+.char.syl-partial {
+  color: var(--correct);
+  position: relative;
+}
+
+/* Steady thick underline = vowel/pulli key still needed */
+.char.syl-partial::after {
+  content: '';
+  position: absolute;
+  bottom: 1px;
+  left: 5%; right: 5%;
+  height: 3px;
+  background: var(--cursor-bar);
+  border-radius: 2px;
+  opacity: 1; /* steady, not blinking */
+}
+
+/* Suppress old clip-path overlay if present */
+.char.syl-partial::before { content: none; }
+
+/* ═══════════════════════════════════════════════════
+   SYLLABLE HINT BAR — "H + S → கி" decomposition
+   updateHintBar() builds this dynamically via innerHTML.
+═══════════════════════════════════════════════════ */
+
+/* Base key badge — replaces the static #hint-key */
+.hk {
+  display: inline-flex;
+  align-items: center; justify-content: center;
+  min-width: 1.9rem;
+  padding: .12rem .45rem;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-bottom: 2px solid var(--border);
+  border-radius: 4px;
+  font-size: .72rem;
+  color: var(--fg-2);
+  font-family: var(--font-ui);
+  transition: color var(--t), border-color var(--t), background var(--t);
+}
+
+/* Next key to press — highlighted in cursor color */
+.hk.hk-next {
+  color: var(--cursor-bar);
+  border-color: var(--cursor-bar);
+  border-bottom-color: var(--cursor-bar);
+  background: rgba(104,104,160,.09);
+}
+[data-theme="dark"] .hk.hk-next {
+  background: rgba(136,136,168,.12);
+}
+
+/* Already-pressed key in a 2-key syllable — green done */
+.hk.hk-done {
+  color: var(--correct);
+  border-color: var(--correct);
+  background: rgba(78,168,74,.07);
+  opacity: .75;
+}
+
+/* "+" and "→" separators between keys */
+.hk-sep {
+  font-size: .62rem;
+  color: var(--fg-3);
+  margin: 0 .18rem;
+  flex-shrink: 0;
+}
+
+/* Tamil character result */
+.hk-char {
+  font-family: var(--font-tamil);
+  font-size: 1.15rem;
+  color: var(--fg-2);
+  margin-left: .1rem;
+}
+
+/* "press" label for single-key hints */
+.hk-label {
+  font-size: .65rem;
+  color: var(--fg-3);
+  margin-right: .1rem;
+}
+
+/* ═══════════════════════════════════════════════════
+   SYLLABLE PARTIAL STATE  (consonant done, vowel pending)
+   • Full character turns green → consonant typed ✓
+   • Steady thick underline → vowel/pulli still needed
+   • Steady (not blinking) = "in progress"
+═══════════════════════════════════════════════════ */
+
+.char.syl-partial {
+  color: var(--correct);
+  position: relative;
+}
+
+.char.syl-partial::after {
+  content: '';
+  position: absolute;
+  bottom: 1px; left: 5%; right: 5%;
+  height: 3px;
+  background: var(--cursor-bar);
+  border-radius: 2px;
+  opacity: 1; /* steady, not blinking */
+}
+
+.char.syl-partial::before { content: none; }
+
+/* ═══════════════════════════════════════════════════
+   OPEN TYPING AREA
+   Remove the closed-box feel: no border, transparent bg.
+   Overflow:hidden retained for windowed scroll.
+═══════════════════════════════════════════════════ */
+
+/* Practice typing area — subtle open style */
+#typing-area {
+  background: var(--bg);
+  border: none !important;
+  border-bottom: 1px solid var(--border-sub) !important;
+  border-radius: 0 !important;
+}
+#typing-area:focus-within {
+  border-bottom-color: var(--border) !important;
+}
+
+/* Focus overlay matches open bg */
+#focus-overlay {
+  background: var(--bg) !important;
+  backdrop-filter: none !important;
+  border-radius: 0 !important;
+}
+
+/* ═══════════════════════════════════════════════════
+   KURAL TYPING AREA — open, no box
+═══════════════════════════════════════════════════ */
+
+#kural-typing-area {
+  width: 100%;
+  /* Show kural (2 rows at 1.55rem) + divider + urai (~4 rows at 1.15rem) */
+  height: calc(1.55rem * 3.8 + 1.15rem * 5 + 1.2rem);
+  overflow: hidden;
+  padding: .5rem 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-sub);
+  border-radius: 0;
+  outline: none;
+  cursor: text;
+  transition: border-color var(--t);
+  position: relative;
+}
+#kural-typing-area:focus-within {
+  border-bottom-color: var(--border);
+}
+
+#kural-focus-overlay {
+  background: var(--bg) !important;
+  backdrop-filter: none !important;
+  border-radius: 0 !important;
+}
+[data-theme="dark"] #kural-focus-overlay {
+  background: var(--bg) !important;
+}
+
+/* ═══════════════════════════════════════════════════
+   KURAL KEYBOARD SLOT
+   The shared #keyboard SVG is moved here by tab-switch JS.
+   Matches the styling from practice tab.
+═══════════════════════════════════════════════════ */
+
+#kural-kb-slot {
+  width: 100%;
+  max-width: 849px;
+}
+
+/* Hide the practice hint text bar in kural tab —
+   the keyboard is the visual assistant there */
+#kural-key-guide {
+  display: none !important;
+}
+
+/* ═══════════════════════════════════════════════════
+   VIEW MODE — open typing area height adjustments
+   (override the closed-box heights)
+═══════════════════════════════════════════════════ */
+#practice-main[data-view="1"] #typing-area {
+  height: calc(var(--char-size) * 9.5 + 0.8rem);
+}
+#practice-main[data-view="2"] #typing-area {
+  height: calc(var(--char-size) * 11.5 + 0.8rem);
+}
+#practice-main[data-view="1"],
+#practice-main[data-view="2"] {
+  justify-content: center;
+}
+#practice-main[data-view="2"] #progress-row {
+  opacity: 0; pointer-events: none;
+}
+
+@media (max-width: 600px) {
+  #kural-typing-area { padding: .4rem 0; }
+  #kural-container .char { font-size: calc(1.55rem * .82); }
+  .kural-divider ~ .char { font-size: calc(1.15rem * .82); }
 }

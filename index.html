@@ -77,6 +77,11 @@
       </button>
     </div>
   </nav>
+  
+  <div id="tab-bar">
+    <button class="tab-btn active" data-tab="practice">பயிற்சி</button>
+    <button class="tab-btn" data-tab="kural">திருக்குறள்</button>
+  </div>
 
   <!-- ═══ PRACTICE ════════════════════════════════ -->
   <main id="practice-main">
@@ -125,6 +130,58 @@
 
   </main>
 
+<!-- ═══ KURAL SECTION ═══════════════════════════════════════════════ -->
+
+<main id="kural-main" class="hidden">
+
+  <!-- Metadata: number · book › chapter + English -->
+  <div id="kural-meta">
+    <div class="kc-loading">குறள் ஏற்றுகிறது…</div>
+  </div>
+
+  <!-- Top bar -->
+  <div id="kural-top-bar">
+    <div id="kural-stats-bar">
+      <div class="ks-stat"><span class="ks-val" id="kural-wpm">0</span><span class="ks-lbl">wpm</span></div>
+      <span class="ks-sep"></span>
+      <div class="ks-stat"><span class="ks-val" id="kural-acc">100%</span><span class="ks-lbl">accuracy</span></div>
+      <span class="ks-sep"></span>
+      <div class="ks-stat"><span class="ks-val" id="kural-time">0:00</span><span class="ks-lbl">time</span></div>
+    </div>
+    <div id="kural-controls">
+      <div class="kural-num-wrap">
+        <input id="kural-num-input" class="kural-num-input" type="number" min="1" max="1330" placeholder="1–1330" title="Enter kural number and press Enter" />
+        <button id="btn-go-kural" class="kural-ctrl-btn kural-go-btn" title="Go">→</button>
+      </div>
+      <button class="kural-ctrl-btn" id="btn-random-kural" title="Random kural">↺ Random</button>
+      <button class="kural-ctrl-btn" id="btn-retry-kural"  title="Retry this kural">↺ Retry</button>
+    </div>
+  </div>
+
+  <!-- Progress bar -->
+  <div id="kural-progress-row">
+    <div id="kural-progress-track"><div id="kural-progress-fill"></div></div>
+    <span id="kural-progress-txt">0 / 0</span>
+  </div>
+
+  <!-- Typing area — open, no box -->
+  <div id="kural-typing-wrapper">
+    <div id="kural-focus-overlay"><span>Click here to start typing</span></div>
+    <div id="kural-typing-area" tabindex="0" role="textbox" aria-label="Thirukkural typing practice area">
+      <div id="kural-container"></div>
+    </div>
+  </div>
+
+  <!-- Hint bar hidden — keyboard is the assistant -->
+  <div id="kural-key-guide" style="display:none"></div>
+
+  <!-- Result panel -->
+  <div id="kural-result" class="hidden"></div>
+
+  <!-- Keyboard slot: shared #keyboard SVG moved here on tab switch -->
+  <div id="kural-kb-slot"></div>
+
+</main>
   <footer id="footer">
     Made with care in Tamil Nadu &nbsp;·&nbsp;
     <a href="https://github.com/mastergokul/thattachu" target="_blank" rel="noopener">GitHub</a>
@@ -202,5 +259,6 @@
 </div>
 
 <script type="module" src="js/practice.js"></script>
+<script type="module" src="js/thirukkural.js"></script>
 </body>
 </html>
