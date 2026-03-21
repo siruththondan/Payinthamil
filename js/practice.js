@@ -1,476 +1,500 @@
 /**
- * practice.js — keybr-style Tamil typing practice
+ * practice.js — keybr-style Tamil typing practice.
+ * Single-span composed-form syllable rendering with CSS gradient partial state.
  */
 
-import { storage }                                   from './storage.js';
-import { MAPPING, tamilOf, hintLabel, needsShift }   from './mapping.js';
+import { storage } from './storage.js';
+import { MAPPING, tamilOf, hintLabel, needsShift } from './mapping.js';
 import { LESSONS_DB, ALL_LESSONS, getLessonById,
          getNextLesson, getPrevLesson, getLessonIndex,
-         getFirstIncomplete }                         from './lessons.js';
+         getFirstIncomplete } from './lessons.js';
 import { loadKeyboard, showHint, flashCorrect,
-         flashWrong, clearHints, setVisible, getContainer } from './keyboard.js';
+         flashWrong, flashKeyPress, setShiftActive,
+         clearHints, setVisible, getContainer } from './keyboard.js';
 import { setGuideMode, shouldAutoShow, markShown,
-         FINGER_INFO }                                from './fingerGuide.js';
+         FINGER_INFO } from './fingerGuide.js';
 import { resetSession, recordKeypress,
          sessionAccuracy,
-         initTopBar, renderTopBar, renderKeyPanel }   from './metrics.js';
+         initTopBar, renderTopBar, renderKeyPanel } from './metrics.js';
 import { initKural } from './thirukkural.js';
 
-/* ═══════════════════════════════════════════════════
-   SYLLABLE ENGINE
-═══════════════════════════════════════════════════ */
-const STANDALONE = {
-  a:'அ',q:'ஆ',s:'இ',w:'ஈ',d:'உ',e:'ஊ',
-  g:'எ',t:'ஏ',r:'ஐ',c:'ஒ',x:'ஓ',z:'ஔ',
-  f:'்',
-  h:'க',b:'ங','[':'ச',']':'ஞ',o:'ட',p:'ண',
-  l:'த',';':'ந',i:'ன',j:'ப',k:'ம',"'":'ய',
-  m:'ர',n:'ல',v:'வ','/':'ழ',y:'ள',u:'ற',
-  Q:'ஸ',W:'ஷ',E:'ஜ',R:'ஹ',F:'ஃ',
-};
+/* ── Tamil99 maps ─────────────────────────────── */
+const STANDALONE = {a:'அ',q:'ஆ',s:'இ',w:'ஈ',d:'உ',e:'ஊ',g:'எ',t:'ஏ',r:'ஐ',c:'ஒ',x:'ஓ',z:'ஔ',f:'்',h:'க',b:'ங','[':'ச',']':'ஞ',o:'ட',p:'ண',l:'த',';':'ந',i:'ன',j:'ப',k:'ம',"'":'ய',m:'ர',n:'ல',v:'வ','/':'ழ',y:'ள',u:'ற',Q:'ஸ',W:'ஷ',E:'ஜ',R:'ஹ',F:'ஃ'};
+const MATRA = {q:'ா',s:'ி',w:'ீ',d:'ு',e:'ூ',g:'ெ',t:'ே',r:'ை',c:'ொ',x:'ோ',z:'ௌ'};
 const SYL_CONS = new Set(['h','j','k','l',';',"'",'n','v','u','i','o','p','[',']','b','y','/','m','Q','W','E','R','F']);
-const SYL_VOW  = new Set(['q','s','w','d','e','g','t','r','c','x','z','f']);
-const MATRA    = { q:'ா',s:'ி',w:'ீ',d:'ு',e:'ூ',g:'ெ',t:'ே',r:'ை',c:'ொ',x:'ோ',z:'ௌ' };
+const SYL_VOW = new Set(['q','s','w','d','e','g','t','r','c','x','z','f']);
+// Matra position for CSS gradient direction
+const VOWEL_TYPE = {q:'right',s:'top',w:'top',d:'bottom',e:'bottom',g:'left',t:'left',r:'right',c:'left',x:'left',z:'right',f:'dot'};
 
-function composeSyl(cKey, vKey) {
-  const base = STANDALONE[cKey] ?? cKey;
-  return vKey === 'f' ? base + '்' : base + (MATRA[vKey] ?? '');
-}
+function composedForm(c,v){ return (STANDALONE[c]??c)+(v==='f'?'்':(MATRA[v]??'')); }
 
-function buildSyls(keys) {
-  const syls = [], map = new Array(keys.length);
-  let i = 0;
-  while (i < keys.length) {
-    const k = keys[i], si = syls.length;
-    if (k === ' ') {
-      syls.push({ keys:[' '], display:'·', start:i, isSpace:true });
-      map[i] = si; i++;
-    } else if (SYL_CONS.has(k) && i+1 < keys.length && SYL_VOW.has(keys[i+1])) {
-      syls.push({ keys:[k,keys[i+1]], display:composeSyl(k,keys[i+1]), start:i });
-      map[i] = si; map[i+1] = si; i += 2;
-    } else {
-      syls.push({ keys:[k], display:STANDALONE[k]??k, start:i });
-      map[i] = si; i++;
+function buildSyls(keys){
+  const syls=[],map=new Array(keys.length);let i=0;
+  while(i<keys.length){
+    const k=keys[i],si=syls.length;
+    if(k===' '){syls.push({keys:[' '],isSpace:true,start:i});map[i]=si;i++;}
+    else if(SYL_CONS.has(k)&&i+1<keys.length&&SYL_VOW.has(keys[i+1])){
+      const v=keys[i+1];
+      syls.push({keys:[k,v],start:i,composed:composedForm(k,v),vtype:VOWEL_TYPE[v]??'right'});
+      map[i]=si;map[i+1]=si;i+=2;
+    }else{
+      syls.push({keys:[k],display:STANDALONE[k]??k,start:i});
+      map[i]=si;i++;
     }
   }
-  return { syls, map };
+  return{syls,map};
 }
 
-/* ═══════════════════════════════════════════════════
-   STATE
-═══════════════════════════════════════════════════ */
-const S = {
-  lesson:null, content:[], pointer:0,
-  totalKeys:0, correctKeys:0, hadErrorHere:false,
-  startTime:null, timerInt:null, hintTimeout:null, metricsInt:null, finished:false,
-  syllables:[], sylMap:[], sylErrors:{},
+function createSylSpan(syl,si){
+  const span=document.createElement('span');
+  if(syl.isSpace){span.className='char space-char';span.dataset.si=si;span.textContent='·';return span;}
+  if(syl.keys.length===2){span.className='char char-syl';span.dataset.si=si;span.dataset.vtype=syl.vtype;span.textContent=syl.composed;return span;}
+  span.className='char';span.dataset.si=si;span.textContent=syl.display;return span;
+}
+
+/* ── State ─────────────────────────────────────── */
+const S={
+  lesson:null,content:[],pointer:0,totalKeys:0,correctKeys:0,hadErrorHere:false,
+  startTime:null,pausedAt:null,elapsedMs:0,
+  timerInt:null,hintTimeout:null,metricsInt:null,finished:false,
+  syllables:[],sylMap:[],sylErrors:{},
 };
-const HINT_DELAY = 2000;
+const HINT_DELAY=2000;
 
-function calcWpm() {
-  if (!S.startTime || S.correctKeys < 3) return 0;
-  const mins = (Date.now() - S.startTime) / 60000;
-  return mins < 0.08 ? 0 : Math.round((S.correctKeys / 5) / mins);
+function calcWpm(){
+  if(!S.startTime||S.correctKeys<3)return 0;
+  const ms=(Date.now()-S.startTime)+S.elapsedMs;
+  const mins=ms/60000;
+  return mins<0.08?0:Math.round((S.correctKeys/5)/mins);
 }
 
-/* ═══════════════════════════════════════════════════
-   DOM
-═══════════════════════════════════════════════════ */
-const $  = id  => document.getElementById(id);
-const $$ = sel => document.querySelectorAll(sel);
-const showModal = id => $(id).classList.add('visible');
-const hideModal = id => $(id).classList.remove('visible');
+const $=id=>document.getElementById(id);
+const $$=sel=>document.querySelectorAll(sel);
+const showModal=id=>$(id).classList.add('visible');
+const hideModal=id=>$(id).classList.remove('visible');
 
-/* ═══════════════════════════════════════════════════
-   VIEW CYCLE
-═══════════════════════════════════════════════════ */
-const CHAR_SIZES = ['1.85rem','2.4rem','3.2rem'];
-const VIEW_ICONS = [
-  `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="12.01"/><line x1="8" y1="12" x2="8" y2="12.01"/><line x1="16" y1="12" x2="16" y2="12.01"/><line x1="10" y1="16" x2="14" y2="16"/></svg>`,
-  `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>`,
-  `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`,
+/* ── Active tab tracker ─────────────────────────── */
+let activeTab = 'practice';
+
+/* ── View cycle ─────────────────────────────────── */
+// Practice char sizes
+const CHAR_SIZES = ['2rem','2.6rem','3.4rem'];
+// Kural char sizes (bigger base for readability)
+const KURAL_SIZES = ['1.75rem','2.2rem','2.8rem'];
+const KURAL_URAI_SIZES = ['1.2rem','1.5rem','1.9rem'];
+
+const VIEW_ICONS=[
+  `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="12.01"/><line x1="8" y1="12" x2="8" y2="12.01"/><line x1="16" y1="12" x2="16" y2="12.01"/><line x1="10" y1="16" x2="14" y2="16"/></svg>`,
+  `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>`,
+  `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`,
 ];
+const VIEW_TITLES_PRACTICE=['Hide keyboard','Larger text','Zen mode'];
+const VIEW_TITLES_KURAL=['Hide keyboard','Larger text','Zen mode'];
 
-function applyViewMode(mode) {
-  document.documentElement.style.setProperty('--char-size', CHAR_SIZES[mode]);
-  const s = storage.getSettings();
-  setVisible(mode === 0);
-  $('key-guide').classList.toggle('hint-hidden', mode >= 2 || !s.showHints);
-  $('key-panel').classList.toggle('hidden', mode >= 2);
-  $('btn-view').innerHTML = VIEW_ICONS[mode];
-  $('btn-view').title = ['Hide keyboard','Larger text','Zen mode'][mode];
-  $('practice-main').dataset.view = mode;
-}
-
-function cycleView() {
-  const next = (storage.getSettings().viewMode + 1) % 3;
-  storage.saveSettings({ viewMode: next });
-  applyViewMode(next);
-}
-
-/* ═══════════════════════════════════════════════════
-   HINTS
-═══════════════════════════════════════════════════ */
-function scheduleHint() {
-  clearTimeout(S.hintTimeout); clearHints();
-  if (S.pointer >= S.content.length) return;
-  S.hintTimeout = setTimeout(() => showHint(S.content[S.pointer]), HINT_DELAY);
-}
-function cancelHint()     { clearTimeout(S.hintTimeout); clearHints(); }
-function immediateHint(k) { clearTimeout(S.hintTimeout); showHint(k); }
-
-/* ═══════════════════════════════════════════════════
-   HINT BAR  — shows syllable decomposition
-   Single key:   [H] → க
-   Two-key syl:  [H] + [S] → கி  (before typing)
-                 [H ✓] + [S] → கி  (after consonant typed)
-═══════════════════════════════════════════════════ */
-function updateHintBar() {
-  const guide = $('key-guide');
-  if (!guide || S.pointer >= S.content.length) return;
-
-  const key = S.content[S.pointer];
-  const si  = S.sylMap?.[S.pointer];
-  const syl = si !== undefined ? S.syllables?.[si] : null;
-
-  if (syl && syl.keys.length === 2) {
-    const doneInSyl = S.pointer - syl.start;
-    const [k1, k2] = syl.keys;
-    const shift = needsShift(key);
-    guide.innerHTML =
-      `<kbd class="hk ${doneInSyl > 0 ? 'hk-done' : 'hk-next'}">${hintLabel(k1)}</kbd>` +
-      `<span class="hk-sep">+</span>` +
-      `<kbd class="hk ${doneInSyl === 0 ? '' : 'hk-next'}">${hintLabel(k2)}</kbd>` +
-      `<span class="hk-sep">→</span>` +
-      `<span class="hk-char">${syl.display}</span>` +
-      (shift ? `<span class="shift-badge">+ Shift</span>` : '');
-  } else {
-    const ch  = key === ' ' ? '·' : (STANDALONE[key] ?? tamilOf(key));
-    const shift = needsShift(key);
-    guide.innerHTML =
-      `<span class="hk-label">press</span>` +
-      `<kbd class="hk hk-next">${hintLabel(key)}</kbd>` +
-      `<span class="hk-char">${ch}</span>` +
-      (shift ? `<span class="shift-badge">+ Shift</span>` : '');
-  }
-}
-
-/* ═══════════════════════════════════════════════════
-   LESSON START — calls generateContent() for fresh content
-═══════════════════════════════════════════════════ */
-function startLesson(lesson) {
-  clearInterval(S.timerInt); clearInterval(S.metricsInt);
-  cancelHint(); resetSession();
-
-  // Generate fresh content each run
-  const content = lesson.generateContent
-    ? lesson.generateContent()
-    : (lesson.content ?? []);
-
-  Object.assign(S, {
-    lesson, content,
-    pointer:0, totalKeys:0, correctKeys:0,
-    hadErrorHere:false, startTime:null, finished:false,
-    syllables:[], sylMap:[], sylErrors:{},
-  });
-
-  const idx = getLessonIndex(lesson.id);
-  $('lesson-title-bar').textContent = lesson.title;
-  $('lesson-label').textContent     = lesson.title;
-  $('lesson-counter').textContent   = `${idx + 1} / ${ALL_LESSONS.length}`;
-  $('btn-prev-lesson').disabled     = !getPrevLesson(lesson.id);
-  $('btn-next-lesson-nav').disabled = !getNextLesson(lesson.id);
-
-  renderChars();
-  resetStats();
-  applyViewMode(storage.getSettings().viewMode);
-  storage.saveProgress({ lastLessonId: lesson.id });
-  renderTopBar();
-  renderKeyPanel($('key-panel'), S.content[0] ?? '', lesson.focusKeys ?? []);
-  setTimeout(() => { $('typing-area').focus(); handleFocus(); }, 60);
-}
-
-function restartLesson() { if (S.lesson) startLesson(S.lesson); }
-function refreshMetrics() {
-  renderTopBar();
-  renderKeyPanel($('key-panel'), S.content[S.pointer] ?? '', S.lesson?.focusKeys ?? []);
-}
-
-/* ═══════════════════════════════════════════════════
-   RENDER CHARS
-═══════════════════════════════════════════════════ */
-function renderChars() {
-  const box = $('lesson-container');
-  box.innerHTML = '';
-  const { syls, map } = buildSyls(S.content);
-  S.syllables = syls; S.sylMap = map; S.sylErrors = {};
-
-  syls.forEach((syl, si) => {
-    const span = document.createElement('span');
-    span.className       = 'char' + (syl.isSpace ? ' space-char' : '');
-    span.dataset.si      = si;
-    span.dataset.display = syl.display;
-    span.textContent     = syl.display;
-    if (si === 0) span.classList.add('current');
-    box.appendChild(span);
-  });
-  resetScroll();
-  updateHintBar();
-}
-
-let currentLineY = -1;
-function scrollToSyllable(si) {
-  const area = $('typing-area');
-  const span = $('lesson-container').querySelector(`[data-si="${si}"]`);
-  if (!span) return;
-  const charY = span.offsetTop;
-  if (currentLineY < 0) { currentLineY = charY; area.scrollTop = 0; return; }
-  if (charY > currentLineY) {
-    area.scrollTop = Math.max(0, area.scrollTop + (charY - currentLineY));
-    currentLineY = charY;
-  }
-}
-function resetScroll() { currentLineY = -1; $('typing-area').scrollTop = 0; }
-
-/* ═══════════════════════════════════════════════════
-   KEYDOWN
-═══════════════════════════════════════════════════ */
-function onKeyDown(e) {
-  if (S.finished) return;
-  if (e.key.length > 1 && e.key !== ' ') { e.preventDefault(); return; }
-  e.preventDefault();
-  const expected = S.content[S.pointer], pressed = e.key;
-  if (!S.startTime) startTimer();
-  S.totalKeys++;
-  cancelHint();
-  if (pressed === expected) handleCorrect();
-  else                       handleWrong(pressed, expected);
-  recordKeypress(expected, pressed === expected, calcWpm());
-  updateStats();
-}
-
-function sylSpan(si) { return $('lesson-container').querySelector(`[data-si="${si}"]`); }
-
-function handleCorrect() {
-  const prevSi  = S.sylMap[S.pointer];
-  const prevSyl = S.syllables[prevSi];
-  const prevSpan = sylSpan(prevSi);
-  flashCorrect(S.content[S.pointer]);
-  S.correctKeys++;
-  S.pointer++;
-
-  if (prevSpan) {
-    const doneInSyl = S.pointer - prevSyl.start;
-    if (doneInSyl >= prevSyl.keys.length) {
-      // Syllable complete
-      prevSpan.classList.remove('current','syl-partial','incorrect');
-      prevSpan.classList.add(S.sylErrors[prevSi] ? 'corrected' : 'correct', 'pop');
-      setTimeout(() => prevSpan.classList.remove('pop'), 220);
-    } else {
-      // Mid-syllable: consonant done, vowel/pulli still needed
-      prevSpan.classList.remove('current','incorrect');
-      prevSpan.classList.add('syl-partial');
-      // Immediately show the VOWEL key on keyboard — no delay
-      clearTimeout(S.hintTimeout);
-      showHint(S.content[S.pointer]);
-      updateHintBar(); // updates hint bar to show "H✓ + S →கி"
-      return; // skip scheduleHint — keyboard already showing vowel key
+function applyViewMode(mode){
+  $('btn-view').innerHTML=VIEW_ICONS[mode];
+  if(activeTab==='kural'){
+    setVisible(mode===0);
+    const km=$('kural-main');
+    if(km){
+      km.dataset.view=mode;
+      // Set CSS vars on kural-main — both #kural-typing-area and
+      // #kural-container inherit these for responsive height & font size
+      km.style.setProperty('--kural-sz', KURAL_SIZES[mode]);
+      km.style.setProperty('--urai-sz', KURAL_URAI_SIZES[mode]);
     }
+    $('btn-view').title=VIEW_TITLES_KURAL[mode];
+  }else{
+    document.documentElement.style.setProperty('--char-size',CHAR_SIZES[mode]);
+    const s=storage.getSettings();
+    setVisible(mode===0);
+    $('key-guide').classList.toggle('hint-hidden',mode>=2||!s.showHints);
+    $('key-panel').classList.toggle('hidden',mode>=2);
+    $('btn-view').title=VIEW_TITLES_PRACTICE[mode];
+    $('practice-main').dataset.view=mode;
   }
+}
+function cycleView(){
+  const next=(storage.getSettings().viewMode+1)%3;
+  storage.saveSettings({viewMode:next});applyViewMode(next);
+}
 
-  if (S.pointer >= S.content.length) { finishLesson(); return; }
+/* ── Hints ──────────────────────────────────────── */
+function scheduleHint(){clearTimeout(S.hintTimeout);clearHints();if(S.pointer>=S.content.length)return;S.hintTimeout=setTimeout(()=>showHint(S.content[S.pointer]),HINT_DELAY);}
+function cancelHint(){clearTimeout(S.hintTimeout);clearHints();}
+function immediateHint(k){clearTimeout(S.hintTimeout);showHint(k);}
 
-  const newSi = S.sylMap[S.pointer];
-  if (newSi !== prevSi) {
-    const ns = sylSpan(newSi);
-    if (ns) ns.classList.add('current');
-    scrollToSyllable(newSi);
+/* ── Hint bar: H + S → கி ─────────────────────── */
+function updateHintBar(){
+  const guide=$('key-guide');
+  if(!guide||S.pointer>=S.content.length)return;
+  const key=S.content[S.pointer],si=S.sylMap?.[S.pointer];
+  const syl=si!==undefined?S.syllables?.[si]:null;
+  if(syl&&syl.keys.length===2){
+    const done=S.pointer-syl.start,k1=syl.keys[0],k2=syl.keys[1];
+    guide.innerHTML=
+      `<kbd class="hk ${done>0?'hk-done':'hk-next'}">${hintLabel(k1)}</kbd>`+
+      `<span class="hk-sep">+</span>`+
+      `<kbd class="hk ${done===0?'':'hk-next'}">${hintLabel(k2)}</kbd>`+
+      `<span class="hk-sep">→</span>`+
+      `<span class="hk-char">${syl.composed}</span>`+
+      (needsShift(key)?`<span class="shift-badge">+ Shift</span>`:'');
+  }else{
+    const ch=key===' '?'·':(STANDALONE[key]??tamilOf(key));
+    guide.innerHTML=
+      `<span class="hk-label">press</span>`+
+      `<kbd class="hk hk-next">${hintLabel(key)}</kbd>`+
+      `<span class="hk-char">${ch}</span>`+
+      (needsShift(key)?`<span class="shift-badge">+ Shift</span>`:'');
   }
-  updateHintBar();
-  updateProgress();
-  scheduleHint();
 }
 
-function handleWrong(pressed, expected) {
-  const si = S.sylMap[S.pointer];
-  S.sylErrors[si] = true;
-  const span = sylSpan(si);
-  if (span) { span.classList.add('incorrect','shake'); setTimeout(()=>span.classList.remove('shake'),300); }
-  flashWrong(pressed, expected);
-  immediateHint(expected);
+/* ── Lesson start ────────────────────────────────── */
+function startLesson(lesson){
+  clearInterval(S.timerInt);clearInterval(S.metricsInt);cancelHint();resetSession();
+  const content=lesson.generateContent?lesson.generateContent():(lesson.content??[]);
+  Object.assign(S,{lesson,content,pointer:0,totalKeys:0,correctKeys:0,
+    hadErrorHere:false,startTime:null,pausedAt:null,elapsedMs:0,finished:false,
+    syllables:[],sylMap:[],sylErrors:{}});
+  const idx=getLessonIndex(lesson.id);
+  $('lesson-title-bar').textContent=lesson.title;
+  $('lesson-label').textContent=lesson.title;
+  $('lesson-counter').textContent=`${idx+1} / ${ALL_LESSONS.length}`;
+  $('btn-prev-lesson').disabled=!getPrevLesson(lesson.id);
+  $('btn-next-lesson-nav').disabled=!getNextLesson(lesson.id);
+  renderChars();resetStats();
+  applyViewMode(storage.getSettings().viewMode);
+  storage.saveProgress({lastLessonId:lesson.id});
+  renderTopBar();
+  renderKeyPanel($('key-panel'),S.content[0]??'',lesson.focusKeys??[]);
+  setTimeout(()=>{$('typing-area').focus();handleFocus();},60);
+}
+function restartLesson(){if(S.lesson)startLesson(S.lesson);}
+function refreshMetrics(){renderTopBar();renderKeyPanel($('key-panel'),S.content[S.pointer]??'',S.lesson?.focusKeys??[]);}
+
+/* ── Render chars ───────────────────────────────── */
+function renderChars(){
+  const box=$('lesson-container');box.innerHTML='';
+  const{syls,map}=buildSyls(S.content);
+  S.syllables=syls;S.sylMap=map;S.sylErrors={};
+  let wordEl=document.createElement('span');wordEl.className='word';
+  syls.forEach((syl,si)=>{
+    if(syl.isSpace){wordEl.appendChild(createSylSpan(syl,si));box.appendChild(wordEl);wordEl=document.createElement('span');wordEl.className='word';}
+    else wordEl.appendChild(createSylSpan(syl,si));
+  });
+  if(wordEl.children.length)box.appendChild(wordEl);
+  const first=box.querySelector('[data-si="0"]');if(first)first.classList.add('current');
+  resetScroll();updateHintBar();
 }
 
-/* ═══════════════════════════════════════════════════
-   STATS / TIMER
-═══════════════════════════════════════════════════ */
-function startTimer() {
-  S.startTime = Date.now();
-  S.timerInt = setInterval(()=>{ $('stat-time').textContent=fmtTime((Date.now()-S.startTime)/1000); renderTopBar(); },1000);
-  S.metricsInt = setInterval(()=>{ renderKeyPanel($('key-panel'),S.content[S.pointer]??'',S.lesson?.focusKeys??[]); storage.addDailySeconds(3); },3000);
+function sylSpan(si){return $('lesson-container').querySelector(`[data-si="${si}"]`);}
+
+let currentLineY=-1;
+function scrollToSyllable(si){
+  const area=$('typing-area'),span=sylSpan(si);if(!span)return;
+  const y=span.offsetTop;
+  if(currentLineY<0){currentLineY=y;area.scrollTop=0;return;}
+  if(y>currentLineY){area.scrollTop=Math.max(0,area.scrollTop+(y-currentLineY));currentLineY=y;}
 }
-const fmtTime = s => `${Math.floor(s/60)}:${Math.floor(s%60).toString().padStart(2,'0')}`;
-function updateStats()   { updateProgress(); renderTopBar(); }
-function resetStats()    { $('stat-time').textContent='0:00'; $('progress-fill').style.width='0%'; $('progress-text').textContent=`0 / ${S.content.length}`; renderTopBar(); }
-function updateProgress(){ const pct=Math.round((S.pointer/S.content.length)*100); $('progress-fill').style.width=pct+'%'; $('progress-text').textContent=`${S.pointer} / ${S.content.length}`; }
+function resetScroll(){currentLineY=-1;$('typing-area').scrollTop=0;}
 
-/* ═══════════════════════════════════════════════════
-   FOCUS / BLUR
-═══════════════════════════════════════════════════ */
-function handleFocus() { $('focus-overlay').classList.add('hidden'); updateHintBar(); scheduleHint(); }
-function handleBlur()  { $('focus-overlay').classList.remove('hidden'); cancelHint(); }
+function setSylState(span,state,hadError){
+  if(!span)return;
+  span.classList.remove('current','syl-partial','incorrect','correct','corrected','pop');
+  if(state==='current')span.classList.add('current');
+  else if(state==='partial')span.classList.add('syl-partial');
+  else if(state==='correct'){span.classList.add(hadError?'corrected':'correct','pop');setTimeout(()=>span.classList.remove('pop'),220);}
+  else if(state==='incorrect')span.classList.add('incorrect');
+}
 
-/* ═══════════════════════════════════════════════════
-   FINISH
-═══════════════════════════════════════════════════ */
-function finishLesson() {
-  S.finished = true;
-  clearInterval(S.timerInt); clearInterval(S.metricsInt); cancelHint();
-  const wpm = calcWpm(), accuracy = sessionAccuracy();
-  const timeSec = S.startTime ? Math.round((Date.now()-S.startTime)/1000) : 0;
-  const stars = wpm >= S.lesson.targetWPM*1.2 ? 3 : wpm >= S.lesson.targetWPM ? 2 : wpm >= S.lesson.targetWPM*0.6 ? 1 : 0;
-  storage.recordResult(S.lesson.id, wpm, accuracy, S.totalKeys, S.correctKeys);
-  refreshMetrics();
-  $('results-wpm').textContent      = wpm;
-  $('results-accuracy').textContent = accuracy+'%';
-  $('results-time').textContent     = fmtTime(timeSec);
-  $('results-stars').textContent    = '★'.repeat(stars)+'☆'.repeat(3-stars);
-  $('result-msg').textContent       = stars>=3?'நன்று! Excellent!':stars>=2?'நல்லது! Well done!':stars>=1?'தொடர்க! Keep going!':'மீண்டும் முயற்சி!';
-  const next = getNextLesson(S.lesson.id);
-  const $nxt = $('btn-next-lesson');
-  if (next) { $nxt.textContent=`${next.title} →`; $nxt.style.display=''; $nxt.onclick=()=>{hideModal('modal-results');startLesson(next);} }
-  else $nxt.style.display='none';
+/* ── Keydown / keyup ─────────────────────────────── */
+function onKeyDown(e){
+  if(S.finished)return;
+  if(e.key==='Shift'){setShiftActive(true);return;}
+  if(e.key.length>1&&e.key!==' '){e.preventDefault();return;}
+  e.preventDefault();
+  const expected=S.content[S.pointer],pressed=e.key;
+  checkKeyboardLanguage(pressed);
+  if(!S.startTime&&!S.pausedAt)startTimer();
+  else if(S.pausedAt)resumeTimer();
+  S.totalKeys++;cancelHint();
+  flashKeyPress(pressed); // dim flash for ANY key pressed
+  if(pressed===expected)handleCorrect();
+  else handleWrong(pressed,expected);
+  recordKeypress(expected,pressed===expected,calcWpm());updateStats();
+}
+function onKeyUp(e){if(e.key==='Shift')setShiftActive(false);}
+
+function handleCorrect(){
+  const prevSi=S.sylMap[S.pointer],prevSyl=S.syllables[prevSi],prevSpan=sylSpan(prevSi);
+  flashCorrect(S.content[S.pointer]);S.correctKeys++;S.pointer++;
+  const doneInSyl=S.pointer-prevSyl.start;
+  if(doneInSyl>=prevSyl.keys.length){setSylState(prevSpan,'correct',!!S.sylErrors[prevSi]);S.hadErrorHere=false;}
+  else{setSylState(prevSpan,'partial',false);clearTimeout(S.hintTimeout);showHint(S.content[S.pointer]);updateHintBar();return;}
+  if(S.pointer>=S.content.length){finishLesson();return;}
+  const newSi=S.sylMap[S.pointer];
+  if(newSi!==prevSi){setSylState(sylSpan(newSi),'current',false);scrollToSyllable(newSi);}
+  updateHintBar();updateProgress();scheduleHint();
+}
+
+function handleWrong(pressed,expected){
+  const si=S.sylMap[S.pointer];S.sylErrors[si]=true;
+  const span=sylSpan(si);
+  if(span){span.classList.add('incorrect','shake');setTimeout(()=>span.classList.remove('shake'),300);}
+  flashWrong(pressed,expected);immediateHint(expected);
+}
+
+/* ── Timer — pauses on blur ──────────────────────── */
+function startTimer(){
+  S.startTime=Date.now();S.pausedAt=null;
+  S.timerInt=setInterval(()=>{
+    const ms=(Date.now()-S.startTime)+S.elapsedMs;
+    $('stat-time').textContent=fmtTime(ms/1000);renderTopBar();
+  },1000);
+  S.metricsInt=setInterval(()=>{renderKeyPanel($('key-panel'),S.content[S.pointer]??'',S.lesson?.focusKeys??[]);storage.addDailySeconds(3);},3000);
+}
+function pauseTimer(){
+  if(!S.startTime||S.pausedAt||S.finished)return;
+  S.pausedAt=Date.now();S.elapsedMs+=(S.pausedAt-S.startTime);S.startTime=null;
+  clearInterval(S.timerInt);clearInterval(S.metricsInt);
+}
+function resumeTimer(){
+  if(!S.pausedAt||S.finished)return;
+  S.pausedAt=null;S.startTime=Date.now();
+  S.timerInt=setInterval(()=>{
+    const ms=(Date.now()-S.startTime)+S.elapsedMs;
+    $('stat-time').textContent=fmtTime(ms/1000);renderTopBar();
+  },1000);
+  S.metricsInt=setInterval(()=>{renderKeyPanel($('key-panel'),S.content[S.pointer]??'',S.lesson?.focusKeys??[]);storage.addDailySeconds(3);},3000);
+}
+
+const fmtTime=s=>`${Math.floor(s/60)}:${Math.floor(s%60).toString().padStart(2,'0')}`;
+function updateStats(){updateProgress();renderTopBar();}
+function resetStats(){
+  $('stat-time').textContent='0:00';$('progress-fill').style.width='0%';
+  $('progress-text').textContent=`0 / ${S.content.length}`;renderTopBar();
+}
+function updateProgress(){const p=Math.round((S.pointer/S.content.length)*100);$('progress-fill').style.width=p+'%';$('progress-text').textContent=`${S.pointer} / ${S.content.length}`;}
+
+/* ── Focus / blur ────────────────────────────────── */
+function handleFocus(){
+  $('focus-overlay').classList.add('hidden');
+  if(S.pausedAt)resumeTimer();
+  updateHintBar();scheduleHint();
+}
+function handleBlur(){
+  $('focus-overlay').classList.remove('hidden');
+  cancelHint();setShiftActive(false);
+  if(S.startTime&&!S.finished)pauseTimer();
+}
+
+/* ── Finish ──────────────────────────────────────── */
+function finishLesson(){
+  S.finished=true;clearInterval(S.timerInt);clearInterval(S.metricsInt);cancelHint();
+  const wpm=calcWpm(),accuracy=sessionAccuracy();
+  const totalMs=S.elapsedMs+(S.startTime?Date.now()-S.startTime:0);
+  const timeSec=Math.round(totalMs/1000);
+  const stars=wpm>=S.lesson.targetWPM*1.2?3:wpm>=S.lesson.targetWPM?2:wpm>=S.lesson.targetWPM*0.6?1:0;
+  storage.recordResult(S.lesson.id,wpm,accuracy,S.totalKeys,S.correctKeys);refreshMetrics();
+  $('results-wpm').textContent=wpm;$('results-accuracy').textContent=accuracy+'%';
+  $('results-time').textContent=fmtTime(timeSec);
+  $('results-stars').textContent='★'.repeat(stars)+'☆'.repeat(3-stars);
+  $('result-msg').textContent=stars>=3?'நன்று! Excellent!':stars>=2?'நல்லது! Well done!':stars>=1?'தொடர்க! Keep going!':'மீண்டும் முயற்சி!';
+  const next=getNextLesson(S.lesson.id),nxt=$('btn-next-lesson');
+  if(next){nxt.textContent=`${next.title} →`;nxt.style.display='';nxt.onclick=()=>{hideModal('modal-results');startLesson(next);};}
+  else nxt.style.display='none';
   setTimeout(()=>showModal('modal-results'),380);
 }
 
-/* ═══════════════════════════════════════════════════
-   LESSONS MODAL
-═══════════════════════════════════════════════════ */
-let activeLevelTab = 'beginner';
-function openLessonsModal() { renderLessonList(activeLevelTab); showModal('modal-lessons'); }
+/* ── Lessons modal ───────────────────────────────── */
+let activeLevelTab='beginner';
+function openLessonsModal(){renderLessonList(activeLevelTab);showModal('modal-lessons');}
 
-function renderLessonList(level) {
-  const listEl = $('lesson-list'), progress = storage.getProgress(), lessons = LESSONS_DB[level];
-  listEl.innerHTML = '';
-  lessons.forEach((lesson, idx) => {
-    const done=progress.completedLessons.includes(lesson.id), best=progress.lessonBests[lesson.id];
-    const locked=idx>0&&!progress.completedLessons.includes(lessons[idx-1].id), isCur=S.lesson?.id===lesson.id;
-    const focusChars=lesson.focusKeys.filter(k=>k!=='f'&&k!==' ').slice(0,7).map(k=>MAPPING[k]??(k.length===1?k:'')).filter(Boolean).join(' ');
+function lessonDisplayChars(lesson){
+  const uyirIds=new Set(['b13','b14','b15','b16','b17','i01','i02','i03','i04','i05']);
+  if(uyirIds.has(lesson.id)){
+    const c=lesson.focusKeys.find(k=>SYL_CONS.has(k));
+    if(c)return['q','s','w','d','e','g','t','r'].slice(0,6).map(v=>composedForm(c,v)).join(' ');
+  }
+  return lesson.focusKeys
+    .filter(k=>k!=='f'&&k!==' ')
+    .slice(0,7)
+    .map(k=>MAPPING[k]??(k.length===1?(STANDALONE[k]??''):''))
+    .filter(Boolean).join(' ');
+}
+
+function switchToPracticeTab(){
+  activeTab='practice';
+  $$('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.tab==='practice'));
+  $('practice-main').classList.remove('hidden');
+  $('kural-main').classList.add('hidden');
+  const kb=$('keyboard');
+  if(kb&&$('practice-main'))$('practice-main').appendChild(kb);
+  applyViewMode(storage.getSettings().viewMode);
+}
+
+function renderLessonList(level){
+  const listEl=$('lesson-list'),progress=storage.getProgress(),lessons=LESSONS_DB[level];
+  listEl.innerHTML='';
+  lessons.forEach((lesson,idx)=>{
+    const done=progress.completedLessons.includes(lesson.id),best=progress.lessonBests[lesson.id];
+    const locked=idx>0&&!progress.completedLessons.includes(lessons[idx-1].id),isCur=S.lesson?.id===lesson.id;
     const row=document.createElement('button');
     row.className=`lesson-row${isCur?' is-current':''}${locked?' locked':''}`;
-    row.innerHTML=`<span class="row-num">${String(lesson.order).padStart(2,'0')}</span><span class="row-chars">${focusChars||lesson.title}</span><span class="row-right">${isCur?'<span class="row-dot"></span>':''}${done&&best?`<span class="row-wpm">${best.wpm}</span><span class="row-done">✓</span>`:''}${locked?'<span style="opacity:.3">🔒</span>':''}</span>`;
-    if (!locked) row.addEventListener('click',()=>{hideModal('modal-lessons');startLesson(lesson);});
+    row.innerHTML=`<span class="row-num">${String(lesson.order).padStart(2,'0')}</span><span class="row-chars">${lessonDisplayChars(lesson)||lesson.title}</span><span class="row-right">${isCur?'<span class="row-dot"></span>':''}${done&&best?`<span class="row-wpm">${best.wpm}</span><span class="row-done">✓</span>`:''}${locked?'<span style="opacity:.25">🔒</span>':''}</span>`;
+    if(!locked)row.addEventListener('click',()=>{
+      hideModal('modal-lessons');
+      switchToPracticeTab(); // always switch to practice tab
+      startLesson(lesson);
+    });
     listEl.appendChild(row);
   });
 }
 
-/* ═══════════════════════════════════════════════════
-   FINGER GUIDE
-═══════════════════════════════════════════════════ */
-function openFingerGuide() { buildFingerLegend(); setGuideMode(getContainer(),true); showModal('modal-finger'); markShown(); }
-function closeFingerGuide(){ setGuideMode(getContainer(),false); hideModal('modal-finger'); }
-function buildFingerLegend() {
+/* ── Finger guide ────────────────────────────────── */
+function openFingerGuide(){buildFingerLegend();setGuideMode(getContainer(),true);showModal('modal-finger');markShown();}
+function closeFingerGuide(){setGuideMode(getContainer(),false);hideModal('modal-finger');}
+function buildFingerLegend(){
   const kbWrap=$('finger-kb-wrap');
-  if (!kbWrap.children.length) {
-    const src=getContainer();
-    if (src) { const c=src.cloneNode(true); c.removeAttribute('id'); c.classList.add('guide-mode'); kbWrap.appendChild(c); }
-  }
-  const legend=$('finger-legend');
-  if (legend.children.length) return;
+  if(!kbWrap.children.length){const src=getContainer();if(src){const c=src.cloneNode(true);c.removeAttribute('id');c.classList.add('guide-mode');kbWrap.appendChild(c);}}
+  const legend=$('finger-legend');if(legend.children.length)return;
   ['lp','lr','lm','li'].forEach(f=>legend.appendChild(mkFgRow(f)));
   ['ri','rm','rr','rp'].forEach(f=>legend.appendChild(mkFgRow(f)));
-  const thumb=document.createElement('div'); thumb.className='fg-thumb-row';
+  const thumb=document.createElement('div');thumb.className='fg-thumb-row';
   thumb.innerHTML=`<span class="fg-swatch" style="background:${FINGER_INFO.th.css}"></span><span>Thumbs — Space bar</span>`;
   legend.appendChild(thumb);
 }
-function mkFgRow(f) {
-  const info=FINGER_INFO[f], div=document.createElement('div'); div.className='fg-row';
-  div.innerHTML=`<span class="fg-swatch" style="background:${info.css}"></span><span class="fg-label">${info.label}</span><span class="fg-chars">${info.tamil}</span>`;
-  return div;
+function mkFgRow(f){const info=FINGER_INFO[f],div=document.createElement('div');div.className='fg-row';div.innerHTML=`<span class="fg-swatch" style="background:${info.css}"></span><span class="fg-label">${info.label}</span><span class="fg-chars">${info.tamil}</span>`;return div;}
+
+/* ── Init ────────────────────────────────────────── */
+
+/* ── Non-English keyboard detection ──────────────────
+   Checks if user is pressing non-ASCII keys (e.g. typing
+   in Tamil/Arabic/Devanagari layout instead of English).
+   Shows a banner and also inside the info modal. */
+const NON_ENGLISH_KEYS = new Set([
+  // Tamil Unicode ranges, Devanagari, Arabic, Chinese, etc.
+]);
+let nonEnglishWarningShown = false;
+function checkKeyboardLanguage(key) {
+  if (nonEnglishWarningShown) return;
+  if (key.length !== 1) return;
+  const code = key.codePointAt(0);
+  // Non-ASCII printable → likely non-English keyboard layout
+  if (code > 127) {
+    nonEnglishWarningShown = true;
+    const banner = document.getElementById('kb-lang-banner');
+    if (banner) {
+      banner.classList.remove('hidden');
+      // Auto-dismiss after 12 seconds
+      setTimeout(() => banner.classList.add('hidden'), 12000);
+    }
+  }
 }
 
-/* ═══════════════════════════════════════════════════
-   INIT
-═══════════════════════════════════════════════════ */
-async function init() {
-  await loadKeyboard('keyboard');
-  const s = storage.getSettings();
-  initTopBar($('stats-strip'));
-  document.documentElement.setAttribute('data-theme', s.theme);
-  applyViewMode(s.viewMode);
-  syncThemeIcon(s.theme);
-  $('toggle-hints').checked = s.showHints;
+/* ── Info modal ───────────────────────────────────── */
+function initInfoModal() {
+  const $btn = document.getElementById('btn-info');
+  const $modal = document.getElementById('modal-info');
+  const $close = document.getElementById('btn-close-info');
+  const $banner = document.getElementById('kb-lang-banner');
+  const $bannerClose = document.getElementById('btn-kb-banner-close');
 
-  const p = storage.getProgress();
-  const startL = p.lastLessonId
-    ? (getLessonById(p.lastLessonId) ?? getFirstIncomplete(p.completedLessons))
-    : getFirstIncomplete(p.completedLessons);
-  startLesson(startL);
+  if ($btn && $modal) {
+    $btn.addEventListener('click', () => $modal.classList.add('visible'));
+    $close?.addEventListener('click', () => $modal.classList.remove('visible'));
+    $modal.addEventListener('click', e => { if (e.target === $modal) $modal.classList.remove('visible'); });
+  }
 
-  if (shouldAutoShow()) setTimeout(()=>openFingerGuide(),800);
+  if ($bannerClose && $banner) {
+    $bannerClose.addEventListener('click', () => {
+      $banner.classList.add('hidden');
+      nonEnglishWarningShown = true; // don't show again this session
+    });
+  }
 
-  $('btn-view').addEventListener('click', cycleView);
-  $('btn-lessons').addEventListener('click', openLessonsModal);
-  $('btn-finger').addEventListener('click', openFingerGuide);
-  $('btn-theme').addEventListener('click', ()=>{
-    const cur=storage.getSettings().theme, nxt=cur==='dark'?'light':'dark';
-    storage.saveSettings({theme:nxt}); document.documentElement.setAttribute('data-theme',nxt); syncThemeIcon(nxt);
+  // OS tab switching in info modal
+  document.querySelectorAll('.info-os-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const os = btn.dataset.os;
+      document.querySelectorAll('.info-os-btn').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.info-os-panel').forEach(p => p.classList.toggle('active', p.dataset.os === os));
+    });
   });
-  $('logo').addEventListener('click', openLessonsModal);
-  $('btn-restart').addEventListener('click', restartLesson);
-  $('btn-prev-lesson').addEventListener('click', ()=>{const p=getPrevLesson(S.lesson?.id);if(p)startLesson(p);});
-  $('btn-next-lesson-nav').addEventListener('click', ()=>{const n=getNextLesson(S.lesson?.id);if(n)startLesson(n);});
-  $('typing-area').addEventListener('keydown', onKeyDown);
-  $('typing-area').addEventListener('focus',   handleFocus);
-  $('typing-area').addEventListener('blur',    handleBlur);
-  $('focus-overlay').addEventListener('click', ()=>$('typing-area').focus());
+}
 
-  $('toggle-hints').addEventListener('change', e=>{
+async function init(){
+  await loadKeyboard('keyboard');
+  const s=storage.getSettings();
+  initTopBar($('stats-strip'));
+  document.documentElement.setAttribute('data-theme',s.theme);
+  applyViewMode(s.viewMode);syncThemeIcon(s.theme);
+  $('toggle-hints').checked=s.showHints;
+
+  const p=storage.getProgress();
+  const startL=p.lastLessonId?(getLessonById(p.lastLessonId)??getFirstIncomplete(p.completedLessons)):getFirstIncomplete(p.completedLessons);
+  startLesson(startL);
+  if(shouldAutoShow())setTimeout(()=>openFingerGuide(),800);
+
+  $('btn-view').addEventListener('click',cycleView);
+  $('btn-lessons').addEventListener('click',openLessonsModal);
+  $('btn-finger').addEventListener('click',openFingerGuide);
+  $('btn-theme').addEventListener('click',()=>{
+    const cur=storage.getSettings().theme,nxt=cur==='dark'?'light':'dark';
+    storage.saveSettings({theme:nxt});document.documentElement.setAttribute('data-theme',nxt);syncThemeIcon(nxt);
+  });
+  $('logo').addEventListener('click',openLessonsModal);
+  $('btn-restart').addEventListener('click',restartLesson);
+  $('btn-prev-lesson').addEventListener('click',()=>{const p=getPrevLesson(S.lesson?.id);if(p)startLesson(p);});
+  $('btn-next-lesson-nav').addEventListener('click',()=>{const n=getNextLesson(S.lesson?.id);if(n)startLesson(n);});
+
+  const ta=$('typing-area');
+  ta.addEventListener('keydown',onKeyDown);
+  ta.addEventListener('keyup',onKeyUp);
+  ta.addEventListener('focus',handleFocus);
+  ta.addEventListener('blur',handleBlur);
+  $('focus-overlay').addEventListener('click',()=>ta.focus());
+
+  $('toggle-hints').addEventListener('change',e=>{
     storage.saveSettings({showHints:e.target.checked});
     const vm=storage.getSettings().viewMode;
     $('key-guide').classList.toggle('hint-hidden',!e.target.checked||vm>=2);
   });
+  $('btn-close-lessons').addEventListener('click',()=>hideModal('modal-lessons'));
+  $('modal-lessons').addEventListener('click',e=>{if(e.target===$('modal-lessons'))hideModal('modal-lessons');});
+  $$('.lvl-tab').forEach(btn=>btn.addEventListener('click',()=>{activeLevelTab=btn.dataset.level;$$('.lvl-tab').forEach(b=>b.classList.toggle('active',b===btn));renderLessonList(activeLevelTab);}));
+  $('btn-close-finger').addEventListener('click',closeFingerGuide);
+  $('modal-finger').addEventListener('click',e=>{if(e.target===$('modal-finger'))closeFingerGuide();});
+  $('btn-retry').addEventListener('click',()=>{hideModal('modal-results');restartLesson();});
+  $('btn-back-lessons').addEventListener('click',()=>{hideModal('modal-results');openLessonsModal();});
+  $('modal-results').addEventListener('click',e=>{if(e.target===$('modal-results'))hideModal('modal-results');});
 
-  $('btn-close-lessons').addEventListener('click', ()=>hideModal('modal-lessons'));
-  $('modal-lessons').addEventListener('click', e=>{if(e.target===$('modal-lessons'))hideModal('modal-lessons');});
-  $$('.lvl-tab').forEach(btn=>btn.addEventListener('click',()=>{
-    activeLevelTab=btn.dataset.level;
-    $$('.lvl-tab').forEach(b=>b.classList.toggle('active',b===btn));
-    renderLessonList(activeLevelTab);
-  }));
-  $('btn-close-finger').addEventListener('click', closeFingerGuide);
-  $('modal-finger').addEventListener('click', e=>{if(e.target===$('modal-finger'))closeFingerGuide();});
-  $('btn-retry').addEventListener('click', ()=>{hideModal('modal-results');restartLesson();});
-  $('btn-back-lessons').addEventListener('click', ()=>{hideModal('modal-results');openLessonsModal();});
-  $('modal-results').addEventListener('click', e=>{if(e.target===$('modal-results'))hideModal('modal-results');});
-
-  /* ── Tab switching — moves the shared #keyboard div between tabs ── */
   initKural();
 
-  $$('.tab-btn').forEach(btn => btn.addEventListener('click', () => {
-    const tab = btn.dataset.tab;
-    $$('.tab-btn').forEach(b => b.classList.toggle('active', b === btn));
-    $('practice-main').classList.toggle('hidden', tab !== 'practice');
-    $('kural-main').classList.toggle('hidden',    tab !== 'kural');
-
-    // Move the shared SVG keyboard to the active tab's slot
-    const kb = $('keyboard');
-    if (kb) {
-      if (tab === 'kural') {
-        $('kural-kb-slot')?.appendChild(kb);
-      } else {
-        // Move back: append to practice-main (it renders after key-panel)
-        $('practice-main')?.appendChild(kb);
-      }
+  $$('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>{
+    const tab=btn.dataset.tab;
+    activeTab=tab;
+    $$('.tab-btn').forEach(b=>b.classList.toggle('active',b===btn));
+    $('practice-main').classList.toggle('hidden',tab!=='practice');
+    $('kural-main').classList.toggle('hidden',tab!=='kural');
+    const kb=$('keyboard');
+    if(kb){if(tab==='kural')$('kural-kb-slot')?.appendChild(kb);else $('practice-main')?.appendChild(kb);}
+    if(tab==='kural'){
+      applyViewMode(storage.getSettings().viewMode);
+      window.dispatchEvent(new CustomEvent('kural-tab-activated'));
+    }else{
+      applyViewMode(storage.getSettings().viewMode);
+      setTimeout(()=>ta.focus(),60);
     }
-
-    if (tab === 'kural') window.dispatchEvent(new CustomEvent('kural-tab-activated'));
-    else setTimeout(() => $('typing-area')?.focus(), 60);
   }));
+
+  initInfoModal();
 }
 
-function syncThemeIcon(theme) {
-  $('icon-sun').style.display  = theme === 'dark'  ? 'block' : 'none';
-  $('icon-moon').style.display = theme === 'light' ? 'block' : 'none';
+function syncThemeIcon(theme){
+  $('icon-sun').style.display=theme==='dark'?'block':'none';
+  $('icon-moon').style.display=theme==='light'?'block':'none';
 }
+document.addEventListener('DOMContentLoaded',init);
 
-document.addEventListener('DOMContentLoaded', init);
+

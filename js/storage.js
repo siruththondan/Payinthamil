@@ -4,8 +4,8 @@
 const K = {
   SETTINGS: 'paintamil_settings',
   PROGRESS: 'paintamil_progress',
-  KEYDATA:  'paintamil_keydata',
-  DAILY:    'paintamil_daily',
+  KEYDATA: 'paintamil_keydata',
+  DAILY: 'paintamil_daily',
 };
 function parse(key, fallback) {
   try {
@@ -14,7 +14,7 @@ function parse(key, fallback) {
   } catch { return { ...fallback }; }
 }
 function save(key, obj) {
-  try { localStorage.setItem(key, JSON.stringify(obj)); } catch {}
+  try { localStorage.setItem(key, JSON.stringify(obj)); } catch { }
   return obj;
 }
 const today = () => new Date().toISOString().slice(0, 10);
@@ -44,8 +44,8 @@ export const storage = {
     if (!prev || wpm > prev.wpm) p.lessonBests[lessonId] = { wpm, accuracy };
     if (!p.completedLessons.includes(lessonId)) p.completedLessons = [...p.completedLessons, lessonId];
     p.totalKeystrokes = (p.totalKeystrokes || 0) + totalKeys;
-    p.totalCorrect    = (p.totalCorrect    || 0) + correctKeys;
-    p.lastLessonId    = lessonId;
+    p.totalCorrect = (p.totalCorrect || 0) + correctKeys;
+    p.lastLessonId = lessonId;
     return this.saveProgress(p);
   },
   getKeyData() { return parse(K.KEYDATA, { keys: {} }); },
@@ -81,6 +81,6 @@ export const storage = {
     return Math.min(100, Math.round((this.getDailyGoal().seconds / (30 * 60)) * 100));
   },
   clearAll() {
-    Object.values(K).forEach(k => { try { localStorage.removeItem(k); } catch {} });
+    Object.values(K).forEach(k => { try { localStorage.removeItem(k); } catch { } });
   },
 };

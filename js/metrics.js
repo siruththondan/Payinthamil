@@ -6,8 +6,8 @@
  *   renderKeyPanel(el) — per-key heatmap + streaks + goal below keyboard
  */
 
-import { storage }           from './storage.js';
-import { tamilOf, MAPPING }  from './mapping.js';
+import { storage } from './storage.js';
+import { tamilOf, MAPPING } from './mapping.js';
 
 let session = {
   wpmHistory: [], correctKeys: 0, totalKeys: 0,
@@ -32,9 +32,9 @@ export function recordKeypress(key, correct, wpm) {
   if (wpm) storage.recordKeyWpm(key, wpm);
 }
 
-export const sessionWpm      = () => session.wpmHistory.length ? Math.round(session.wpmHistory.slice(-8).reduce((a,b)=>a+b,0)/Math.min(8,session.wpmHistory.length)) : 0;
-export const sessionAccuracy = () => session.totalKeys ? Math.round((session.correctKeys/session.totalKeys)*100) : 100;
-export const sessionScore    = () => Math.round(sessionWpm() * (sessionAccuracy()/100) * 10);
+export const sessionWpm = () => session.wpmHistory.length ? Math.round(session.wpmHistory.slice(-8).reduce((a, b) => a + b, 0) / Math.min(8, session.wpmHistory.length)) : 0;
+export const sessionAccuracy = () => session.totalKeys ? Math.round((session.correctKeys / session.totalKeys) * 100) : 100;
+export const sessionScore = () => Math.round(sessionWpm() * (sessionAccuracy() / 100) * 10);
 
 /* ── TOP BAR ─────────────────────────────────────────
    Build once, then update only text nodes — no reflow.  */
@@ -70,24 +70,24 @@ export function initTopBar(el) {
 
 export function renderTopBar(_unused) {
   if (!document.getElementById('_tb_wpm')) return;
-  const p        = storage.getProgress();
+  const p = storage.getProgress();
   const dailyPct = storage.getDailyPct();
-  const daily    = storage.getDailyGoal();
-  const dailyMin = Math.floor((daily.seconds||0)/60);
-  const wpm      = sessionWpm();
-  const acc      = sessionAccuracy();
-  const score    = sessionScore();
-  const lifeAcc  = p.totalKeystrokes ? Math.round((p.totalCorrect/p.totalKeystrokes)*100) : 0;
-  const lifeWpm  = p.totalKeystrokes
-    ? Math.round(((p.totalCorrect/5)/Math.max(1,p.totalKeystrokes/280))) : 0;
+  const daily = storage.getDailyGoal();
+  const dailyMin = Math.floor((daily.seconds || 0) / 60);
+  const wpm = sessionWpm();
+  const acc = sessionAccuracy();
+  const score = sessionScore();
+  const lifeAcc = p.totalKeystrokes ? Math.round((p.totalCorrect / p.totalKeystrokes) * 100) : 0;
+  const lifeWpm = p.totalKeystrokes
+    ? Math.round(((p.totalCorrect / 5) / Math.max(1, p.totalKeystrokes / 280))) : 0;
 
-  document.getElementById('_tb_wpm').textContent     = wpm;
-  document.getElementById('_tb_wpmavg').textContent  = `(${lifeWpm} avg)`;
-  document.getElementById('_tb_acc').textContent     = acc + '%';
-  document.getElementById('_tb_accavg').textContent  = `(${lifeAcc}% avg)`;
-  document.getElementById('_tb_score').textContent   = score;
+  document.getElementById('_tb_wpm').textContent = wpm;
+  document.getElementById('_tb_wpmavg').textContent = `(${lifeWpm} avg)`;
+  document.getElementById('_tb_acc').textContent = acc + '%';
+  document.getElementById('_tb_accavg').textContent = `(${lifeAcc}% avg)`;
+  document.getElementById('_tb_score').textContent = score;
   document.getElementById('_tb_goalfill').style.width = dailyPct + '%';
-  document.getElementById('_tb_goallbl').textContent  =
+  document.getElementById('_tb_goallbl').textContent =
     `${dailyPct}%  of 30 min${dailyMin > 0 ? ' (' + dailyMin + 'm)' : ''}`;
 }
 
@@ -104,18 +104,18 @@ export function renderKeyPanel(el, currentKey, focusKeys = []) {
   ].filter(k => { if (seen.has(k)) return false; seen.add(k); return true; }).slice(0, 32);
 
   const keyItems = displayKeys.map(key => {
-    const info  = kd.keys[key];
-    const acc   = info && info.total >= 3 ? Math.round((info.correct/info.total)*100) : null;
+    const info = kd.keys[key];
+    const acc = info && info.total >= 3 ? Math.round((info.correct / info.total) * 100) : null;
     const level = acc === null ? 'uk' : acc >= 95 ? 'ok' : acc >= 80 ? 'so' : 'no';
     const isCur = key === currentKey;
-    return `<span class="kp-key kp-${level}${isCur?' kp-cur':''}" title="${acc!==null?acc+'%':'—'}">${tamilOf(key)}</span>`;
+    return `<span class="kp-key kp-${level}${isCur ? ' kp-cur' : ''}" title="${acc !== null ? acc + '%' : '—'}">${tamilOf(key)}</span>`;
   }).join('');
 
   // Current key detail
   const curInfo = kd.keys[currentKey];
-  const curAcc  = curInfo && curInfo.total >= 3 ? Math.round((curInfo.correct/curInfo.total)*100) : null;
-  const curTotal= curInfo ? curInfo.total : 0;
-  const needMore= Math.max(0, 10 - curTotal);
+  const curAcc = curInfo && curInfo.total >= 3 ? Math.round((curInfo.correct / curInfo.total) * 100) : null;
+  const curTotal = curInfo ? curInfo.total : 0;
+  const needMore = Math.max(0, 10 - curTotal);
 
   el.innerHTML = `
     <div class="kp-row">
@@ -134,16 +134,16 @@ export function renderKeyPanel(el, currentKey, focusKeys = []) {
         <span class="kp-label">Current</span>
         <div class="kp-bigchar">${currentKey ? tamilOf(currentKey) : '—'}</div>
         ${needMore > 0
-          ? `<div class="kp-calib">Need ${needMore} more</div>`
-          : `<div class="kp-accbar"><div class="kp-accfill" style="width:${curAcc??0}%;background:${curAcc>=95?'var(--correct)':curAcc>=80?'var(--warn)':'var(--wrong)'}"></div></div>
+      ? `<div class="kp-calib">Need ${needMore} more</div>`
+      : `<div class="kp-accbar"><div class="kp-accfill" style="width:${curAcc ?? 0}%;background:${curAcc >= 95 ? 'var(--correct)' : curAcc >= 80 ? 'var(--warn)' : 'var(--wrong)'}"></div></div>
              <div class="kp-calib">${curAcc}% accuracy</div>`}
       </div>
 
       <div class="kp-section">
         <span class="kp-label">Streaks</span>
         ${session.bestStreak > 2
-          ? `<div class="kp-streak">Best: ${session.bestStreak} ✓</div>`
-          : `<div class="kp-dim">No streaks yet</div>`}
+      ? `<div class="kp-streak">Best: ${session.bestStreak} ✓</div>`
+      : `<div class="kp-dim">No streaks yet</div>`}
       </div>
     </div>
   `;

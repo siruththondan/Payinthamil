@@ -85,7 +85,7 @@ export function hintLabel(key) {
   if (key === ' ') return 'Space';
   if (needsShift(key)) return `Shift + ${key.toLowerCase()}`;
   const labels = {
-    f:   'f  (்)',
+    f: 'f  (்)',
     "'": "' (ய)",
     '[': '[ (ச)',
     ']': '] (ஞ)',

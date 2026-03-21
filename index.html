@@ -1,45 +1,38 @@
 <!DOCTYPE html>
-<html lang="ta" data-theme="light">
+<html lang="ta" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>பைந்தமிழ் — Tamil Typing</title>
-  <meta name="description" content="Tamil typing practice — keybr-style, 34 lessons, per-key metrics." />
+  <meta name="description" content="Tamil typing practice — Tamil99 layout, 34 lessons, Thirukkural mode." />
   <link rel="stylesheet" href="styles/style.css" />
-  <style>
-    /* Mini toggle */
-    .mini-toggle{position:relative;width:30px;height:17px;flex-shrink:0}
-    .mini-toggle input{opacity:0;width:0;height:0;position:absolute}
-    .mt-track{position:absolute;inset:0;background:var(--bg-raised);border:1px solid var(--border);
-              border-radius:999px;cursor:pointer;transition:background .13s,border-color .13s}
-    .mt-track::before{content:'';position:absolute;width:11px;height:11px;top:2px;left:2px;
-                      background:var(--fg-3);border-radius:50%;transition:transform .13s,background .13s}
-    .mini-toggle input:checked + .mt-track{background:var(--fg-2);border-color:var(--fg-2)}
-    .mini-toggle input:checked + .mt-track::before{transform:translateX(13px);background:var(--bg-alt)}
-  </style>
 </head>
 <body>
 <div id="app">
 
-  <!-- ═══ NAVBAR ══════════════════════════════════ -->
+  <!-- ══ NAVBAR ══════════════════════════════════════ -->
   <nav id="navbar">
     <div id="logo">பைந்தமிழ்</div>
     <span id="lesson-title-bar"></span>
     <div id="nav-right">
-      <!-- Hints toggle lives here — always visible -->
-      <label style="display:flex;align-items:center;gap:.35rem;cursor:pointer;font-size:.7rem;color:var(--fg-3)" title="Toggle key hints">
+
+      <!-- Hints toggle -->
+      <label class="hints-label" title="Toggle key hints">
         <span>Hints</span>
-        <label class="mini-toggle"><input type="checkbox" id="toggle-hints" checked /><span class="mt-track"></span></label>
+        <label class="mini-toggle">
+          <input type="checkbox" id="toggle-hints" checked />
+          <span class="mt-track"></span>
+        </label>
       </label>
 
-      <span style="width:1px;height:1rem;background:var(--border-sub);margin:0 .1rem"></span>
+      <span class="nav-sep"></span>
 
       <!-- View cycle -->
       <button class="icon-btn" id="btn-view" title="Cycle view"></button>
 
       <!-- Lessons -->
       <button class="icon-btn" id="btn-lessons" title="All lessons">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <line x1="8" y1="6"  x2="21" y2="6"/>
           <line x1="8" y1="12" x2="21" y2="12"/>
@@ -52,7 +45,7 @@
 
       <!-- Finger guide -->
       <button class="icon-btn" id="btn-finger" title="Finger guide">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M18 11V6a2 2 0 0 0-4 0v0M14 10V4a2 2 0 0 0-4 0v2M10 10.5V6a2 2 0 0 0-4 0v8"/>
           <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
@@ -61,127 +54,148 @@
 
       <!-- Theme -->
       <button class="icon-btn" id="btn-theme" title="Toggle theme">
-        <svg id="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none"
+        <svg id="icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-             style="display:none">
+             style="display:block">
           <circle cx="12" cy="12" r="5"/>
           <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
           <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
           <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
           <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
         </svg>
-        <svg id="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <svg id="icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+             style="display:none">
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+
+      <!-- Info / Setup guide -->
+      <button class="icon-btn" id="btn-info" title="Setup guide — Tamil keyboard install">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
         </svg>
       </button>
     </div>
   </nav>
-  
-  <div id="tab-bar">
-    <button class="tab-btn active" data-tab="practice">பயிற்சி</button>
-    <button class="tab-btn" data-tab="kural">திருக்குறள்</button>
+
+
+  <!-- ══ KEYBOARD LANGUAGE BANNER ═════════════════
+       Shown when a non-Latin key is detected.
+       JS in practice.js detects and shows/hides this. -->
+  <div id="kb-lang-banner" class="hidden">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <span>Your keyboard appears to be in a non-English layout. Switch to <strong>English (US/UK)</strong> to type Tamil99 correctly.</span>
+    <button id="btn-kb-banner-close" aria-label="Dismiss">✕</button>
   </div>
 
-  <!-- ═══ PRACTICE ════════════════════════════════ -->
-  <main id="practice-main">
+  <!-- ══ TAB BAR ════════════════════════════════════ -->
+  <div id="tab-bar">
+    <button class="tab-btn active" data-tab="practice">பயிற்சி</button>
+    <button class="tab-btn"        data-tab="kural">திருக்குறள்</button>
+  </div>
 
-    <!-- 1. TOP BAR: stats strip + lesson nav -->
+  <!-- ══ PRACTICE ═══════════════════════════════════ -->
+  <main id="practice-main" data-view="0">
+
+    <!-- Stats strip + lesson nav -->
     <div id="top-bar">
       <div id="stats-strip"><!-- rendered by metrics.js --></div>
       <div id="top-right-nav">
-        <span id="stat-time" style="font-size:.68rem;color:var(--fg-3);min-width:2.8rem;text-align:right;font-variant-numeric:tabular-nums">0:00</span>
-        <button class="nav-btn" id="btn-prev-lesson"     disabled title="Previous">←</button>
-        <span   id="lesson-counter">1 / 34</span>
-        <button class="nav-btn" id="btn-restart"         title="Restart">↺</button>
+        <span id="stat-time">0:00</span>
+        <button class="nav-btn" id="btn-prev-lesson" disabled title="Previous">←</button>
+        <span id="lesson-counter">1 / 34</span>
+        <button class="nav-btn" id="btn-restart" title="Restart">↺</button>
         <button class="nav-btn" id="btn-next-lesson-nav" title="Next">→</button>
       </div>
     </div>
 
-    <!-- 2. KEY PANEL (metrics: keys heatmap + current + streaks) -->
+    <!-- Key panel (heatmap) -->
     <div id="key-panel"><!-- rendered by metrics.js --></div>
 
-    <!-- 3. PROGRESS + TYPING TEXT -->
+    <!-- Progress bar -->
     <div id="progress-row">
       <span id="lesson-label"></span>
       <div id="progress-track"><div id="progress-fill"></div></div>
       <span id="progress-text">0 / 0</span>
     </div>
 
+    <!-- Typing area -->
     <div id="typing-wrapper">
-      <div id="focus-overlay"><span>Click here to start typing</span></div>
+      <div id="focus-overlay">
+        <span>click to type</span>
+      </div>
       <div id="typing-area" tabindex="0" role="textbox" aria-label="Tamil typing practice area">
         <div id="lesson-container"></div>
       </div>
     </div>
 
-    <!-- Key hint bar -->
-    <div id="key-guide">
-      <span style="font-size:.68rem;color:var(--fg-3)">press</span>
-      <kbd id="hint-key">—</kbd>
-      <span id="hint-char"></span>
-      <span id="hint-shift-wrap" style="display:none">
-        <span class="shift-badge">+ Shift</span>
-      </span>
-    </div>
+    <!-- Hint bar (rebuilt dynamically by JS) -->
+    <div id="key-guide"></div>
 
-    <!-- 4. SVG KEYBOARD -->
+    <!-- SVG Keyboard -->
     <div id="keyboard"></div>
 
   </main>
 
-<!-- ═══ KURAL SECTION ═══════════════════════════════════════════════ -->
+  <!-- ══ THIRUKKURAL ════════════════════════════════ -->
+  <main id="kural-main" class="hidden">
 
-<main id="kural-main" class="hidden">
-
-  <!-- Metadata: number · book › chapter + English -->
-  <div id="kural-meta">
-    <div class="kc-loading">குறள் ஏற்றுகிறது…</div>
-  </div>
-
-  <!-- Top bar -->
-  <div id="kural-top-bar">
-    <div id="kural-stats-bar">
-      <div class="ks-stat"><span class="ks-val" id="kural-wpm">0</span><span class="ks-lbl">wpm</span></div>
-      <span class="ks-sep"></span>
-      <div class="ks-stat"><span class="ks-val" id="kural-acc">100%</span><span class="ks-lbl">accuracy</span></div>
-      <span class="ks-sep"></span>
-      <div class="ks-stat"><span class="ks-val" id="kural-time">0:00</span><span class="ks-lbl">time</span></div>
+    <!-- Metadata: number · book › chapter + English -->
+    <div id="kural-meta">
+      <div class="kc-loading">குறள் ஏற்றுகிறது…</div>
     </div>
-    <div id="kural-controls">
-      <div class="kural-num-wrap">
-        <input id="kural-num-input" class="kural-num-input" type="number" min="1" max="1330" placeholder="1–1330" title="Enter kural number and press Enter" />
-        <button id="btn-go-kural" class="kural-ctrl-btn kural-go-btn" title="Go">→</button>
+
+    <!-- Stats + controls -->
+    <div id="kural-top-bar">
+      <div id="kural-stats-bar">
+        <div class="ks-stat"><span class="ks-val" id="kural-wpm">0</span><span class="ks-lbl">wpm</span></div>
+        <span class="ks-sep"></span>
+        <div class="ks-stat"><span class="ks-val" id="kural-acc">100%</span><span class="ks-lbl">accuracy</span></div>
+        <span class="ks-sep"></span>
+        <div class="ks-stat"><span class="ks-val" id="kural-time">0:00</span><span class="ks-lbl">time</span></div>
       </div>
-      <button class="kural-ctrl-btn" id="btn-random-kural" title="Random kural">↺ Random</button>
-      <button class="kural-ctrl-btn" id="btn-retry-kural"  title="Retry this kural">↺ Retry</button>
+      <div id="kural-controls">
+        <div class="kural-num-wrap">
+          <input id="kural-num-input" class="kural-num-input" type="number"
+                 min="1" max="1330" placeholder="1–1330" title="கு எண் → Enter" />
+          <button id="btn-go-kural" class="kural-ctrl-btn kural-go-btn" title="Go">→</button>
+        </div>
+        <button class="kural-ctrl-btn" id="btn-random-kural">↺ Random</button>
+        <button class="kural-ctrl-btn" id="btn-retry-kural">↺ Retry</button>
+      </div>
     </div>
-  </div>
 
-  <!-- Progress bar -->
-  <div id="kural-progress-row">
-    <div id="kural-progress-track"><div id="kural-progress-fill"></div></div>
-    <span id="kural-progress-txt">0 / 0</span>
-  </div>
-
-  <!-- Typing area — open, no box -->
-  <div id="kural-typing-wrapper">
-    <div id="kural-focus-overlay"><span>Click here to start typing</span></div>
-    <div id="kural-typing-area" tabindex="0" role="textbox" aria-label="Thirukkural typing practice area">
-      <div id="kural-container"></div>
+    <!-- Progress -->
+    <div id="kural-progress-row">
+      <div id="kural-progress-track"><div id="kural-progress-fill"></div></div>
+      <span id="kural-progress-txt">0 / 0</span>
     </div>
-  </div>
 
-  <!-- Hint bar hidden — keyboard is the assistant -->
-  <div id="kural-key-guide" style="display:none"></div>
+    <!-- Typing area -->
+    <div id="kural-typing-wrapper">
+      <div id="kural-focus-overlay"><span>click to type</span></div>
+      <div id="kural-typing-area" tabindex="0" role="textbox"
+           aria-label="Thirukkural typing practice area">
+        <div id="kural-container"></div>
+      </div>
+    </div>
 
-  <!-- Result panel -->
-  <div id="kural-result" class="hidden"></div>
+    <!-- Hint bar: hidden — keyboard is the guide -->
+    <div id="kural-key-guide"></div>
 
-  <!-- Keyboard slot: shared #keyboard SVG moved here on tab switch -->
-  <div id="kural-kb-slot"></div>
+    <!-- Result panel -->
+    <div id="kural-result" class="hidden"></div>
 
-</main>
+    <!-- Keyboard moves here on tab switch -->
+    <div id="kural-kb-slot"></div>
+
+  </main>
+
+  <!-- ══ FOOTER ─────────────────────────────────── -->
   <footer id="footer">
     Made with care in Tamil Nadu &nbsp;·&nbsp;
     <a href="https://github.com/mastergokul/thattachu" target="_blank" rel="noopener">GitHub</a>
@@ -189,7 +203,7 @@
 
 </div><!-- /app -->
 
-<!-- ═══ LESSONS MODAL ═══════════════════════════ -->
+<!-- ══ LESSONS MODAL ══════════════════════════════ -->
 <div id="modal-lessons" class="modal-overlay">
   <div class="modal-box wide">
     <div class="modal-header">
@@ -207,7 +221,7 @@
   </div>
 </div>
 
-<!-- ═══ FINGER GUIDE MODAL ══════════════════════ -->
+<!-- ══ FINGER GUIDE MODAL ════════════════════════ -->
 <div id="modal-finger" class="modal-overlay">
   <div class="modal-box wide">
     <div class="modal-header">
@@ -215,17 +229,17 @@
       <button class="modal-close" id="btn-close-finger">✕</button>
     </div>
     <div class="modal-body">
-      <p style="font-size:.75rem;color:var(--fg-2);margin-bottom:.5rem">
+      <p style="font-size:.72rem;color:var(--fg-3);margin-bottom:.5rem;line-height:1.6">
         Each colour = one finger. Rest on home row (க ப ம த ந ய) and reach from there.
       </p>
       <div id="finger-kb-wrap"></div>
-      <div id="finger-legend" style="display:grid;grid-template-columns:1fr 1fr;gap:.4rem .9rem;margin-top:.45rem"></div>
+      <div id="finger-legend"></div>
       <p class="fg-note">Home-row keys need no finger movement. Reach all other keys from that resting position.</p>
     </div>
   </div>
 </div>
 
-<!-- ═══ RESULTS MODAL ═══════════════════════════ -->
+<!-- ══ RESULTS MODAL ══════════════════════════════ -->
 <div id="modal-results" class="modal-overlay">
   <div class="modal-box">
     <div class="modal-header">
@@ -258,7 +272,177 @@
   </div>
 </div>
 
+<!-- ══ INFO / SETUP MODAL ════════════════════════════ -->
+<div id="modal-info" class="modal-overlay">
+  <div class="modal-box wide info-modal-box">
+    <div class="modal-header">
+      <span class="modal-title">Setup Guide — Tamil99 Keyboard</span>
+      <button class="modal-close" id="btn-close-info">✕</button>
+    </div>
+    <div class="modal-body info-body">
+
+      <!-- Keyboard language notice -->
+      <div class="info-notice">
+        <div class="info-notice-icon">⌨️</div>
+        <div>
+          <strong>Use English keyboard layout</strong>
+          <p>This app uses the Tamil99 layout on top of a standard English (QWERTY) keyboard. Make sure your OS input is set to <em>English</em> before typing — Tamil output happens automatically via the Tamil99 key mapping.</p>
+        </div>
+      </div>
+
+      <!-- Quick keyboard shortcut reference -->
+      <div class="info-shortcut-row">
+        <div class="info-shortcut">
+          <kbd class="info-kbd">Win</kbd> <kbd class="info-kbd">Space</kbd>
+          <span>Switch input on Windows</span>
+        </div>
+        <div class="info-shortcut">
+          <kbd class="info-kbd">⌘</kbd> <kbd class="info-kbd">Space</kbd>
+          <span>Switch input on macOS</span>
+        </div>
+        <div class="info-shortcut">
+          <kbd class="info-kbd">Super</kbd> <kbd class="info-kbd">Space</kbd>
+          <span>Switch input on Linux</span>
+        </div>
+      </div>
+
+      <div class="info-divider"></div>
+
+      <!-- OS tabs -->
+      <div class="info-os-tabs">
+        <button class="info-os-btn active" data-os="windows">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-13.051-1.949"/></svg>
+          Windows
+        </button>
+        <button class="info-os-btn" data-os="mac">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+          macOS
+        </button>
+        <button class="info-os-btn" data-os="linux">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12.504 0c-.155 0-.315.008-.48.021-4.226.333-3.105 4.807-3.17 6.298-.076 1.092-.3 1.953-1.05 3.02-.885 1.051-2.127 2.75-2.716 4.521-.278.832-.41 1.684-.287 2.489a.424.424 0 00-.11.135c-.26.268-.45.6-.663.839-.199.199-.485.267-.797.4-.313.136-.658.269-.864.68-.09.189-.136.394-.132.602 0 .199.027.4.055.536.058.399.116.728.04.97-.249.68-.28 1.145-.106 1.484.174.334.535.47.94.601.81.2 1.91.135 2.774.6.926.466 1.866.67 2.616.47.526-.116.97-.464 1.208-.946.587.517 1.281.792 1.958.792.5 0 1.026-.156 1.547-.463 1.044-.626 1.744-1.734 1.738-2.606 0-.795-.603-1.664-1.03-2.088l-.244-.224c.654-.343 1.066-.992 1.066-1.777 0-1.09-.92-2-2.048-2-1.012 0-1.87.7-2.04 1.64-.04.233-.027.468.03.695a2.09 2.09 0 00-.71.52 2.09 2.09 0 00-.455 1.296c0 .55.209 1.044.55 1.41a2.092 2.092 0 001.498.626c.394 0 .759-.112 1.071-.306.035.124.081.245.143.361.233.449.668.765 1.178.906-.44.342-.895.528-1.347.528-.432 0-.854-.155-1.234-.463a4.19 4.19 0 01-.42-.408c-.136-.153-.273-.316-.41-.428a.424.424 0 00-.562.032c-.14.165-.177.392-.093.59.214.5.595.9 1.046 1.177a3.17 3.17 0 001.668.474c.696 0 1.393-.246 1.986-.733.55.097 1.134.063 1.657-.193.523-.257.93-.71 1.094-1.24.078-.258.092-.53.04-.795a2.76 2.76 0 00-.148-.576c.374-.342.61-.822.61-1.362 0-.96-.742-1.752-1.69-1.837a1.803 1.803 0 00-.205-.012c-.274 0-.538.065-.77.187l-.198-.184c-.467-.433-.942-.978-.942-1.896 0-.747.257-1.337.735-1.71.477-.373 1.126-.524 1.82-.374.553.12.973.452 1.166.842.137.275.161.596.05.867a.425.425 0 00.229.552.425.425 0 00.552-.229c.198-.498.157-1.074-.111-1.594-.307-.61-.872-1.085-1.645-1.248-.87-.19-1.741 0-2.402.504-.653.494-1.02 1.285-1.02 2.19 0 1.23.626 1.98 1.14 2.468l.138.128a1.826 1.826 0 00-.21.87c0 .623.294 1.166.74 1.51l-.017.016a2.92 2.92 0 00-.658 1.898c0 .99.596 2.136 1.68 2.788.58.348 1.217.517 1.852.517.602 0 1.2-.157 1.722-.47.036-.02.07-.046.103-.07.145.372.193.768.093 1.154-.156.596-.587 1.063-1.166 1.273a4.16 4.16 0 01-.88.188 4.5 4.5 0 01-.45.027c-.836 0-1.71-.26-2.518-.753-.95-.59-1.534-1.404-1.565-2.225a.424.424 0 00-.426-.412.424.424 0 00-.424.436c.04 1.085.767 2.136 1.943 2.87.93.578 1.955.872 2.99.872.18 0 .36-.01.537-.03.42-.047.825-.15 1.197-.304l.003.006c.028.15.086.296.186.416.2.24.518.357.836.31l.003-.001c.36-.055.66-.3.78-.638.117-.334.048-.696-.18-.965a.968.968 0 00-.19-.168c.38-.567.537-1.245.43-1.916a3.05 3.05 0 00-.26-.806 3.15 3.15 0 00.756-2.053 3.155 3.155 0 00-1.048-2.376 1.774 1.774 0 00.357-1.057 1.784 1.784 0 00-1.786-1.782z"/></svg>
+          Linux
+        </button>
+      </div>
+
+      <!-- OS-specific content panels -->
+      <div class="info-os-panel active" data-os="windows">
+        <div class="info-step">
+          <div class="info-step-num">1</div>
+          <div>
+            <div class="info-step-title">Download Tamil99 Keyboard Layout</div>
+            <p>Go to the <strong>Tamil Virtual Academy</strong> website and download the official Tamil99 keyboard driver for Windows.</p>
+            <a href="https://www.tamilvu.org/ta/library-l410-html-l4101-244038" target="_blank" rel="noopener" class="info-link">
+              tamilvu.org — Tamil99 Download
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+            <p class="info-note">Alternatively, download from <strong>NHM Writer</strong> (free, lightweight) which includes Tamil99 support.</p>
+            <a href="https://nhm.gov.in/New_Update-2/Tamil.html" target="_blank" rel="noopener" class="info-link">
+              NHM Tamil Writer
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="info-step">
+          <div class="info-step-num">2</div>
+          <div>
+            <div class="info-step-title">Install the driver</div>
+            <p>Run the installer as administrator. It adds a new keyboard layout to Windows.</p>
+          </div>
+        </div>
+        <div class="info-step">
+          <div class="info-step-num">3</div>
+          <div>
+            <div class="info-step-title">Add Tamil99 input to Windows</div>
+            <p>Go to <strong>Settings → Time &amp; Language → Language &amp; Region</strong>. Click <strong>Add a language</strong>, search for <em>Tamil</em>, and add it. Then click the Tamil language → Options → Add a keyboard → select <em>Tamil99</em>.</p>
+          </div>
+        </div>
+        <div class="info-step">
+          <div class="info-step-num">4</div>
+          <div>
+            <div class="info-step-title">Switch between layouts</div>
+            <p>Use <kbd class="info-kbd">Win</kbd> + <kbd class="info-kbd">Space</kbd> to toggle between English and Tamil99. The taskbar language indicator shows the current layout.</p>
+            <div class="info-tip">💡 For this website, keep your layout set to <strong>English</strong> — the Tamil99 mapping is handled in the browser.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-os-panel" data-os="mac">
+        <div class="info-step">
+          <div class="info-step-num">1</div>
+          <div>
+            <div class="info-step-title">Tamil99 is built into macOS</div>
+            <p>No download needed. macOS includes Tamil99 as a built-in input source.</p>
+          </div>
+        </div>
+        <div class="info-step">
+          <div class="info-step-num">2</div>
+          <div>
+            <div class="info-step-title">Add Tamil99 input source</div>
+            <p>Go to <strong>System Settings → Keyboard → Input Sources → Edit</strong>. Click <strong>+</strong>, search for <em>Tamil</em>, and select <strong>Tamil99</strong>. Click Add.</p>
+          </div>
+        </div>
+        <div class="info-step">
+          <div class="info-step-num">3</div>
+          <div>
+            <div class="info-step-title">Show the input menu in menu bar</div>
+            <p>Enable <em>Show Input menu in menu bar</em> in the same Keyboard settings. This lets you quickly see and switch the active layout.</p>
+          </div>
+        </div>
+        <div class="info-step">
+          <div class="info-step-num">4</div>
+          <div>
+            <div class="info-step-title">Switch between layouts</div>
+            <p>Use <kbd class="info-kbd">⌘</kbd> + <kbd class="info-kbd">Space</kbd> (or the menu bar icon) to toggle between English and Tamil99.</p>
+            <div class="info-tip">💡 For this website, keep your layout on <strong>English (ABC)</strong> — Tamil output happens automatically.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-os-panel" data-os="linux">
+        <div class="info-step">
+          <div class="info-step-num">1</div>
+          <div>
+            <div class="info-step-title">Install IBus with Tamil support (recommended)</div>
+            <p>Open a terminal and install IBus + the Tamil engine:</p>
+            <pre class="info-code">sudo apt install ibus ibus-m17n m17n-db
+# Then restart IBus:
+ibus restart</pre>
+            <p class="info-note">On Fedora/RHEL: use <code>dnf install ibus-m17n</code>. On Arch: <code>pacman -S ibus-m17n</code>.</p>
+          </div>
+        </div>
+        <div class="info-step">
+          <div class="info-step-num">2</div>
+          <div>
+            <div class="info-step-title">Add Tamil99 input source</div>
+            <p>Open <strong>IBus Preferences</strong> → <em>Input Method</em> tab → click <strong>+</strong> → search <em>Tamil99</em> → select <code>ta:tam99</code> (m17n) → Add.</p>
+            <p class="info-note">On GNOME: use <strong>Settings → Keyboard → Input Sources</strong> instead.</p>
+          </div>
+        </div>
+        <div class="info-step">
+          <div class="info-step-num">3</div>
+          <div>
+            <div class="info-step-title">Set IBus as the input method</div>
+            <p>Add these lines to your <code>~/.profile</code> or <code>~/.bashrc</code> and log out/in:</p>
+            <pre class="info-code">export GTK_IM_MODULE=ibus
+export QT_IM_MODULE=ibus
+export XMODIFIERS=@im=ibus</pre>
+          </div>
+        </div>
+        <div class="info-step">
+          <div class="info-step-num">4</div>
+          <div>
+            <div class="info-step-title">Switch between layouts</div>
+            <p>Use <kbd class="info-kbd">Super</kbd> + <kbd class="info-kbd">Space</kbd> or the IBus tray icon to toggle between English and Tamil99.</p>
+            <div class="info-tip">💡 For this website, stay on <strong>English</strong> layout — Tamil mapping is in the browser. You only need Tamil99 for typing in other apps.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
 <script type="module" src="js/practice.js"></script>
-<script type="module" src="js/thirukkural.js"></script>
 </body>
 </html>
