@@ -1,46 +1,87 @@
-/* ═══════════════════════════════════════════════════════════════
-   பைந்தமிழ் — style.css
-   Pastel-warm palette. Fonts: Coiny logo · JetBrains Mono UI · Noto Sans Tamil.
-   Syllable partial state uses CSS background-clip:text gradient.
-═══════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════════════
+   பைந்தமிழ் (Paintamil) — style.css
+   ═══════════════════════════════════════════════════════════════════
+   Main stylesheet for the Tamil99 typing practice app.
 
+   DESIGN DIRECTION
+   ────────────────
+   Deep, warm dark workspace. Tamil text is the hero.
+   Visual hierarchy (top to bottom):
+     1. Typing text   — large, high contrast, dominant
+     2. Progress bar  — thin, 1px, barely there
+     3. Hint bar      — compact, below typing area
+     4. SVG Keyboard  — reference, normal size
+     5. Key heatmap   — very small, subordinate
+     6. Stats strip   — micro, muted, right-aligned
+
+   FONTS
+   ─────
+   • 'Coiny'           — logo display
+   • 'JetBrains Mono'  — UI labels, stats, key names
+   • 'Noto Sans Tamil' — all Tamil character display
+
+   COLOR SYSTEM
+   ─────────────
+   Pastel-warm palette. All semantic colors are CSS variables.
+   Dark/light theming via [data-theme] on <html>.
+
+   CONTRIBUTING
+   ─────────────
+   MIT License. See README for contribution guidelines.
+   GitHub: https://github.com/mastergokul/thattachu
+══════════════════════════════════════════════════════════════════════ */
+
+/* ── Google Fonts ──────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@300;400;600&family=JetBrains+Mono:wght@300;400;500&family=Coiny&display=swap');
 
-/* ── Dark (default) ───────────────────────────── */
+/* ════════════════════════════════════════════════
+   CSS VARIABLES — Dark theme (default)
+════════════════════════════════════════════════ */
 :root {
-  --bg:          #1e1c1a;
-  --bg-alt:      #252320;
-  --bg-raised:   #2e2b28;
-  --bg-hover:    #363330;
+  /* ── Surfaces ── */
+  --bg:          #1e1c1a;   /* main background — warm near-black */
+  --bg-alt:      #252320;   /* nav, tab bar, modal backgrounds */
+  --bg-raised:   #2e2b28;   /* cards, badges, raised elements */
+  --bg-hover:    #363330;   /* hover state surfaces */
 
-  --border:      #3d3a36;
-  --border-sub:  #2a2825;
+  /* ── Borders ── */
+  --border:      #3d3a36;   /* visible borders */
+  --border-sub:  #2a2825;   /* subtle dividers */
 
-  --fg:          #ede8e0;
-  --fg-2:        #a09890;
-  --fg-3:        #585450;
+  /* ── Text ── */
+  --fg:          #ede8e0;   /* primary text */
+  --fg-2:        #a09890;   /* secondary text */
+  --fg-3:        #585450;   /* tertiary / muted */
 
-  /* Pastel semantic colours */
-  --correct:     #7ecf8c;   /* pastel green */
-  --corrected:   #7ab0e8;   /* pastel blue */
-  --wrong:       #e88a8a;   /* pastel red */
-  --warn:        #d4aa72;   /* pastel amber */
-  --cursor-bar:  #a8a4e8;   /* pastel lavender */
-  --accent:      #d4926a;   /* pastel terracotta */
+  /* ── Semantic / typing feedback ── */
+  --correct:     #7ecf8c;   /* pastel green  — correct keystroke */
+  --corrected:   #7ab0e8;   /* pastel blue   — corrected after error */
+  --wrong:       #e88a8a;   /* pastel red    — wrong keystroke */
+  --warn:        #d4aa72;   /* pastel amber  — warnings */
+  --cursor-bar:  #a8a4e8;   /* pastel lavender — cursor underline */
+  --accent:      #d4926a;   /* pastel terracotta — progress, tabs, stars */
   --accent-dim:  rgba(212,146,106,.14);
 
-  --hint-fill:   rgba(140,150,255,.48);
-  --shift-fill:  rgba(212,174,80,.46);
+  /* ── SVG keyboard overlays ── */
+  --hint-fill:   rgba(140,150,255,.48);  /* blue-violet — hint key glow */
+  --shift-fill:  rgba(212,174,80,.46);   /* amber — shift key glow */
 
+  /* ── Typography ── */
   --font-ui:     'JetBrains Mono', monospace;
   --font-tamil:  'Noto Sans Tamil', 'Latha', sans-serif;
   --font-logo:   'Coiny', cursive;
+
+  /* ── Typing character size — overridden by JS per view mode ── */
   --char-size:   2rem;
+
+  /* ── Transitions ── */
   --t:           0.13s ease;
   --t-slow:      0.26s ease;
 }
 
-/* ── Light ────────────────────────────────────── */
+/* ════════════════════════════════════════════════
+   CSS VARIABLES — Light theme
+════════════════════════════════════════════════ */
 [data-theme="light"] {
   --bg:          #f8f5ef;
   --bg-alt:      #ffffff;
@@ -62,9 +103,11 @@
   --shift-fill:  rgba(180,128,18,.42);
 }
 
-/* ── Reset ────────────────────────────────────── */
-*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
-html { font-size:16px; }
+/* ════════════════════════════════════════════════
+   RESET
+════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
 body {
   font-family: var(--font-ui);
   font-size: .8125rem;
@@ -73,706 +116,830 @@ body {
   min-height: 100dvh;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   transition: background var(--t-slow), color var(--t-slow);
 }
-::-webkit-scrollbar { width:4px; height:4px; }
-::-webkit-scrollbar-track { background:transparent; }
-::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-/* ═══════════════════════════════════════════════
+/* ════════════════════════════════════════════════
    APP SHELL
-═══════════════════════════════════════════════ */
-#app { display:flex; flex-direction:column; min-height:100dvh; }
+════════════════════════════════════════════════ */
+#app { display: flex; flex-direction: column; min-height: 100dvh; }
 
-/* ═══════════════════════════════════════════════
+/* ════════════════════════════════════════════════
    NAVBAR
-═══════════════════════════════════════════════ */
+════════════════════════════════════════════════ */
 #navbar {
-  height:52px; padding:0 1.25rem;
-  display:flex; align-items:center; gap:.75rem;
-  background:var(--bg-alt);
-  border-bottom:1px solid var(--border-sub);
-  flex-shrink:0;
+  height: 50px;
+  padding: 0 1.25rem;
+  display: flex; align-items: center; gap: .6rem;
+  background: var(--bg-alt);
+  border-bottom: 1px solid var(--border-sub);
+  flex-shrink: 0;
 }
+
+/* Logo — Coiny display font */
 #logo {
-  font-family:var(--font-logo); font-size:1.45rem;
-  color:var(--fg); opacity:.9; cursor:pointer; flex-shrink:0;
-  transition:opacity var(--t);
+  font-family: var(--font-logo);
+  font-size: 1.4rem;
+  color: var(--fg);
+  opacity: .9;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity var(--t);
 }
-#logo:hover { opacity:1; }
+#logo:hover { opacity: 1; }
+
+/* Current lesson name — center of navbar */
 #lesson-title-bar {
-  flex:1; text-align:center; font-size:.72rem;
-  color:var(--fg-3); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  flex: 1;
+  text-align: center;
+  font-size: .68rem;
+  color: var(--fg-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-#nav-right { display:flex; align-items:center; gap:.2rem; flex-shrink:0; }
 
+/* Right-side nav controls */
+#nav-right { display: flex; align-items: center; gap: .18rem; flex-shrink: 0; }
+
+/* Icon buttons (theme, keyboard, lessons, etc.) */
 .icon-btn {
-  all:unset; cursor:pointer; width:32px; height:32px;
-  display:flex; align-items:center; justify-content:center;
-  border-radius:5px; color:var(--fg-3);
-  transition:background var(--t), color var(--t);
+  all: unset;
+  cursor: pointer;
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 5px;
+  color: var(--fg-3);
+  transition: background var(--t), color var(--t);
 }
-.icon-btn:hover { background:var(--bg-raised); color:var(--fg-2); }
+.icon-btn:hover { background: var(--bg-raised); color: var(--fg-2); }
 
+/* Vertical separator in navbar */
+.nav-sep { width: 1px; height: 16px; background: var(--border-sub); margin: 0 .08rem; flex-shrink: 0; }
+
+/* Hints toggle — mini pill toggle */
 .hints-label {
-  display:flex; align-items:center; gap:.32rem;
-  cursor:pointer; font-size:.68rem; color:var(--fg-3);
-  transition:color var(--t);
+  display: flex; align-items: center; gap: .28rem;
+  cursor: pointer; font-size: .67rem; color: var(--fg-3);
+  transition: color var(--t);
 }
-.hints-label:hover { color:var(--fg-2); }
-
-.mini-toggle { position:relative; width:28px; height:16px; flex-shrink:0; }
-.mini-toggle input { opacity:0; width:0; height:0; position:absolute; }
+.hints-label:hover { color: var(--fg-2); }
+.mini-toggle { position: relative; width: 28px; height: 16px; flex-shrink: 0; }
+.mini-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
 .mt-track {
-  position:absolute; inset:0;
-  background:var(--bg-raised); border:1px solid var(--border);
-  border-radius:999px; cursor:pointer;
-  transition:background .14s, border-color .14s;
+  position: absolute; inset: 0;
+  background: var(--bg-raised); border: 1px solid var(--border);
+  border-radius: 999px; cursor: pointer;
+  transition: background .14s, border-color .14s;
 }
 .mt-track::before {
-  content:''; position:absolute; width:10px; height:10px; top:2px; left:2px;
-  background:var(--fg-3); border-radius:50%;
-  transition:transform .14s, background .14s;
+  content: ''; position: absolute;
+  width: 10px; height: 10px; top: 2px; left: 2px;
+  background: var(--fg-3); border-radius: 50%;
+  transition: transform .14s, background .14s;
 }
-.mini-toggle input:checked + .mt-track { background:var(--cursor-bar); border-color:var(--cursor-bar); }
-.mini-toggle input:checked + .mt-track::before { transform:translateX(12px); background:#fff; }
+.mini-toggle input:checked + .mt-track { background: var(--cursor-bar); border-color: var(--cursor-bar); }
+.mini-toggle input:checked + .mt-track::before { transform: translateX(12px); background: #fff; }
 
-.nav-sep { width:1px; height:18px; background:var(--border-sub); margin:0 .1rem; flex-shrink:0; }
+/* ════════════════════════════════════════════════
+   NON-ENGLISH KEYBOARD WARNING BANNER
+   Shown when user presses a non-ASCII key
+════════════════════════════════════════════════ */
+#kb-lang-banner {
+  background: var(--warn);
+  color: #1a1200;
+  font-size: .72rem;
+  padding: .45rem 1.25rem;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: .75rem;
+  flex-shrink: 0;
+}
+#kb-lang-banner.hidden { display: none; }
+#btn-kb-banner-close {
+  all: unset; cursor: pointer; font-size: 1rem; opacity: .7;
+  transition: opacity var(--t);
+}
+#btn-kb-banner-close:hover { opacity: 1; }
 
-/* ═══════════════════════════════════════════════
+/* ════════════════════════════════════════════════
    TAB BAR
-═══════════════════════════════════════════════ */
+════════════════════════════════════════════════ */
 #tab-bar {
-  display:flex; align-items:center;
-  padding:0 1.25rem; background:var(--bg-alt);
-  border-bottom:1px solid var(--border-sub); flex-shrink:0;
+  display: flex; align-items: center;
+  padding: 0 1.25rem;
+  background: var(--bg-alt);
+  border-bottom: 1px solid var(--border-sub);
+  flex-shrink: 0;
 }
 .tab-btn {
-  all:unset; cursor:pointer; padding:.52rem 1rem;
-  font-family:var(--font-tamil); font-size:.8rem;
-  color:var(--fg-3); border-bottom:2px solid transparent;
-  margin-bottom:-1px; transition:color var(--t), border-color var(--t);
+  all: unset; cursor: pointer;
+  padding: .5rem 1rem;
+  font-family: var(--font-tamil); font-size: .8rem;
+  color: var(--fg-3);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color var(--t), border-color var(--t);
 }
-.tab-btn:hover { color:var(--fg-2); }
-.tab-btn.active { color:var(--fg); border-bottom-color:var(--accent); }
+.tab-btn:hover { color: var(--fg-2); }
+.tab-btn.active { color: var(--fg); border-bottom-color: var(--accent); }
 
-/* ═══════════════════════════════════════════════
+/* ════════════════════════════════════════════════
    MAIN CONTAINERS
-═══════════════════════════════════════════════ */
+════════════════════════════════════════════════ */
 #practice-main, #kural-main {
-  flex:1; display:flex; flex-direction:column;
-  align-items:center; padding:1.25rem 1.25rem .75rem;
-  gap:.85rem; max-width:860px; width:100%; margin:0 auto;
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center;
+  padding: .9rem 1.25rem .75rem;
+  gap: .7rem;
+  max-width: 860px; width: 100%; margin: 0 auto;
 }
 
-/* ═══════════════════════════════════════════════
-   TOP BAR
-═══════════════════════════════════════════════ */
-#top-bar { width:100%; display:flex; align-items:center; gap:.5rem; }
-#stats-strip { flex:1; display:flex; align-items:center; gap:.1rem; font-variant-numeric:tabular-nums; }
-.tb-stat { display:flex; align-items:baseline; gap:.2rem; padding:0 .42rem; flex-shrink:0; }
-.tb-val { font-size:.88rem; color:var(--fg); min-width:2.2rem; font-variant-numeric:tabular-nums; }
-.tb-lbl { font-size:.6rem; color:var(--fg-3); }
-.tb-avg { font-size:.6rem; color:var(--fg-3); min-width:3rem; }
-.tb-sep { width:1px; height:1rem; background:var(--border-sub); flex-shrink:0; }
-.tb-goal { gap:.4rem; }
-.tb-goal-track { width:48px; height:2px; background:var(--bg-raised); border-radius:999px; overflow:hidden; flex-shrink:0; }
-.tb-goal-fill { height:100%; background:var(--accent); border-radius:999px; transition:width .5s ease; }
+/* ════════════════════════════════════════════════
+   TOP BAR — micro stats + lesson navigation
+   Kept small so the TYPING TEXT dominates the page
+════════════════════════════════════════════════ */
+#top-bar {
+  width: 100%;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: .5rem;
+}
 
-#top-right-nav { display:flex; align-items:center; gap:.25rem; flex-shrink:0; }
-#stat-time { font-size:.67rem; color:var(--fg-3); min-width:2.8rem; text-align:right; font-variant-numeric:tabular-nums; }
-#lesson-counter { font-size:.68rem; color:var(--fg-3); min-width:44px; text-align:center; font-variant-numeric:tabular-nums; }
+/* Stats strip — very compact, muted */
+#stats-strip {
+  flex: 1;
+  display: flex; align-items: center; gap: .05rem;
+  font-variant-numeric: tabular-nums;
+}
+.tb-stat { display: flex; align-items: baseline; gap: .18rem; padding: 0 .32rem; flex-shrink: 0; }
+.tb-val {
+  font-size: .72rem;  /* intentionally small — text is the hero */
+  color: var(--fg-3); /* muted */
+  min-width: 1.8rem;
+  font-variant-numeric: tabular-nums;
+}
+.tb-lbl { font-size: .55rem; color: var(--fg-3); opacity: .7; }
+.tb-avg { font-size: .56rem; color: var(--fg-3); min-width: 2.6rem; }
+.tb-sep { width: 1px; height: .8rem; background: var(--border-sub); flex-shrink: 0; }
+/* Daily goal progress pill */
+.tb-goal { gap: .36rem; }
+.tb-goal-track { width: 40px; height: 2px; background: var(--bg-raised); border-radius: 999px; overflow: hidden; flex-shrink: 0; }
+.tb-goal-fill   { height: 100%; background: var(--accent); border-radius: 999px; transition: width .5s ease; }
+
+/* Right: time + prev/next/restart */
+#top-right-nav { display: flex; align-items: center; gap: .2rem; flex-shrink: 0; }
+#stat-time { font-size: .62rem; color: var(--fg-3); min-width: 2.4rem; text-align: right; font-variant-numeric: tabular-nums; }
+#lesson-counter { font-size: .62rem; color: var(--fg-3); min-width: 38px; text-align: center; font-variant-numeric: tabular-nums; }
 .nav-btn {
-  all:unset; cursor:pointer; padding:.2rem .5rem;
-  border:1px solid var(--border-sub); border-radius:4px;
-  font-size:.7rem; color:var(--fg-3); font-family:var(--font-ui);
-  transition:all var(--t);
+  all: unset; cursor: pointer; padding: .15rem .4rem;
+  border: 1px solid var(--border-sub); border-radius: 4px;
+  font-size: .64rem; color: var(--fg-3); font-family: var(--font-ui);
+  transition: all var(--t);
 }
-.nav-btn:hover:not(:disabled) { border-color:var(--border); color:var(--fg-2); background:var(--bg-raised); }
-.nav-btn:disabled { opacity:.2; cursor:not-allowed; }
+.nav-btn:hover:not(:disabled) { border-color: var(--border); color: var(--fg-2); background: var(--bg-raised); }
+.nav-btn:disabled { opacity: .2; cursor: not-allowed; }
 
-/* ═══════════════════════════════════════════════
-   KEY PANEL
-═══════════════════════════════════════════════ */
-#key-panel { width:100%; max-width:860px; }
-#key-panel.hidden { display:none; }
-.kp-row { display:flex; gap:.6rem; padding:.5rem .7rem; align-items:flex-start; border-bottom:1px solid var(--border-sub); }
-.kp-section { flex:1; min-width:0; }
-.kp-cur-section { flex:0 0 auto; width:5.5rem; text-align:center; }
-.kp-label { font-size:.54rem; text-transform:uppercase; letter-spacing:.1em; color:var(--fg-3); display:block; margin-bottom:.26rem; }
-.kp-map { display:flex; flex-wrap:wrap; gap:.13rem; margin-bottom:.2rem; font-family:var(--font-tamil); }
-.kp-key { display:inline-flex; align-items:center; justify-content:center; width:1.55rem; height:1.55rem; border-radius:3px; font-size:.82rem; border:1px solid var(--border-sub); cursor:default; transition:all var(--t); }
-.kp-uk { color:var(--fg-3); background:transparent; }
-.kp-ok { color:var(--correct); background:rgba(126,207,140,.07); border-color:rgba(126,207,140,.2); }
-.kp-so { color:var(--warn); background:rgba(212,170,114,.07); border-color:rgba(212,170,114,.2); }
-.kp-no { color:var(--wrong); background:rgba(232,138,138,.07); border-color:rgba(232,138,138,.2); }
-.kp-cur { outline:2px solid var(--cursor-bar); outline-offset:1px; }
-.kp-legend { display:flex; align-items:center; gap:.2rem; flex-wrap:wrap; margin-top:.18rem; }
-.kp-pill { font-size:.54rem; padding:.06rem .28rem; border-radius:3px; border:1px solid transparent; white-space:nowrap; }
-.kp-pill.kp-ok { color:var(--correct); background:rgba(126,207,140,.07); border-color:rgba(126,207,140,.18); }
-.kp-pill.kp-so { color:var(--warn); background:rgba(212,170,114,.07); border-color:rgba(212,170,114,.18); }
-.kp-pill.kp-no { color:var(--wrong); background:rgba(232,138,138,.07); border-color:rgba(232,138,138,.18); }
-.kp-pill.kp-uk { color:var(--fg-3); background:var(--bg-raised); border-color:var(--border-sub); }
-.kp-dim     { font-size:.65rem; color:var(--fg-3); }
-.kp-bigchar { font-family:var(--font-tamil); font-size:2rem; color:var(--fg); line-height:1; margin:.1rem 0; }
-.kp-calib   { font-size:.57rem; color:var(--fg-3); line-height:1.4; margin-top:.14rem; }
-.kp-accbar  { height:2px; background:var(--bg-raised); border-radius:999px; overflow:hidden; margin:.22rem 0; }
-.kp-accfill { height:100%; border-radius:999px; transition:width .4s ease; }
-.kp-streak  { font-size:.68rem; color:var(--correct); margin-top:.1rem; }
+/* ════════════════════════════════════════════════
+   KEY PANEL — per-key accuracy heatmap
+   Rendered by metrics.js. Kept compact and visually
+   subordinate to the typing text above.
+════════════════════════════════════════════════ */
+#key-panel { width: 100%; max-width: 860px; }
+#key-panel.hidden { display: none; }
 
-/* ═══════════════════════════════════════════════
-   PROGRESS BAR
-═══════════════════════════════════════════════ */
-#progress-row { width:100%; display:flex; align-items:center; gap:.6rem; }
-#lesson-label { font-size:.7rem; color:var(--fg-3); white-space:nowrap; flex-shrink:0; }
-#progress-track { flex:1; height:1.5px; background:var(--border-sub); border-radius:999px; overflow:hidden; }
-#progress-fill { height:100%; width:0%; background:var(--accent); border-radius:999px; transition:width .2s ease; }
-#progress-text { font-size:.65rem; color:var(--fg-3); white-space:nowrap; flex-shrink:0; font-variant-numeric:tabular-nums; }
+/* Two-column row: key map | current key stats */
+.kp-row {
+  display: flex; gap: .6rem; padding: .4rem .6rem;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--border-sub);
+}
+.kp-section     { flex: 1; min-width: 0; }
+.kp-cur-section { flex: 0 0 auto; width: 5rem; text-align: center; }
 
-/* ═══════════════════════════════════════════════
-   TYPING AREA
-═══════════════════════════════════════════════ */
-#typing-wrapper { width:100%; position:relative; }
+/* Section labels */
+.kp-label {
+  font-size: .5rem; text-transform: uppercase; letter-spacing: .1em;
+  color: var(--fg-3); display: block; margin-bottom: .22rem;
+}
+
+/* Key tiles in the heatmap */
+.kp-map { display: flex; flex-wrap: wrap; gap: .12rem; margin-bottom: .18rem; font-family: var(--font-tamil); }
+.kp-key {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.4rem; height: 1.4rem; /* slightly smaller than before */
+  border-radius: 3px; font-size: .75rem;
+  border: 1px solid var(--border-sub); cursor: default;
+  transition: all var(--t);
+}
+/* Key color states */
+.kp-uk { color: var(--fg-3); background: transparent; }
+.kp-ok { color: var(--correct); background: rgba(126,207,140,.07); border-color: rgba(126,207,140,.2); }
+.kp-so { color: var(--warn);    background: rgba(212,170,114,.07); border-color: rgba(212,170,114,.2); }
+.kp-no { color: var(--wrong);   background: rgba(232,138,138,.07); border-color: rgba(232,138,138,.2); }
+.kp-cur { outline: 2px solid var(--cursor-bar); outline-offset: 1px; }
+
+/* Legend pills: Fast · Good · Slow · Unknown */
+.kp-legend { display: flex; align-items: center; gap: .18rem; flex-wrap: wrap; margin-top: .16rem; }
+.kp-pill { font-size: .5rem; padding: .05rem .24rem; border-radius: 3px; border: 1px solid transparent; white-space: nowrap; }
+.kp-pill.kp-ok { color: var(--correct); background: rgba(126,207,140,.07); border-color: rgba(126,207,140,.18); }
+.kp-pill.kp-so { color: var(--warn);    background: rgba(212,170,114,.07); border-color: rgba(212,170,114,.18); }
+.kp-pill.kp-no { color: var(--wrong);   background: rgba(232,138,138,.07); border-color: rgba(232,138,138,.18); }
+.kp-pill.kp-uk { color: var(--fg-3); background: var(--bg-raised); border-color: var(--border-sub); }
+
+/* Current key stats column */
+.kp-dim     { font-size: .6rem; color: var(--fg-3); }
+.kp-bigchar { font-family: var(--font-tamil); font-size: 1.8rem; color: var(--fg); line-height: 1; margin: .1rem 0; }
+.kp-calib   { font-size: .54rem; color: var(--fg-3); line-height: 1.4; margin-top: .12rem; }
+.kp-accbar  { height: 2px; background: var(--bg-raised); border-radius: 999px; overflow: hidden; margin: .2rem 0; }
+.kp-accfill { height: 100%; border-radius: 999px; transition: width .4s ease; }
+.kp-streak  { font-size: .64rem; color: var(--correct); margin-top: .08rem; }
+
+/* ════════════════════════════════════════════════
+   PROGRESS BAR — thin, 1px, accent color
+════════════════════════════════════════════════ */
+#progress-row { width: 100%; display: flex; align-items: center; gap: .5rem; }
+#lesson-label { font-size: .62rem; color: var(--fg-3); opacity: .7; white-space: nowrap; flex-shrink: 0; }
+#progress-track { flex: 1; height: 1px; background: var(--border-sub); border-radius: 999px; overflow: hidden; }
+#progress-fill  { height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width .2s ease; }
+#progress-text  { font-size: .62rem; color: var(--fg-3); white-space: nowrap; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+
+/* ════════════════════════════════════════════════
+   TYPING AREA — the hero element
+   The Tamil characters MUST be the most prominent
+   thing on the screen. Generous height, no border.
+════════════════════════════════════════════════ */
+#typing-wrapper { width: 100%; position: relative; }
+
+/* Blurred glass focus overlay — semi-transparent so you can still
+   see the text beneath, not a solid wall of color */
 #focus-overlay {
-  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-  z-index:10; cursor:pointer; background:var(--bg); border-radius:0;
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10; cursor: pointer;
+  background: rgba(30, 28, 26, 0.72);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 0;
 }
-#focus-overlay.hidden { display:none; }
+#focus-overlay.hidden { display: none; }
 #focus-overlay span {
-  font-size:.75rem; color:var(--fg-3); letter-spacing:.04em;
-  border:1px solid var(--border-sub); padding:.3rem .75rem; border-radius:4px;
+  font-size: .74rem; color: var(--fg-2); letter-spacing: .05em;
+  border: 1px solid var(--border); padding: .3rem .75rem;
+  border-radius: 4px; background: var(--bg-raised);
 }
+[data-theme="light"] #focus-overlay { background: rgba(248,245,239,.72); }
 
+/* The typing area itself — open, no box, just a bottom border */
 #typing-area {
-  width:100%;
-  height:calc(var(--char-size) * 5.2);
-  overflow:hidden; padding:.5rem 0;
-  background:transparent; border:none;
-  border-bottom:1.5px solid var(--border-sub); border-radius:0;
-  outline:none; cursor:text;
-  transition:border-color var(--t); position:relative;
+  width: 100%;
+  height: calc(var(--char-size) * 6.2); /* shows ~3 full lines + partial fade */
+  overflow: hidden;
+  padding: .5rem 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid var(--border-sub);
+  border-radius: 0;
+  outline: none;
+  cursor: text;
+  transition: border-color var(--t);
+  position: relative;
 }
-#typing-area:focus-within { border-bottom-color:var(--border); }
+#typing-area:focus-within { border-bottom-color: var(--border); }
 
-/* Container — wraps at word boundaries */
+/* Bottom fade mask — hides the partial next line.
+   Gradient: transparent → bg color. The ::after sits on top of the text
+   with pointer-events:none so clicks/focus still work through it. */
+#typing-wrapper::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: calc(var(--char-size) * 1.6); /* covers ~1 partial line */
+  background: linear-gradient(to bottom, transparent 0%, var(--bg) 85%);
+  pointer-events: none;
+  z-index: 4;
+}
+
+/* Lesson container — flex word-wrapping so words never break mid-syllable */
 #lesson-container {
-  display:flex; flex-wrap:wrap; align-items:baseline;
-  font-family:var(--font-tamil); font-size:var(--char-size);
-  line-height:2; user-select:none;
-  word-break:keep-all; overflow-wrap:normal; gap:0;
+  display: flex; flex-wrap: wrap; align-items: baseline;
+  font-family: var(--font-tamil); font-size: var(--char-size);
+  line-height: 2.1; user-select: none;
+  word-break: keep-all; overflow-wrap: normal; gap: 0;
 }
-.word { display:inline-flex; align-items:baseline; flex-wrap:nowrap; }
+/* Word group — never wraps internally */
+.word { display: inline-flex; align-items: baseline; flex-wrap: nowrap; }
 
-/* ── Character states ─────────────────────────── */
+/* ════════════════════════════════════════════════
+   CHARACTER STATES
+   Each .char span represents one syllable (single key or
+   composed CV pair). States are applied via JS.
+════════════════════════════════════════════════ */
 .char {
-  display:inline-flex; align-items:center; justify-content:center;
-  color:var(--fg-3); padding:0 .04em; border-radius:2px;
-  transition:color .08s; position:relative;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--fg-3); /* pending = muted */
+  padding: 0 .04em; border-radius: 2px;
+  transition: color .08s;
+  position: relative;
 }
-.char.space-char { min-width:.55em; color:transparent; font-family:var(--font-ui); font-size:.5em; }
-.char.space-char.current { color:var(--fg-3); }
-.char.space-char.correct { color:transparent; }
+/* Space character — rendered as · */
+.char.space-char { min-width: .55em; color: transparent; font-family: var(--font-ui); font-size: .5em; }
+.char.space-char.current { color: var(--fg-3); }
+.char.space-char.correct { color: transparent; }
 
-.char.current { color:var(--fg); }
+/* Current character — full color + blinking underline */
+.char.current { color: var(--fg); font-weight: 500; }
 .char.current::after {
-  content:''; position:absolute; bottom:0; left:5%; right:5%;
-  height:2px; background:var(--cursor-bar); border-radius:1px;
-  animation:blink 1s step-end infinite;
+  content: '';
+  position: absolute; bottom: 0; left: 5%; right: 5%;
+  height: 2px; background: var(--cursor-bar); border-radius: 1px;
+  animation: blink 1s step-end infinite;
 }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
-.char.correct   { color:var(--correct); }
-.char.corrected { color:var(--corrected); }
-.char.incorrect { color:var(--wrong); }
-.char.pop   { animation:cpop .2s cubic-bezier(.34,1.56,.64,1); }
+/* Correct — green; Corrected (fixed after error) — blue; Wrong — red */
+.char.correct   { color: var(--correct); }
+.char.corrected { color: var(--corrected); }
+.char.incorrect { color: var(--wrong); }
+
+/* Pop animation when a syllable completes correctly */
+.char.pop   { animation: cpop .2s cubic-bezier(.34,1.56,.64,1); }
 @keyframes cpop { 0%{transform:scale(1)} 55%{transform:scale(1.22)} 100%{transform:scale(1)} }
-.char.shake { animation:cshake .26s ease; }
+
+/* Shake animation on wrong keystroke */
+.char.shake { animation: cshake .26s ease; }
 @keyframes cshake { 0%,100%{transform:translateX(0)} 25%,75%{transform:translateX(-3px)} 50%{transform:translateX(3px)} }
 
-/* ── Composed syllable (single span) ──────────────
-   .char-syl always shows the composed character (கா, கி…)
-   .syl-partial + data-vtype → CSS gradient splits
-   consonant portion (done=green) from vowel portion (pending=lavender).
-   
-   gradient directions per vowel position:
-     right  → ா ை ொ ோ ௌ  → left side green, right side lavender
-     left   → ெ ே          → right side green, left side lavender
-     top    → ி ீ           → bottom green, top lavender (mel vilangu)
-     bottom → ு ூ           → top green, bottom lavender
-     dot    → ்            → whole char lavender (pulli barely visible)
-══════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════
+   COMPOSED SYLLABLE PARTIAL STATE
+   .char-syl spans always show the COMPOSED form (கா, கி, etc.)
+   When the consonant is typed but vowel is pending (.syl-partial),
+   a CSS background-clip:text gradient splits the glyph visually:
+     consonant portion = --correct green
+     vowel portion     = --cursor-bar lavender
+   Gradient direction depends on where the vowel mark sits (data-vtype).
+════════════════════════════════════════════════ */
+.char-syl { position: relative; }
 
-.char-syl { position:relative; }
-
-/* Right-side matra: consonant base on left (green), vowel on right (lavender) */
-.char-syl.syl-partial[data-vtype="right"] {
-  background: linear-gradient(to right, var(--correct) 52%, var(--cursor-bar) 52%);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent; color: transparent;
-}
-/* Left-side matra (ெ ே): consonant on right, vowel on left */
-.char-syl.syl-partial[data-vtype="left"] {
-  background: linear-gradient(to left, var(--correct) 52%, var(--cursor-bar) 52%);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent; color: transparent;
-}
-/* Top matra (ி ீ mel vilangu): consonant body below, vowel mark on top */
-.char-syl.syl-partial[data-vtype="top"] {
-  background: linear-gradient(to top, var(--correct) 62%, var(--cursor-bar) 62%);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent; color: transparent;
-}
-/* Bottom matra (ு ூ): consonant above, curl below */
-.char-syl.syl-partial[data-vtype="bottom"] {
-  background: linear-gradient(to bottom, var(--correct) 62%, var(--cursor-bar) 62%);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent; color: transparent;
-}
-/* Pulli (்): just tint the whole char in cursor color */
-.char-syl.syl-partial[data-vtype="dot"] {
-  color: var(--cursor-bar);
-}
-
-/* Cursor underline on current composed syllable */
+/* Cursor underline on the current composed syllable */
 .char-syl.current::after {
-  content:''; position:absolute; bottom:0; left:0; right:0;
-  height:2px; background:var(--cursor-bar); border-radius:1px;
-  animation:blink 1s step-end infinite;
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px; background: var(--cursor-bar); border-radius: 1px;
+  animation: blink 1s step-end infinite;
 }
-/* Steady underline for partial (consonant done) */
+
+/* Steady underline = partial state (consonant done, vowel pending) */
 .char-syl.syl-partial::after {
-  content:''; position:absolute; bottom:0; left:0; right:0;
-  height:3px; background:var(--cursor-bar); border-radius:2px;
-  opacity:.7; animation:none;
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 3px; background: var(--cursor-bar); border-radius: 2px;
+  opacity: .7; animation: none; /* steady not blinking */
 }
 
-/* ═══════════════════════════════════════════════
-   HINT BAR
-═══════════════════════════════════════════════ */
-#key-guide {
-  display:flex; align-items:center; gap:.48rem;
-  min-height:28px; transition:opacity .2s;
-}
-#key-guide.hint-hidden { opacity:0; pointer-events:none; }
-
-.hk {
-  display:inline-flex; align-items:center; justify-content:center;
-  min-width:1.85rem; padding:.1rem .42rem;
-  background:var(--bg-raised); border:1px solid var(--border);
-  border-bottom:2px solid var(--border); border-radius:4px;
-  font-size:.7rem; color:var(--fg-2); font-family:var(--font-ui);
-  transition:color .1s, border-color .1s, background .1s;
-}
-.hk.hk-next {
-  color:var(--cursor-bar); border-color:var(--cursor-bar);
-  border-bottom-color:var(--cursor-bar);
-  background:rgba(168,164,232,.1);
-}
-[data-theme="light"] .hk.hk-next { background:rgba(80,80,176,.07); }
-.hk.hk-done { color:var(--correct); border-color:var(--correct); background:rgba(126,207,140,.07); opacity:.85; }
-.hk-sep  { font-size:.6rem; color:var(--fg-3); margin:0 .14rem; flex-shrink:0; }
-.hk-char { font-family:var(--font-tamil); font-size:1.1rem; color:var(--fg-2); margin-left:.08rem; }
-.hk-label{ font-size:.62rem; color:var(--fg-3); margin-right:.08rem; }
-.shift-badge { padding:.08rem .3rem; border:1px solid var(--border-sub); border-radius:3px; font-size:.64rem; color:var(--warn); background:var(--bg-raised); }
-
-/* ═══════════════════════════════════════════════
-   SVG KEYBOARD
-═══════════════════════════════════════════════ */
-#keyboard { width:100%; max-width:860px; }
-#keyboard svg { width:100%; height:auto; display:block; border-radius:6px; border:1px solid var(--border-sub); }
-
-#keyboard svg g[id] > rect:first-child { opacity:.16; }
-#keyboard svg #Tamil99>rect, #keyboard svg #Keyboard>rect { fill:var(--bg-alt)!important; }
-#keyboard svg path { fill:rgba(255,255,255,.4); }
-[data-theme="light"] #keyboard svg g[id] > rect:first-child { opacity:.56; }
-[data-theme="light"] #keyboard svg #Tamil99>rect, [data-theme="light"] #keyboard svg #Keyboard>rect { fill:var(--bg-alt)!important; }
-[data-theme="light"] #keyboard svg path { fill:rgba(0,0,0,.5); }
-
-#keyboard svg g.key-hint > rect:first-child { fill:var(--hint-fill)!important; opacity:1!important; animation:kp 1.4s ease-in-out infinite; }
-#keyboard svg g.key-hint path { fill:rgba(255,255,255,.88)!important; }
-[data-theme="light"] #keyboard svg g.key-hint path { fill:rgba(0,0,0,.88)!important; }
-@keyframes kp { 0%,100%{filter:brightness(.88)} 50%{filter:brightness(1.2)} }
-#keyboard svg g.key-shift > rect:first-child { fill:var(--shift-fill)!important; opacity:1!important; animation:kp 1.4s ease-in-out infinite; }
-#keyboard svg g.key-correct { animation:kok .32s ease-out forwards; }
-#keyboard svg g.key-correct > rect:first-child { fill:rgba(126,207,140,.52)!important; opacity:1!important; }
-@keyframes kok { 0%{filter:brightness(1.5)} 100%{filter:brightness(1)} }
-#keyboard svg g.key-wrong { animation:kerr .32s ease-out forwards; }
-#keyboard svg g.key-wrong > rect:first-child { fill:rgba(232,138,138,.52)!important; opacity:1!important; }
-@keyframes kerr { 0%{filter:brightness(1.5)} 100%{filter:brightness(1)} }
-
-#keyboard.guide-mode svg g[data-finger] > rect:first-child { opacity:1!important; }
-#keyboard.guide-mode svg g[data-finger="lp"] > rect:first-child { fill:rgba(196,80,80,.5)!important; }
-#keyboard.guide-mode svg g[data-finger="lr"] > rect:first-child { fill:rgba(196,148,60,.5)!important; }
-#keyboard.guide-mode svg g[data-finger="lm"] > rect:first-child { fill:rgba(185,185,48,.5)!important; }
-#keyboard.guide-mode svg g[data-finger="li"] > rect:first-child { fill:rgba(62,162,78,.5)!important; }
-#keyboard.guide-mode svg g[data-finger="th"] > rect:first-child { fill:rgba(120,120,165,.44)!important; }
-#keyboard.guide-mode svg g[data-finger="ri"] > rect:first-child { fill:rgba(55,128,215,.5)!important; }
-#keyboard.guide-mode svg g[data-finger="rm"] > rect:first-child { fill:rgba(84,84,215,.5)!important; }
-#keyboard.guide-mode svg g[data-finger="rr"] > rect:first-child { fill:rgba(148,82,215,.5)!important; }
-#keyboard.guide-mode svg g[data-finger="rp"] > rect:first-child { fill:rgba(205,78,205,.5)!important; }
-
-/* ═══════════════════════════════════════════════
-   VIEW MODES
-═══════════════════════════════════════════════ */
-#practice-main[data-view="1"] #typing-area { height:calc(var(--char-size)*9); }
-#practice-main[data-view="2"] #typing-area { height:calc(var(--char-size)*11); }
-#practice-main[data-view="1"], #practice-main[data-view="2"] { justify-content:center; }
-#practice-main[data-view="2"] #progress-row { opacity:0; pointer-events:none; }
-
-/* ═══════════════════════════════════════════════
-   KURAL SECTION
-═══════════════════════════════════════════════ */
-#kural-meta { width:100%; padding:.55rem 0; border-bottom:1px solid var(--border-sub); }
-.km-top { display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
-.km-num { font-size:.62rem; color:var(--fg-3); font-variant-numeric:tabular-nums; background:var(--bg-raised); border:1px solid var(--border-sub); border-radius:3px; padding:.04rem .3rem; flex-shrink:0; }
-.km-book  { font-size:.7rem; color:var(--fg-3); font-family:var(--font-tamil); }
-.km-arrow { font-size:.62rem; color:var(--fg-3); flex-shrink:0; }
-.km-chapter { font-size:.75rem; color:var(--fg-2); font-family:var(--font-tamil); font-weight:500; }
-.km-english { font-size:.68rem; color:var(--fg-3); font-style:italic; margin-top:.28rem; line-height:1.5; }
-.kc-loading { font-family:var(--font-tamil); font-size:.8rem; color:var(--fg-3); }
-
-#kural-top-bar { width:100%; display:flex; align-items:center; gap:.75rem; }
-#kural-stats-bar { flex:1; display:flex; align-items:center; gap:.1rem; font-variant-numeric:tabular-nums; }
-.ks-stat { display:flex; align-items:baseline; gap:.2rem; padding:.1rem .42rem; flex-shrink:0; }
-.ks-val { font-size:.88rem; color:var(--fg); min-width:2rem; font-variant-numeric:tabular-nums; }
-.ks-lbl { font-size:.6rem; color:var(--fg-3); }
-.ks-sep { width:1px; height:1rem; background:var(--border-sub); flex-shrink:0; }
-#kural-controls { display:flex; align-items:center; gap:.25rem; flex-shrink:0; }
-
-.kural-num-wrap { display:flex; align-items:center; border:1px solid var(--border-sub); border-radius:4px; overflow:hidden; transition:border-color var(--t); }
-.kural-num-wrap:focus-within { border-color:var(--border); }
-.kural-num-input { all:unset; width:3.8rem; padding:.2rem .4rem; font-size:.68rem; color:var(--fg); font-family:var(--font-ui); font-variant-numeric:tabular-nums; text-align:right; background:transparent; }
-.kural-num-input::-webkit-outer-spin-button,.kural-num-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
-.kural-num-input[type=number]{-moz-appearance:textfield;}
-.kural-go-btn { padding:.2rem .45rem!important; border:none!important; border-left:1px solid var(--border-sub)!important; border-radius:0!important; background:var(--bg-raised)!important; color:var(--fg-3)!important; cursor:pointer; font-size:.7rem!important; transition:background var(--t),color var(--t); }
-.kural-go-btn:hover { background:var(--border)!important; color:var(--fg)!important; }
-.kural-ctrl-btn { all:unset; cursor:pointer; padding:.2rem .56rem; border:1px solid var(--border-sub); border-radius:4px; font-size:.68rem; color:var(--fg-3); font-family:var(--font-ui); transition:all var(--t); white-space:nowrap; }
-.kural-ctrl-btn:hover { border-color:var(--border); color:var(--fg-2); background:var(--bg-raised); }
-
-#kural-progress-row { width:100%; display:flex; align-items:center; gap:.6rem; }
-#kural-progress-track { flex:1; height:1.5px; background:var(--border-sub); border-radius:999px; overflow:hidden; }
-#kural-progress-fill { height:100%; width:0%; background:var(--accent); border-radius:999px; transition:width .2s ease; }
-#kural-progress-txt { font-size:.65rem; color:var(--fg-3); white-space:nowrap; flex-shrink:0; font-variant-numeric:tabular-nums; }
-
-#kural-typing-wrapper { width:100%; position:relative; }
-#kural-focus-overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:10; cursor:pointer; background:var(--bg); border-radius:0; }
-#kural-focus-overlay.hidden { display:none; }
-#kural-focus-overlay span { font-size:.75rem; color:var(--fg-3); letter-spacing:.04em; border:1px solid var(--border-sub); padding:.3rem .75rem; border-radius:4px; }
-
-#kural-typing-area {
-  width:100%;
-  height:calc(1.75rem * 4 + 1.25rem * 5.5);
-  overflow:hidden; padding:.5rem 0;
-  background:transparent; border:none;
-  border-bottom:1.5px solid var(--border-sub); border-radius:0;
-  outline:none; cursor:text; transition:border-color var(--t); position:relative;
-}
-#kural-typing-area:focus-within { border-bottom-color:var(--border); }
-
-#kural-container {
-  display:flex; flex-wrap:wrap; align-items:baseline;
-  font-family:var(--font-tamil); user-select:none;
-  word-break:keep-all; overflow-wrap:normal; gap:0; line-height:2;
-}
-#kural-container .word { font-size:1.75rem; display:inline-flex; align-items:baseline; flex-wrap:nowrap; }
-#kural-container .char { font-size:1.75rem; }
-.kural-divider { width:100%; height:0; flex-basis:100%; flex-shrink:0; border-top:1px dashed var(--border-sub); margin:.3rem 0 .15rem; }
-.kural-divider ~ .word { font-size:1.2rem; }
-.kural-divider ~ .char { font-size:1.2rem; }
-#kural-key-guide { display:none!important; }
-
-#kural-result { width:100%; animation:mfade .2s ease; }
-.kr-inner { display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; padding:.65rem 0; border-bottom:1px solid var(--border-sub); }
-.kr-left { display:flex; align-items:center; gap:.5rem; flex-shrink:0; }
-.kr-msg  { font-family:var(--font-tamil); font-size:.88rem; color:var(--fg-2); }
-.kr-stars { font-size:1rem; color:var(--accent); }
-.kr-grid { display:flex; gap:.4rem; flex:1; flex-wrap:wrap; }
-.kr-cell { display:flex; flex-direction:column; align-items:center; min-width:54px; background:var(--bg-raised); border:1px solid var(--border-sub); border-radius:4px; padding:.3rem .52rem; }
-.kr-val { font-size:1rem; color:var(--fg); font-variant-numeric:tabular-nums; line-height:1.2; }
-.kr-lbl { font-size:.56rem; color:var(--fg-3); text-transform:uppercase; letter-spacing:.04em; margin-top:2px; }
-
-#kural-kb-slot { width:100%; max-width:860px; }
-
-/* ═══════════════════════════════════════════════
-   MODALS
-═══════════════════════════════════════════════ */
-.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.62); backdrop-filter:blur(5px); display:none; align-items:center; justify-content:center; z-index:100; }
-.modal-overlay.visible { display:flex; animation:mfade .16s ease; }
-@keyframes mfade { from{opacity:0} to{opacity:1} }
-.modal-box { background:var(--bg-alt); border:1px solid var(--border); border-radius:10px; width:90%; max-width:480px; max-height:88dvh; overflow-y:auto; box-shadow:0 20px 72px rgba(0,0,0,.4); animation:mrise .2s cubic-bezier(.34,1.4,.64,1); }
-.modal-box.wide { max-width:560px; }
-@keyframes mrise { from{transform:translateY(10px) scale(.97);opacity:0} to{transform:none;opacity:1} }
-.modal-header { padding:.85rem 1.05rem .7rem; border-bottom:1px solid var(--border-sub); display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; background:var(--bg-alt); z-index:1; }
-.modal-title { font-size:.78rem; font-weight:500; color:var(--fg); }
-.modal-close { all:unset; cursor:pointer; width:22px; height:22px; display:flex; align-items:center; justify-content:center; border-radius:4px; color:var(--fg-3); font-size:.82rem; transition:background var(--t),color var(--t); }
-.modal-close:hover { background:var(--bg-raised); color:var(--fg); }
-.modal-body { padding:.8rem 1.05rem 1.05rem; }
-
-#level-tabs { display:flex; gap:.2rem; margin-bottom:.6rem; padding-bottom:.6rem; border-bottom:1px solid var(--border-sub); }
-.lvl-tab { all:unset; cursor:pointer; padding:.18rem .58rem; border-radius:999px; font-size:.7rem; color:var(--fg-3); border:1px solid transparent; transition:all var(--t); }
-.lvl-tab:hover { color:var(--fg-2); }
-.lvl-tab.active { color:var(--fg); border-color:var(--border); background:var(--bg-raised); }
-
-.lesson-row { all:unset; display:flex; align-items:center; gap:.48rem; width:100%; padding:.36rem .38rem; border-radius:4px; cursor:pointer; transition:background var(--t); }
-.lesson-row:hover:not(.locked) { background:var(--bg-raised); }
-.lesson-row.is-current { background:var(--bg-raised); }
-.lesson-row.locked { opacity:.25; cursor:not-allowed; }
-.row-num   { font-size:.62rem; color:var(--fg-3); min-width:18px; text-align:right; font-variant-numeric:tabular-nums; }
-.row-chars { font-family:var(--font-tamil); font-size:1rem; color:var(--fg); flex:1; letter-spacing:.06em; line-height:1.65; }
-.row-right { display:flex; align-items:center; gap:.24rem; font-size:.62rem; color:var(--fg-3); }
-.row-done  { color:var(--correct); }
-.row-wpm   { color:var(--fg-2); }
-.row-dot   { width:5px; height:5px; background:var(--accent); border-radius:50%; }
-
-.results-grid { display:flex; gap:.38rem; margin:.6rem 0; }
-.result-cell { flex:1; background:var(--bg-raised); border:1px solid var(--border-sub); border-radius:5px; padding:.48rem .38rem; text-align:center; }
-.rc-val { font-size:1.42rem; color:var(--fg); display:block; font-variant-numeric:tabular-nums; }
-.rc-lbl { font-size:.57rem; color:var(--fg-3); text-transform:uppercase; letter-spacing:.05em; display:block; margin-top:2px; }
-#results-stars { font-size:1.05rem; color:var(--accent); margin-bottom:.28rem; display:block; }
-.modal-actions { display:flex; gap:.32rem; flex-wrap:wrap; margin-top:.8rem; }
-.mbtn { padding:.4rem .78rem; border:1px solid var(--border); border-radius:4px; background:transparent; color:var(--fg-2); font-family:var(--font-ui); font-size:.72rem; cursor:pointer; transition:all var(--t); flex:1; text-align:center; white-space:nowrap; }
-.mbtn:hover { background:var(--bg-raised); color:var(--fg); }
-.mbtn.primary { background:var(--fg); border-color:var(--fg); color:var(--bg); }
-.mbtn.primary:hover { opacity:.88; }
-
-#finger-kb-wrap { width:100%; margin:.52rem 0; border-radius:5px; overflow:hidden; border:1px solid var(--border-sub); }
-#finger-kb-wrap svg { width:100%; height:auto; display:block; }
-#finger-legend { display:grid; grid-template-columns:1fr 1fr; gap:.32rem .8rem; margin-top:.42rem; }
-.fg-row { display:flex; align-items:center; gap:.36rem; padding:.13rem 0; }
-.fg-swatch { width:9px; height:9px; border-radius:2px; flex-shrink:0; }
-.fg-label { font-size:.67rem; color:var(--fg-2); min-width:76px; }
-.fg-chars { font-family:var(--font-tamil); font-size:.84rem; color:var(--fg); letter-spacing:.04em; }
-.fg-thumb-row { grid-column:1/-1; display:flex; justify-content:center; padding:.2rem 0; border-top:1px solid var(--border-sub); margin-top:.14rem; font-size:.7rem; color:var(--fg-2); gap:.36rem; align-items:center; }
-.fg-note { font-size:.68rem; color:var(--fg-3); margin-top:.52rem; line-height:1.55; }
-
-/* ═══════════════════════════════════════════════
-   FOOTER
-═══════════════════════════════════════════════ */
-#footer { padding:.6rem 1.25rem; font-size:.64rem; color:var(--fg-3); text-align:center; border-top:1px solid var(--border-sub); flex-shrink:0; }
-#footer a { color:var(--fg-3); text-decoration:none; transition:color var(--t); }
-#footer a:hover { color:var(--fg-2); }
-
-/* ═══════════════════════════════════════════════
-   UTILITIES
-═══════════════════════════════════════════════ */
-.hidden { display:none!important; }
-
-/* ═══════════════════════════════════════════════
-   RESPONSIVE
-═══════════════════════════════════════════════ */
-@media (max-width:600px) {
-  #practice-main,#kural-main { padding:.85rem .85rem .6rem; gap:.65rem; }
-  #navbar,#tab-bar { padding:0 .85rem; }
-  #lesson-container { line-height:1.85; }
-  .tb-goal { display:none; }
-  .kp-row { flex-wrap:wrap; }
-  .kp-cur-section { width:100%; text-align:left; }
-  #kural-container .word, #kural-container .char { font-size:calc(1.75rem*.78); }
-  .kural-divider ~ .word, .kural-divider ~ .char { font-size:calc(1.2rem*.78); }
-  .km-english { display:none; }
-  #kural-controls { flex-wrap:wrap; gap:.2rem; }
-  .kr-inner { flex-direction:column; align-items:flex-start; gap:.42rem; }
-  #practice-main[data-view="1"] #typing-area { height:calc(var(--char-size)*9); }
-  #practice-main[data-view="2"] #typing-area { height:calc(var(--char-size)*11); }
-}
-
-/* ═══════════════════════════════════════════════════════
-   STYLE PATCH — append to bottom of style.css
-   Overrides/additions for all fixes in this iteration.
-═══════════════════════════════════════════════════════ */
-
-/* ── Corrected gradient percentages for partial state ──
-   background-clip:text splits the glyph bounding box.
-   Values tuned for Noto Sans Tamil glyph proportions.
-
-   top    (ி ீ mel vilangu): hook is in top ~50%
-            → bottom 45% green (consonant), top 55% cursor
-   bottom  (ு ூ keel vizhangu): curl is bottom ~30%
-            → top 68% green (consonant), bottom 32% cursor
-   left    (ெ ே kombu): mark is on left side
-            → right 54% green, left 46% cursor
-   right   (ா ை ொ ோ ௌ): matra on right
-            → left 54% green, right 46% cursor
-   dot     (் pulli): small dot above consonant (top ~27%)
-            → bottom 73% green (consonant), top 27% cursor
-══════════════════════════════════════════════════════ */
-
+/* ─ Right-side matras: ா ை ொ ோ ௌ
+   Left = consonant body (green), Right = matra (lavender) */
 .char-syl.syl-partial[data-vtype="right"] {
   background: linear-gradient(to right, var(--correct) 54%, var(--cursor-bar) 54%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
 }
+/* ─ Left-side matras: ெ ே
+   Right = consonant body (green), Left = kombu mark (lavender) */
 .char-syl.syl-partial[data-vtype="left"] {
   background: linear-gradient(to left, var(--correct) 54%, var(--cursor-bar) 54%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
 }
-/* top (ி ீ): mel vilangu hook is top 50%.
-   Cut at 45%: bottom 45% green (consonant body), top 55% cursor (mel vilangu) */
+/* ─ Top matras: ி ீ (mel vilangu)
+   Bottom 45% = consonant body (green), Top 55% = hook (lavender) */
 .char-syl.syl-partial[data-vtype="top"] {
   background: linear-gradient(to top, var(--correct) 45%, var(--cursor-bar) 45%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
 }
-/* bottom (ு ூ): keel vizhangu curl is bottom ~30%.
-   Cut at 68%: top 68% green (consonant+its descenders), bottom 32% cursor (ு curl only).
-   For ழு: ழ's body takes up to ~68%, ு curl is below that. */
+/* ─ Bottom matras: ு ூ (keel vizhangu)
+   Top 68% = consonant body (green), Bottom 32% = curl (lavender) */
 .char-syl.syl-partial[data-vtype="bottom"] {
   background: linear-gradient(to bottom, var(--correct) 68%, var(--cursor-bar) 68%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
 }
-/* dot (் pulli): pulli is a small dot in top ~27% of glyph.
-   Cut at 73%: bottom 73% green (consonant body like ப), top 27% cursor (the ் dot above).
-   This replaces the old "color: cursor-bar" which made everything cursor-colored. */
+/* ─ Pulli ் (dot above consonant)
+   Bottom 73% = consonant body (green), Top 27% = pulli dot (lavender) */
 .char-syl.syl-partial[data-vtype="dot"] {
   background: linear-gradient(to top, var(--correct) 73%, var(--cursor-bar) 73%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
 }
-
-/* Ensure correct/corrected state removes the gradient and uses solid color */
-.char-syl.correct,
-.char-syl.corrected {
-  -webkit-text-fill-color: unset;
-  background: none;
+/* Clear gradient on correct/corrected state — use solid color */
+.char-syl.correct, .char-syl.corrected {
+  -webkit-text-fill-color: unset; background: none;
 }
 .char-syl.correct   { color: var(--correct); }
 .char-syl.corrected { color: var(--corrected); }
 
-/* ── Focus overlay: blurred transparent glass ────────
-   Replaces solid --bg background with semi-transparent blur. */
-#focus-overlay {
-  background: rgba(30, 28, 26, 0.72) !important;
-  backdrop-filter: blur(4px) !important;
-  -webkit-backdrop-filter: blur(4px) !important;
+/* ════════════════════════════════════════════════
+   HINT BAR — key decomposition display
+   Shows: [H] + [S] → கி  for two-key syllables
+   Shows: press [A] → அ   for single-key characters
+════════════════════════════════════════════════ */
+#key-guide {
+  display: flex; align-items: center; gap: .4rem;
+  min-height: 24px;
+  transition: opacity .2s;
 }
-[data-theme="light"] #focus-overlay {
-  background: rgba(248, 245, 239, 0.72) !important;
+#key-guide.hint-hidden { opacity: 0; pointer-events: none; }
+
+/* Key badge chip */
+.hk {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 1.75rem; padding: .1rem .4rem;
+  background: var(--bg-raised); border: 1px solid var(--border);
+  border-bottom: 2px solid var(--border); border-radius: 4px;
+  font-size: .68rem; color: var(--fg-2); font-family: var(--font-ui);
+  transition: color .1s, border-color .1s, background .1s;
 }
-#kural-focus-overlay {
-  background: rgba(30, 28, 26, 0.72) !important;
-  backdrop-filter: blur(4px) !important;
-  -webkit-backdrop-filter: blur(4px) !important;
+/* Next key to press — highlighted in cursor-bar color */
+.hk.hk-next {
+  color: var(--cursor-bar); border-color: var(--cursor-bar);
+  border-bottom-color: var(--cursor-bar);
+  background: rgba(168,164,232,.1);
 }
-[data-theme="light"] #kural-focus-overlay {
-  background: rgba(248, 245, 239, 0.72) !important;
+[data-theme="light"] .hk.hk-next { background: rgba(80,80,176,.07); }
+/* Already-pressed key in a 2-key syllable — green done-state */
+.hk.hk-done {
+  color: var(--correct); border-color: var(--correct);
+  background: rgba(126,207,140,.07); opacity: .85;
+}
+.hk-sep   { font-size: .58rem; color: var(--fg-3); margin: 0 .1rem; flex-shrink: 0; }
+.hk-char  { font-family: var(--font-tamil); font-size: 1.05rem; color: var(--fg-2); margin-left: .06rem; }
+.hk-label { font-size: .6rem; color: var(--fg-3); margin-right: .06rem; }
+.shift-badge {
+  padding: .06rem .28rem; border: 1px solid var(--border-sub);
+  border-radius: 3px; font-size: .62rem; color: var(--warn); background: var(--bg-raised);
 }
 
-/* Focus overlay text badge styling */
-#focus-overlay span,
-#kural-focus-overlay span {
-  font-size: .74rem;
-  color: var(--fg-2);
-  letter-spacing: .05em;
-  border: 1px solid var(--border);
-  padding: .32rem .78rem;
-  border-radius: 4px;
-  background: var(--bg-raised);
+/* ════════════════════════════════════════════════
+   SVG KEYBOARD
+   Tamil99.svg is injected into #keyboard by keyboard.js.
+   CSS classes control visual feedback states on <g> key groups.
+════════════════════════════════════════════════ */
+#keyboard { width: 100%; max-width: 860px; }
+#keyboard svg {
+  width: 100%; height: auto; display: block;
+  border-radius: 6px; border: 1px solid var(--border-sub);
 }
 
-/* ── Kural line break — forces line1 / line2 onto separate lines ──
-   Inserted between kural line1 and line2 syllables in JS. */
-.kural-linebreak {
-  width: 100%;
-  flex-basis: 100%;
-  height: 0;
-  flex-shrink: 0;
+/* Base key fill opacity */
+#keyboard svg g[id] > rect:first-child { opacity: .16; }
+#keyboard svg #Tamil99>rect, #keyboard svg #Keyboard>rect { fill: var(--bg-alt) !important; }
+#keyboard svg path { fill: rgba(255,255,255,.4); }
+[data-theme="light"] #keyboard svg g[id] > rect:first-child { opacity: .56; }
+[data-theme="light"] #keyboard svg #Tamil99>rect,
+[data-theme="light"] #keyboard svg #Keyboard>rect { fill: var(--bg-alt) !important; }
+[data-theme="light"] #keyboard svg path { fill: rgba(0,0,0,.5); }
+
+/* ─ Hint glow — pulsing blue-violet ─ */
+#keyboard svg g.key-hint > rect:first-child {
+  fill: var(--hint-fill) !important; opacity: 1 !important;
+  animation: kp 1.4s ease-in-out infinite;
+}
+#keyboard svg g.key-hint path { fill: rgba(255,255,255,.88) !important; }
+[data-theme="light"] #keyboard svg g.key-hint path { fill: rgba(0,0,0,.88) !important; }
+@keyframes kp { 0%,100%{filter:brightness(.88)} 50%{filter:brightness(1.2)} }
+
+/* ─ Shift key glow ─ */
+#keyboard svg g.key-shift > rect:first-child,
+#keyboard svg g.key-shift-held > rect:first-child {
+  fill: var(--shift-fill) !important; opacity: 1 !important;
+  animation: kp 1.4s ease-in-out infinite;
 }
 
-/* ── Kural container: CSS variable sizes (updated by view mode) ── */
-#kural-container {
-  --kural-sz: 1.75rem;
-  --urai-sz:  1.2rem;
-}
-#kural-container .word,
-#kural-container .char {
-  font-size: var(--kural-sz);
-}
-.kural-divider ~ .word,
-.kural-divider ~ .char {
-  font-size: var(--urai-sz);
-}
+/* ─ Correct flash — green ─ */
+#keyboard svg g.key-correct { animation: kok .32s ease-out forwards; }
+#keyboard svg g.key-correct > rect:first-child { fill: rgba(126,207,140,.52) !important; opacity: 1 !important; }
+@keyframes kok { 0%{filter:brightness(1.5)} 100%{filter:brightness(1)} }
 
-/* ── Key pressed flash (any keypress) ────────────────
-   Dim amber flash for immediate SVG tactile feedback. */
+/* ─ Wrong flash — red ─ */
+#keyboard svg g.key-wrong { animation: kerr .32s ease-out forwards; }
+#keyboard svg g.key-wrong > rect:first-child { fill: rgba(232,138,138,.52) !important; opacity: 1 !important; }
+@keyframes kerr { 0%{filter:brightness(1.5)} 100%{filter:brightness(1)} }
+
+/* ─ Any-key press flash — dim amber ─ */
 #keyboard svg g.key-pressed > rect:first-child {
-  fill: rgba(212, 168, 80, 0.38) !important;
-  opacity: 1 !important;
+  fill: rgba(212,168,80,.35) !important; opacity: 1 !important;
   animation: kpress .14s ease-out forwards;
 }
-@keyframes kpress {
-  0%   { filter: brightness(1.4); }
-  100% { filter: brightness(1); }
-}
+@keyframes kpress { 0%{filter:brightness(1.4)} 100%{filter:brightness(1)} }
 
-/* ── Shift held: physical shift key highlight ─────── */
-#keyboard svg g.key-shift-held > rect:first-child {
-  fill: var(--shift-fill) !important;
-  opacity: 1 !important;
-}
-/* When shift is active, slightly dim all non-shifted keys */
-#keyboard.shift-active svg g[id]:not([id*="Shift"]) > rect:first-child {
-  opacity: .10;
-}
+/* ─ Finger zone colors (guide overlay mode) ─ */
+#keyboard.guide-mode svg g[data-finger] > rect:first-child { opacity: 1 !important; }
+#keyboard.guide-mode svg g[data-finger="lp"] > rect:first-child { fill: rgba(196,80,80,.5) !important; }
+#keyboard.guide-mode svg g[data-finger="lr"] > rect:first-child { fill: rgba(196,148,60,.5) !important; }
+#keyboard.guide-mode svg g[data-finger="lm"] > rect:first-child { fill: rgba(185,185,48,.5) !important; }
+#keyboard.guide-mode svg g[data-finger="li"] > rect:first-child { fill: rgba(62,162,78,.5) !important; }
+#keyboard.guide-mode svg g[data-finger="th"] > rect:first-child { fill: rgba(120,120,165,.44) !important; }
+#keyboard.guide-mode svg g[data-finger="ri"] > rect:first-child { fill: rgba(55,128,215,.5) !important; }
+#keyboard.guide-mode svg g[data-finger="rm"] > rect:first-child { fill: rgba(84,84,215,.5) !important; }
+#keyboard.guide-mode svg g[data-finger="rr"] > rect:first-child { fill: rgba(148,82,215,.5) !important; }
+#keyboard.guide-mode svg g[data-finger="rp"] > rect:first-child { fill: rgba(205,78,205,.5) !important; }
 
-/* ── Kural view mode sizes ────────────────────────── */
-#kural-main[data-view="1"] #kural-container { --kural-sz: 2.2rem; --urai-sz: 1.5rem; }
-#kural-main[data-view="2"] #kural-container { --kural-sz: 2.8rem; --urai-sz: 1.9rem; }
-
-/* ── Practice view mode restore ──────────────────── */
-#practice-main[data-view="1"] #typing-area { height: calc(var(--char-size) * 9); }
-#practice-main[data-view="2"] #typing-area { height: calc(var(--char-size) * 11); }
+/* ════════════════════════════════════════════════
+   VIEW MODE OVERRIDES
+   JS sets data-view="0|1|2" on #practice-main:
+     0 = keyboard visible  (default)
+     1 = keyboard hidden, larger text
+     2 = zen mode (no keyboard, no stats, max text)
+════════════════════════════════════════════════ */
+#practice-main[data-view="1"] #typing-area { height: calc(var(--char-size) * 10.5); }
+#practice-main[data-view="2"] #typing-area { height: calc(var(--char-size) * 12.5); }
 #practice-main[data-view="1"],
 #practice-main[data-view="2"] { justify-content: center; }
 #practice-main[data-view="2"] #progress-row { opacity: 0; pointer-events: none; }
 
-/* ═══════════════════════════════════════════════════════════════
-   KEYBOARD LANGUAGE BANNER
-   Shown when user presses a non-ASCII key (non-English layout).
-═══════════════════════════════════════════════════════════════ */
+/* Bottom fade adjusts with char size in view modes */
+#practice-main[data-view="1"] #typing-wrapper::after { height: calc(var(--char-size) * 1.6); }
+#practice-main[data-view="2"] #typing-wrapper::after { height: calc(var(--char-size) * 1.6); }
 
-#kb-lang-banner {
-  display: flex;
-  align-items: center;
-  gap: .55rem;
-  padding: .52rem 1.1rem;
-  background: rgba(212, 170, 114, .1);
-  border-bottom: 1px solid rgba(212, 170, 114, .25);
-  font-size: .74rem;
-  color: var(--warn);
-  line-height: 1.5;
-  flex-shrink: 0;
-  animation: slideDown .2s ease;
+/* ════════════════════════════════════════════════
+   KURAL TAB — METADATA STRIP
+   Shows: [குறள் number] [book] › [chapter]
+   Then English translation below
+════════════════════════════════════════════════ */
+#kural-meta {
+  width: 100%; padding: .5rem 0;
+  border-bottom: 1px solid var(--border-sub);
 }
-@keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: none; opacity: 1; } }
-
-#kb-lang-banner svg { flex-shrink: 0; opacity: .8; }
-#kb-lang-banner span { flex: 1; }
-#kb-lang-banner strong { color: var(--fg-2); }
-
-#btn-kb-banner-close {
-  all: unset;
-  cursor: pointer;
-  font-size: .7rem;
-  color: var(--warn);
-  opacity: .6;
-  padding: .1rem .3rem;
-  border-radius: 3px;
-  transition: opacity var(--t);
-  flex-shrink: 0;
+.km-top { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+.km-num {
+  font-size: .62rem; color: var(--fg-3); font-variant-numeric: tabular-nums;
+  background: var(--bg-raised); border: 1px solid var(--border-sub);
+  border-radius: 3px; padding: .04rem .3rem; flex-shrink: 0;
 }
-#btn-kb-banner-close:hover { opacity: 1; }
+.km-book    { font-size: .7rem; color: var(--fg-3); font-family: var(--font-tamil); }
+.km-arrow   { font-size: .62rem; color: var(--fg-3); flex-shrink: 0; }
+.km-chapter { font-size: .75rem; color: var(--fg-2); font-family: var(--font-tamil); font-weight: 500; }
+.km-english { font-size: .67rem; color: var(--fg-3); font-style: italic; margin-top: .25rem; line-height: 1.5; }
+.kc-loading { font-family: var(--font-tamil); font-size: .8rem; color: var(--fg-3); }
+
+/* ════════════════════════════════════════════════
+   KURAL TAB — STATS BAR + CONTROLS
+════════════════════════════════════════════════ */
+#kural-top-bar { width: 100%; display: flex; align-items: center; gap: .75rem; }
+#kural-stats-bar { flex: 1; display: flex; align-items: center; gap: .1rem; font-variant-numeric: tabular-nums; }
+.ks-stat { display: flex; align-items: baseline; gap: .18rem; padding: .1rem .42rem; flex-shrink: 0; }
+.ks-val { font-size: .72rem; color: var(--fg-3); min-width: 2rem; font-variant-numeric: tabular-nums; }
+.ks-lbl { font-size: .56rem; color: var(--fg-3); opacity: .7; }
+.ks-sep { width: 1px; height: 1rem; background: var(--border-sub); flex-shrink: 0; }
+
+#kural-controls { display: flex; align-items: center; gap: .22rem; flex-shrink: 0; }
+
+/* Inline kural number input */
+.kural-num-wrap {
+  display: flex; align-items: center;
+  border: 1px solid var(--border-sub); border-radius: 4px;
+  overflow: hidden; transition: border-color var(--t);
+}
+.kural-num-wrap:focus-within { border-color: var(--border); }
+.kural-num-input {
+  all: unset; width: 3.6rem; padding: .18rem .4rem;
+  font-size: .67rem; color: var(--fg); font-family: var(--font-ui);
+  font-variant-numeric: tabular-nums; text-align: right; background: transparent;
+}
+.kural-num-input::-webkit-outer-spin-button,
+.kural-num-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.kural-num-input[type=number] { -moz-appearance: textfield; }
+.kural-go-btn {
+  padding: .18rem .42rem !important; border: none !important;
+  border-left: 1px solid var(--border-sub) !important;
+  border-radius: 0 !important; background: var(--bg-raised) !important;
+  color: var(--fg-3) !important; cursor: pointer; font-size: .68rem !important;
+  transition: background var(--t), color var(--t);
+}
+.kural-go-btn:hover { background: var(--border) !important; color: var(--fg) !important; }
+.kural-ctrl-btn {
+  all: unset; cursor: pointer; padding: .18rem .52rem;
+  border: 1px solid var(--border-sub); border-radius: 4px;
+  font-size: .66rem; color: var(--fg-3); font-family: var(--font-ui);
+  transition: all var(--t); white-space: nowrap;
+}
+.kural-ctrl-btn:hover { border-color: var(--border); color: var(--fg-2); background: var(--bg-raised); }
+
+/* ════════════════════════════════════════════════
+   KURAL TAB — PROGRESS + TYPING AREA
+════════════════════════════════════════════════ */
+#kural-progress-row { width: 100%; display: flex; align-items: center; gap: .5rem; }
+#kural-progress-track { flex: 1; height: 1px; background: var(--border-sub); border-radius: 999px; overflow: hidden; }
+#kural-progress-fill  { height: 100%; width: 0%; background: var(--accent); border-radius: 999px; transition: width .2s ease; }
+#kural-progress-txt   { font-size: .62rem; color: var(--fg-3); white-space: nowrap; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+
+#kural-typing-wrapper { width: 100%; position: relative; }
+#kural-focus-overlay {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  z-index: 10; cursor: pointer;
+  background: rgba(30,28,26,.72); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  border-radius: 0;
+}
+#kural-focus-overlay.hidden { display: none; }
+#kural-focus-overlay span {
+  font-size: .74rem; color: var(--fg-2); letter-spacing: .04em;
+  border: 1px solid var(--border); padding: .3rem .75rem;
+  border-radius: 4px; background: var(--bg-raised);
+}
+[data-theme="light"] #kural-focus-overlay { background: rgba(248,245,239,.72); }
+
+/* Kural typing area — CSS vars set dynamically by applyViewMode() */
+#kural-main {
+  --kural-sz: 1.75rem;
+  --urai-sz:  1.2rem;
+}
+#kural-typing-area {
+  width: 100%;
+  height: calc(var(--kural-sz) * 1.9 * 2 + var(--urai-sz) * 1.9 * 4.2 + 1.8rem);
+  overflow: hidden;
+  padding: .5rem 0;
+  background: transparent; border: none;
+  border-bottom: 1.5px solid var(--border-sub); border-radius: 0;
+  outline: none; cursor: text; transition: border-color var(--t); position: relative;
+}
+#kural-typing-area:focus-within { border-bottom-color: var(--border); }
+
+/* Bottom fade for kural area */
+#kural-typing-wrapper::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0;
+  height: calc(var(--kural-sz) * 1.6);
+  background: linear-gradient(to bottom, transparent 0%, var(--bg) 85%);
+  pointer-events: none; z-index: 4;
+}
+
+/* ════════════════════════════════════════════════
+   KURAL CONTAINER — structured row layout
+   The kural text is displayed in three sections:
+   1. .kural-line-row  — kural first line  (4 words, no-wrap)
+   2. .kural-line-row  — kural second line (3 words, no-wrap)
+   3. .kural-divider   — dashed separator
+   4. .kural-urai-row  — urai explanation (wrapping, smaller)
+════════════════════════════════════════════════ */
+#kural-container {
+  display: flex; flex-direction: column; align-items: flex-start;
+  font-family: var(--font-tamil); user-select: none; gap: 0;
+  min-width: 100%;
+}
+
+/* Each kural line — strictly one visual line, no wrapping */
+.kural-line-row {
+  display: flex; flex-wrap: nowrap;
+  align-items: baseline;
+  width: max-content; min-width: 100%;
+  font-size: var(--kural-sz); line-height: 1.9; flex-shrink: 0;
+  white-space: nowrap;
+}
+.kural-line-row .word { display: inline-flex; align-items: baseline; flex-wrap: nowrap; flex-shrink: 0; }
+.kural-line-row .char { font-size: var(--kural-sz); }
+
+/* Urai (commentary) — smaller, wraps freely */
+.kural-urai-row {
+  display: flex; flex-wrap: wrap;
+  align-items: baseline; width: 100%;
+  font-size: var(--urai-sz); line-height: 1.9; flex-shrink: 0;
+}
+.kural-urai-row .word { display: inline-flex; align-items: baseline; flex-wrap: nowrap; }
+.kural-urai-row .char { font-size: var(--urai-sz); }
+
+/* Dashed divider between kural and urai */
+.kural-divider {
+  width: 100%; height: 0; flex-shrink: 0;
+  border-top: 1px dashed var(--border-sub);
+  margin: .35rem 0 .2rem;
+}
+
+/* Kural keyboard slot — receives shared #keyboard on tab switch */
+#kural-kb-slot { width: 100%; max-width: 860px; }
+/* Kural hint bar — hidden (keyboard is the guide) */
+#kural-key-guide { display: none !important; }
+
+/* View mode sizes for kural tab */
+#kural-main[data-view="1"] { --kural-sz: 2.2rem; --urai-sz: 1.5rem; }
+#kural-main[data-view="2"] { --kural-sz: 2.8rem; --urai-sz: 1.9rem; }
+
+/* ════════════════════════════════════════════════
+   KURAL RESULT PANEL
+════════════════════════════════════════════════ */
+#kural-result { width: 100%; animation: mfade .2s ease; }
+.kr-inner { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; padding: .6rem 0; border-bottom: 1px solid var(--border-sub); }
+.kr-left  { display: flex; align-items: center; gap: .45rem; flex-shrink: 0; }
+.kr-msg   { font-family: var(--font-tamil); font-size: .88rem; color: var(--fg-2); }
+.kr-stars { font-size: 1rem; color: var(--accent); }
+.kr-grid  { display: flex; gap: .38rem; flex: 1; flex-wrap: wrap; }
+.kr-cell  { display: flex; flex-direction: column; align-items: center; min-width: 52px; background: var(--bg-raised); border: 1px solid var(--border-sub); border-radius: 4px; padding: .28rem .5rem; }
+.kr-val   { font-size: .95rem; color: var(--fg); font-variant-numeric: tabular-nums; line-height: 1.2; }
+.kr-lbl   { font-size: .54rem; color: var(--fg-3); text-transform: uppercase; letter-spacing: .04em; margin-top: 2px; }
+
+/* ════════════════════════════════════════════════
+   MODALS — overlay + box
+════════════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.62); backdrop-filter: blur(5px);
+  display: none; align-items: center; justify-content: center;
+  z-index: 100;
+}
+.modal-overlay.visible { display: flex; animation: mfade .16s ease; }
+@keyframes mfade { from{opacity:0} to{opacity:1} }
+
+.modal-box {
+  background: var(--bg-alt); border: 1px solid var(--border);
+  border-radius: 10px; width: 90%; max-width: 480px; max-height: 88dvh;
+  overflow-y: auto;
+  box-shadow: 0 20px 72px rgba(0,0,0,.4);
+  animation: mrise .2s cubic-bezier(.34,1.4,.64,1);
+}
+.modal-box.wide { max-width: 560px; }
+@keyframes mrise { from{transform:translateY(10px) scale(.97);opacity:0} to{transform:none;opacity:1} }
+
+.modal-header {
+  padding: .8rem 1rem .65rem; border-bottom: 1px solid var(--border-sub);
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; background: var(--bg-alt); z-index: 1;
+}
+.modal-title { font-size: .76rem; font-weight: 500; color: var(--fg); }
+.modal-close {
+  all: unset; cursor: pointer; width: 22px; height: 22px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 4px; color: var(--fg-3); font-size: .8rem;
+  transition: background var(--t), color var(--t);
+}
+.modal-close:hover { background: var(--bg-raised); color: var(--fg); }
+.modal-body { padding: .75rem 1rem 1rem; }
+
+/* ── Lessons modal ── */
+#level-tabs { display: flex; gap: .18rem; margin-bottom: .55rem; padding-bottom: .55rem; border-bottom: 1px solid var(--border-sub); }
+.lvl-tab {
+  all: unset; cursor: pointer; padding: .16rem .54rem; border-radius: 999px;
+  font-size: .68rem; color: var(--fg-3); border: 1px solid transparent;
+  transition: all var(--t);
+}
+.lvl-tab:hover { color: var(--fg-2); }
+.lvl-tab.active { color: var(--fg); border-color: var(--border); background: var(--bg-raised); }
+.lesson-row {
+  all: unset; display: flex; align-items: center; gap: .45rem;
+  width: 100%; padding: .34rem .36rem; border-radius: 4px;
+  cursor: pointer; transition: background var(--t);
+}
+.lesson-row:hover:not(.locked) { background: var(--bg-raised); }
+.lesson-row.is-current { background: var(--bg-raised); }
+.lesson-row.locked { opacity: .25; cursor: not-allowed; }
+.row-num   { font-size: .6rem; color: var(--fg-3); min-width: 18px; text-align: right; font-variant-numeric: tabular-nums; }
+.row-chars { font-family: var(--font-tamil); font-size: .95rem; color: var(--fg); flex: 1; letter-spacing: .06em; line-height: 1.65; }
+.row-right { display: flex; align-items: center; gap: .22rem; font-size: .6rem; color: var(--fg-3); }
+.row-done  { color: var(--correct); }
+.row-wpm   { color: var(--fg-2); }
+.row-dot   { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; }
+
+/* ── Results modal ── */
+.results-grid { display: flex; gap: .36rem; margin: .55rem 0; }
+.result-cell  { flex: 1; background: var(--bg-raised); border: 1px solid var(--border-sub); border-radius: 5px; padding: .45rem .36rem; text-align: center; }
+.rc-val { font-size: 1.4rem; color: var(--fg); display: block; font-variant-numeric: tabular-nums; }
+.rc-lbl { font-size: .55rem; color: var(--fg-3); text-transform: uppercase; letter-spacing: .05em; display: block; margin-top: 2px; }
+#results-stars { font-size: 1.05rem; color: var(--accent); margin-bottom: .25rem; display: block; }
+.modal-actions { display: flex; gap: .3rem; flex-wrap: wrap; margin-top: .75rem; }
+.mbtn {
+  padding: .38rem .72rem; border: 1px solid var(--border); border-radius: 4px;
+  background: transparent; color: var(--fg-2); font-family: var(--font-ui); font-size: .7rem;
+  cursor: pointer; transition: all var(--t); flex: 1; text-align: center; white-space: nowrap;
+}
+.mbtn:hover { background: var(--bg-raised); color: var(--fg); }
+.mbtn.primary { background: var(--fg); border-color: var(--fg); color: var(--bg); }
+.mbtn.primary:hover { opacity: .88; }
+
+/* ── Finger guide modal ── */
+#finger-kb-wrap { width: 100%; margin: .5rem 0; border-radius: 5px; overflow: hidden; border: 1px solid var(--border-sub); }
+#finger-kb-wrap svg { width: 100%; height: auto; display: block; }
+#finger-legend  { display: grid; grid-template-columns: 1fr 1fr; gap: .3rem .75rem; margin-top: .4rem; }
+.fg-row   { display: flex; align-items: center; gap: .34rem; padding: .12rem 0; }
+.fg-swatch{ width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+.fg-label { font-size: .65rem; color: var(--fg-2); min-width: 76px; }
+.fg-chars { font-family: var(--font-tamil); font-size: .82rem; color: var(--fg); letter-spacing: .04em; }
+.fg-thumb-row { grid-column: 1/-1; display: flex; justify-content: center; padding: .18rem 0; border-top: 1px solid var(--border-sub); margin-top: .12rem; font-size: .68rem; color: var(--fg-2); gap: .34rem; align-items: center; }
+.fg-note  { font-size: .66rem; color: var(--fg-3); margin-top: .48rem; line-height: 1.55; }
+
+/* ════════════════════════════════════════════════
+   FOOTER
+════════════════════════════════════════════════ */
+#footer {
+  padding: .55rem 1.25rem; font-size: .62rem; color: var(--fg-3);
+  text-align: center; border-top: 1px solid var(--border-sub); flex-shrink: 0;
+}
+#footer a { color: var(--fg-3); text-decoration: none; transition: color var(--t); }
+#footer a:hover { color: var(--fg-2); }
+
+/* ════════════════════════════════════════════════
+   UTILITIES
+════════════════════════════════════════════════ */
+.hidden { display: none !important; }
+
+
 
 /* ═══════════════════════════════════════════════════════════════
    INFO MODAL — Setup Guide
@@ -992,227 +1159,25 @@ body {
   background: var(--bg-raised);
 }
 
-/* ── Responsive ───────────────────────────────────── */
+/* ════════════════════════════════════════════════
+   RESPONSIVE — mobile ≤ 600px
+════════════════════════════════════════════════ */
 @media (max-width: 600px) {
-  .info-shortcut-row { flex-direction: column; }
+    .info-shortcut-row { flex-direction: column; }
   .info-shortcut { min-width: 0; }
   .info-os-tabs { flex-wrap: wrap; }
-  #kb-lang-banner { font-size: .68rem; }
-}
-
-/* ══════════════════════════════════════════════════════════
-   STYLE PATCH — append to bottom of style.css
-   Covers: gradient partial-state, bottom fade, kural zoom,
-           linebreak, focus overlay blur, any-key flash, shift.
-══════════════════════════════════════════════════════════ */
-
-/* ── Corrected gradient percentages ──────────────────────
-   background-clip:text gradient splits the glyph bounding box.
-   Percentages tuned for Noto Sans Tamil rendering in chromium.
-
-   right (ா ை ொ ோ ௌ): matra extends right
-     → left 54% = consonant (green), right 46% = matra (lavender)
-   left (ெ ே kombu): strokes on left
-     → right 54% = consonant body, left 46% = kombu
-   top (ி ீ mel vilangu): hook descends from top ~50%
-     → bottom 45% green (consonant), top 55% lavender (mel vilangu hook)
-   bottom (ு ூ keel vizhangu): curl in bottom ~32%
-     → top 68% green (consonant), bottom 32% lavender (curl only)
-   dot (் pulli): tiny dot sits in top ~27%
-     → bottom 73% green (ப body etc.), top 27% lavender (pulli dot)
-─────────────────────────────────────────────────────────── */
-
-.char-syl.syl-partial[data-vtype="right"] {
-  background: linear-gradient(to right, var(--correct) 54%, var(--cursor-bar) 54%);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent; color: transparent;
-}
-.char-syl.syl-partial[data-vtype="left"] {
-  background: linear-gradient(to left, var(--correct) 54%, var(--cursor-bar) 54%);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent; color: transparent;
-}
-.char-syl.syl-partial[data-vtype="top"] {
-  background: linear-gradient(to top, var(--correct) 45%, var(--cursor-bar) 45%);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent; color: transparent;
-}
-.char-syl.syl-partial[data-vtype="bottom"] {
-  background: linear-gradient(to bottom, var(--correct) 68%, var(--cursor-bar) 68%);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent; color: transparent;
-}
-.char-syl.syl-partial[data-vtype="dot"] {
-  background: linear-gradient(to top, var(--correct) 73%, var(--cursor-bar) 73%);
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent; color: transparent;
-}
-
-/* Reset gradient on completed state */
-.char-syl.correct,
-.char-syl.corrected,
-.char-syl.incorrect,
-.char-syl.current {
-  -webkit-text-fill-color: unset;
-  background: none;
-}
-.char-syl.correct { color: var(--correct); }
-.char-syl.corrected { color: var(--corrected); }
-.char-syl.incorrect { color: var(--wrong); }
-
-/* ── BOTTOM FADE — partial line hidden by gradient overlay ──
-   A ::after pseudo on .typing-wrapper and .kural-typing-wrapper
-   creates a smooth gradient from transparent → background,
-   covering the bottom ~20% of the visible typing area.
-   This hides the partial 4th/5th line that peeks at the edge.
-   The gradient uses the exact background colour so it's seamless.
-─────────────────────────────────────────────────────────── */
-
-/* Practice tab */
-#typing-wrapper {
-  position: relative;
-}
-#typing-wrapper::after {
-  content: '';
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  /* Height = roughly 1 line (1.4× char-size) */
-  height: calc(var(--char-size) * 1.4);
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    var(--bg) 100%
-  );
-  pointer-events: none;
-  z-index: 5;
-  border-radius: 0;
-}
-/* Don't show fade when focus overlay is active (it covers everything anyway) */
-#typing-wrapper:has(#focus-overlay:not(.hidden))::after {
-  display: none;
-}
-
-/* Kural tab */
-#kural-typing-wrapper {
-  position: relative;
-}
-#kural-typing-wrapper::after {
-  content: '';
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  height: calc(var(--kural-fade-h, 2.5rem));
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    var(--bg) 100%
-  );
-  pointer-events: none;
-  z-index: 5;
-}
-#kural-typing-wrapper:has(#kural-focus-overlay:not(.hidden))::after {
-  display: none;
-}
-
-/* ── Focus overlay: blurred transparent glass ────────────── */
-#focus-overlay {
-  background: rgba(30, 28, 26, 0.72) !important;
-  backdrop-filter: blur(4px) !important;
-  -webkit-backdrop-filter: blur(4px) !important;
-}
-[data-theme="light"] #focus-overlay {
-  background: rgba(248, 245, 239, 0.72) !important;
-}
-#kural-focus-overlay {
-  background: rgba(30, 28, 26, 0.72) !important;
-  backdrop-filter: blur(4px) !important;
-  -webkit-backdrop-filter: blur(4px) !important;
-}
-[data-theme="light"] #kural-focus-overlay {
-  background: rgba(248, 245, 239, 0.72) !important;
-}
-#focus-overlay span,
-#kural-focus-overlay span {
-  font-size: .74rem;
-  color: var(--fg-2);
-  letter-spacing: .05em;
-  border: 1px solid var(--border);
-  padding: .32rem .78rem;
-  border-radius: 4px;
-  background: var(--bg-raised);
-}
-
-/* ── Kural container — CSS variable size system ──────────── */
-#kural-container {
-  --kural-sz: 1.75rem;
-  --urai-sz: 1.2rem;
-}
-#kural-container .word,
-#kural-container .char {
-  font-size: var(--kural-sz);
-}
-.kural-linebreak {
-  /* Hard line break between kural line1 (4 words) and line2 (3 words) */
-  width: 100%;
-  flex-basis: 100%;
-  height: 0;
-  flex-shrink: 0;
-  display: block;
-}
-.kural-divider ~ .word,
-.kural-divider ~ .char {
-  font-size: var(--urai-sz);
-}
-
-/* ── Kural typing area — responsive heights per view mode ──
-   The area must show: 2 kural lines + divider + ~3 urai lines.
-   Line-height is 2× font-size.
-   view=0: kural 1.75rem × 2 lines × lh2 = 7rem + divider + urai 1.2rem × 3 = 3.6rem → ~12rem
-   view=1: kural 2.2rem × 2 = 8.8rem + urai 1.5rem × 3 = 4.5rem → ~15rem
-   view=2: kural 2.8rem × 2 = 11.2rem + urai 1.9rem × 3 = 5.7rem → ~19rem
-─────────────────────────────────────────────────────────── */
-
-/* Base (view=0, default) */
-#kural-main #kural-container { --kural-sz: 1.75rem; --urai-sz: 1.2rem; }
-#kural-main #kural-typing-area {
-  height: calc(1.75rem * 2 * 2 + 0.5rem + 1.2rem * 3 * 2 + 1.5rem);
-  /* 2 kural lines × lh2 + gap + 3 urai lines × lh2 + padding */
-}
-#kural-main { --kural-fade-h: 2.5rem; }
-
-/* view=1 (Larger text) */
-#kural-main[data-view="1"] #kural-container { --kural-sz: 2.2rem; --urai-sz: 1.5rem; }
-#kural-main[data-view="1"] #kural-typing-area {
-  height: calc(2.2rem * 2 * 2 + 0.5rem + 1.5rem * 3 * 2 + 1.5rem);
-}
-#kural-main[data-view="1"] { --kural-fade-h: 3.2rem; }
-
-/* view=2 (Zen mode) */
-#kural-main[data-view="2"] #kural-container { --kural-sz: 2.8rem; --urai-sz: 1.9rem; }
-#kural-main[data-view="2"] #kural-typing-area {
-  height: calc(2.8rem * 2 * 2 + 0.5rem + 1.9rem * 3 * 2 + 1.5rem);
-}
-#kural-main[data-view="2"] { --kural-fade-h: 4rem; }
-
-/* Practice tab view mode sizes (restore) */
-#practice-main[data-view="1"] #typing-area { height: calc(var(--char-size) * 9); }
-#practice-main[data-view="2"] #typing-area { height: calc(var(--char-size) * 11); }
-#practice-main[data-view="1"], #practice-main[data-view="2"] { justify-content: center; }
-#practice-main[data-view="2"] #progress-row { opacity: 0; pointer-events: none; }
-
-/* ── Any-key SVG flash ────────────────────────────────────── */
-#keyboard svg g.key-pressed > rect:first-child {
-  fill: rgba(212, 168, 80, 0.36) !important;
-  opacity: 1 !important;
-  animation: kpress .15s ease-out forwards;
-}
-@keyframes kpress {
-  0% { filter: brightness(1.4); }
-  100% { filter: brightness(1); }
-}
-
-/* ── Shift held visual ───────────────────────────────────── */
-#keyboard svg g.key-shift-held > rect:first-child {
-  fill: var(--shift-fill) !important;
-  opacity: 1 !important;
+  #practice-main, #kural-main { padding: .75rem .85rem .6rem; gap: .6rem; }
+  #navbar, #tab-bar { padding: 0 .85rem; }
+  .tb-goal { display: none; }
+  .kp-row { flex-wrap: wrap; }
+  .kp-cur-section { width: 100%; text-align: left; }
+  #kural-main { --kural-sz: 1.45rem; --urai-sz: 1rem; }
+  #kural-main[data-view="1"] { --kural-sz: 1.75rem; --urai-sz: 1.2rem; }
+  #kural-main[data-view="2"] { --kural-sz: 2.2rem; --urai-sz: 1.5rem; }
+  .km-english { display: none; }
+  #kural-controls { flex-wrap: wrap; gap: .2rem; }
+  .kr-inner { flex-direction: column; align-items: flex-start; gap: .4rem; }
+  #practice-main[data-view="1"] #typing-area { height: calc(var(--char-size) * 10.5); }
+  #practice-main[data-view="2"] #typing-area { height: calc(var(--char-size) * 12.5); }
 }
 

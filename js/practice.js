@@ -3,26 +3,28 @@
  * Single-span composed-form syllable rendering with CSS gradient partial state.
  */
 
-import { storage } from './storage.js';
-import { MAPPING, tamilOf, hintLabel, needsShift } from './mapping.js';
+import { storage }                                   from './storage.js';
+import { MAPPING, tamilOf, hintLabel, needsShift }   from './mapping.js';
 import { LESSONS_DB, ALL_LESSONS, getLessonById,
          getNextLesson, getPrevLesson, getLessonIndex,
-         getFirstIncomplete } from './lessons.js';
+         getFirstIncomplete }                         from './lessons.js';
 import { loadKeyboard, showHint, flashCorrect,
          flashWrong, flashKeyPress, setShiftActive,
-         clearHints, setVisible, getContainer } from './keyboard.js';
+         clearHints, setVisible, getContainer }       from './keyboard.js';
 import { setGuideMode, shouldAutoShow, markShown,
-         FINGER_INFO } from './fingerGuide.js';
+         FINGER_INFO }                                from './fingerGuide.js';
 import { resetSession, recordKeypress,
          sessionAccuracy,
-         initTopBar, renderTopBar, renderKeyPanel } from './metrics.js';
-import { initKural } from './thirukkural.js';
+         initTopBar, renderTopBar, renderKeyPanel }   from './metrics.js';
+import { initKural, adjustKuralWidth } from './thirukkural.js';
 
 /* ── Tamil99 maps ─────────────────────────────── */
-const STANDALONE = {a:'அ',q:'ஆ',s:'இ',w:'ஈ',d:'உ',e:'ஊ',g:'எ',t:'ஏ',r:'ஐ',c:'ஒ',x:'ஓ',z:'ஔ',f:'்',h:'க',b:'ங','[':'ச',']':'ஞ',o:'ட',p:'ண',l:'த',';':'ந',i:'ன',j:'ப',k:'ம',"'":'ய',m:'ர',n:'ல',v:'வ','/':'ழ',y:'ள',u:'ற',Q:'ஸ',W:'ஷ',E:'ஜ',R:'ஹ',F:'ஃ'};
+const STANDALONE = {a:'அ',q:'ஆ',s:'இ',w:'ஈ',d:'உ',e:'ஊ',g:'எ',t:'ஏ',r:'ஐ',c:'ஒ',x:'ஓ',z:'ஔ',f:'்',h:'க',b:'ங','[':'ச',']':'ஞ',o:'ட',p:'ண',l:'த',';':'ந',i:'ன',j:'ப',k:'ம',"'":'ய',m:'ர',n:'ல',v:'வ','/':'ழ',y:'ள',u:'ற',Q:'ஸ',W:'ஷ',E:'ஜ',R:'ஹ',F:'ஃ',
+  // Tamil numerals — Shift+1..0 on Tamil99 keyboard
+  '!':'௧','@':'௨','#':'௩','$':'௪','%':'௫','^':'௬','&':'௭','*':'௮','(':'௯',')':'௦'};
 const MATRA = {q:'ா',s:'ி',w:'ீ',d:'ு',e:'ூ',g:'ெ',t:'ே',r:'ை',c:'ொ',x:'ோ',z:'ௌ'};
 const SYL_CONS = new Set(['h','j','k','l',';',"'",'n','v','u','i','o','p','[',']','b','y','/','m','Q','W','E','R','F']);
-const SYL_VOW = new Set(['q','s','w','d','e','g','t','r','c','x','z','f']);
+const SYL_VOW  = new Set(['q','s','w','d','e','g','t','r','c','x','z','f']);
 // Matra position for CSS gradient direction
 const VOWEL_TYPE = {q:'right',s:'top',w:'top',d:'bottom',e:'bottom',g:'left',t:'left',r:'right',c:'left',x:'left',z:'right',f:'dot'};
 
@@ -101,9 +103,12 @@ function applyViewMode(mode){
       // Set CSS vars on kural-main — both #kural-typing-area and
       // #kural-container inherit these for responsive height & font size
       km.style.setProperty('--kural-sz', KURAL_SIZES[mode]);
-      km.style.setProperty('--urai-sz', KURAL_URAI_SIZES[mode]);
+      km.style.setProperty('--urai-sz',  KURAL_URAI_SIZES[mode]);
     }
     $('btn-view').title=VIEW_TITLES_KURAL[mode];
+    // Re-measure kural line widths after zoom changes font size.
+    // Two rAFs: first lets CSS vars apply & reflow, second measures accurately.
+    requestAnimationFrame(() => requestAnimationFrame(adjustKuralWidth));
   }else{
     document.documentElement.style.setProperty('--char-size',CHAR_SIZES[mode]);
     const s=storage.getSettings();
@@ -218,7 +223,7 @@ function onKeyDown(e){
   if(!S.startTime&&!S.pausedAt)startTimer();
   else if(S.pausedAt)resumeTimer();
   S.totalKeys++;cancelHint();
-  flashKeyPress(pressed); // dim flash for ANY key pressed
+  flashKeyPress(pressed);   // dim flash for ANY key pressed
   if(pressed===expected)handleCorrect();
   else handleWrong(pressed,expected);
   recordKeypress(expected,pressed===expected,calcWpm());updateStats();
@@ -330,7 +335,14 @@ function switchToPracticeTab(){
   $('kural-main').classList.add('hidden');
   const kb=$('keyboard');
   if(kb&&$('practice-main'))$('practice-main').appendChild(kb);
+  // BUG FIX: restore lesson title when returning from Thirukkural tab
+  if(S.lesson){
+    $('lesson-title-bar').textContent=S.lesson.title;
+    $('lesson-label').textContent=S.lesson.title;
+  }
   applyViewMode(storage.getSettings().viewMode);
+  // Restart hint scheduling after tab switch
+  if(!S.finished)scheduleHint();
 }
 
 function renderLessonList(level){
@@ -344,7 +356,7 @@ function renderLessonList(level){
     row.innerHTML=`<span class="row-num">${String(lesson.order).padStart(2,'0')}</span><span class="row-chars">${lessonDisplayChars(lesson)||lesson.title}</span><span class="row-right">${isCur?'<span class="row-dot"></span>':''}${done&&best?`<span class="row-wpm">${best.wpm}</span><span class="row-done">✓</span>`:''}${locked?'<span style="opacity:.25">🔒</span>':''}</span>`;
     if(!locked)row.addEventListener('click',()=>{
       hideModal('modal-lessons');
-      switchToPracticeTab(); // always switch to practice tab
+      switchToPracticeTab();   // always switch to practice tab
       startLesson(lesson);
     });
     listEl.appendChild(row);
@@ -356,7 +368,17 @@ function openFingerGuide(){buildFingerLegend();setGuideMode(getContainer(),true)
 function closeFingerGuide(){setGuideMode(getContainer(),false);hideModal('modal-finger');}
 function buildFingerLegend(){
   const kbWrap=$('finger-kb-wrap');
-  if(!kbWrap.children.length){const src=getContainer();if(src){const c=src.cloneNode(true);c.removeAttribute('id');c.classList.add('guide-mode');kbWrap.appendChild(c);}}
+  // Always re-clone fresh (keyboard may have moved between practice/kural slots).
+  // Also clear display:none that setVisible(false) may have set on the original.
+  kbWrap.innerHTML='';
+  const kbSrc=getContainer();
+  if(kbSrc){
+    const c=kbSrc.cloneNode(true);
+    c.removeAttribute('id');
+    c.style.display='';        // ← FIX: remove inline display:none from original
+    c.classList.add('guide-mode');
+    kbWrap.appendChild(c);
+  }
   const legend=$('finger-legend');if(legend.children.length)return;
   ['lp','lr','lm','li'].forEach(f=>legend.appendChild(mkFgRow(f)));
   ['ri','rm','rr','rp'].forEach(f=>legend.appendChild(mkFgRow(f)));
@@ -483,6 +505,11 @@ async function init(){
       applyViewMode(storage.getSettings().viewMode);
       window.dispatchEvent(new CustomEvent('kural-tab-activated'));
     }else{
+      // BUG FIX: restore lesson title bar when returning to practice tab
+      if(S.lesson){
+        $('lesson-title-bar').textContent=S.lesson.title;
+        $('lesson-label').textContent=S.lesson.title;
+      }
       applyViewMode(storage.getSettings().viewMode);
       setTimeout(()=>ta.focus(),60);
     }
@@ -496,5 +523,3 @@ function syncThemeIcon(theme){
   $('icon-moon').style.display=theme==='light'?'block':'none';
 }
 document.addEventListener('DOMContentLoaded',init);
-
-

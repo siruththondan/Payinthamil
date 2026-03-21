@@ -185,6 +185,39 @@ export const LESSONS_DB = {
         for(let i=0;i<12;i++){if(i%4===3)out.push(...W3[ri(W3.length)],sp);else{const wl=2+ri(3);for(let j=0;j<wl;j++)out.push(...syl[ri(syl.length)]);out.push(sp);}}
         while(out.length&&out[out.length-1]===sp)out.pop();return out;
       } },
+    { id:'a07',order:7,level:'advanced',
+      title:'Tamil Numerals — ௧-௦',
+      description:'Shift+1..0 = ௧ ௨ ௩ ௪ ௫ ௬ ௭ ௮ ௯ ௦  (Tamil years & dates)',
+      focusKeys:['!','@','#','$','%','^','&','*','(',')',PU,...C_HR],targetWPM:22,
+      generateContent(){
+        // Tamil numerals: ! @ # $ % ^ & * ( )
+        const nums=['!','@','#','$','%','^','&','*','(',')']; const ri=n=>Math.floor(Math.random()*n);
+        const out=[];
+        // 1. Drill each numeral individually
+        for(const n of nums)out.push(n,n,' ');
+        // 2. Groups of 2-4 numerals (like year digits)
+        for(let i=0;i<8;i++){
+          const len=2+ri(3);
+          for(let j=0;j<len;j++)out.push(nums[ri(10)]);
+          out.push(' ');
+        }
+        // 3. Numeral + consonant pairs (like ௧வது = 1st)
+        for(const c of ['h','j','k','l',';']){
+          out.push(...[nums[ri(10)],c,PU,' ']);
+        }
+        // 4. Year-like patterns: 4-digit groups
+        for(let i=0;i<6;i++){
+          out.push(nums[ri(2)],nums[ri(10)],nums[ri(10)],nums[ri(10)],' ');
+        }
+        // 5. Mixed numeral + Ayutham
+        out.push('F','h',' ','F','j',' ');
+        for(let i=0;i<4;i++)out.push(nums[ri(10)],nums[ri(10)],' ','F','h',' ');
+        // 6. All 10 in order twice
+        out.push(...nums,' ',...[...nums].reverse(),' ');
+        while(out.length&&out[out.length-1]===' ')out.pop();
+        return out;
+      }
+    },
   ],
 };
 

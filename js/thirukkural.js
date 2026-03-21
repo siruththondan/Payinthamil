@@ -3,7 +3,7 @@
  *
  * Key fixes this iteration:
  * 1. Word-count line split: first kural line = first 4 words, second line = remaining 3.
- * Does NOT rely on API's line1/line2 which can vary — counts whitespace-delimited words.
+ *    Does NOT rely on API's line1/line2 which can vary — counts whitespace-delimited words.
  * 2. Kural typing area height updates when view mode changes.
  * 3. Timer pauses on blur (accumulated in elapsedMs).
  * 4. NFC normalization fixes கோ/கொ/கௌ.
@@ -67,7 +67,7 @@ const CHAR_TO_KEY=(()=>{
   Object.assign(map,{
     'அ':'a','ஆ':'q','இ':'s','ஈ':'w','உ':'d','ஊ':'e','எ':'g','ஏ':'t','ஐ':'r','ஒ':'c','ஓ':'x','ஔ':'z',
     'ா':'q','ி':'s','ீ':'w','ு':'d','ூ':'e','ெ':'g','ே':'t','ை':'r',
-    'ொ':'c','ோ':'x','ௌ':'z', // NFC precomposed
+    'ொ':'c','ோ':'x','ௌ':'z',   // NFC precomposed
     '்':'f',
     'க':'h','ங':'b','ச':'[','ஞ':']','ட':'o','ண':'p','த':'l','ந':';','ன':'i','ப':'j','ம':'k','ய':"'",
     'ர':'m','ல':'n','வ':'v','ழ':'/','ள':'y','ற':'u','ஸ':'Q','ஷ':'W','ஜ':'E','ஹ':'R','ஃ':'F',
@@ -116,7 +116,7 @@ async function fetchKural(num){
     return{
       number:data.number??n,
       fullText,
-      urai:clean(data.meaning?.ta_mu_va??data.meaning?.ta??''),
+      urai:clean(data.meaning?.ta_mu_va??data.meaning?.ta??'').slice(7),
       english:(data.meaning?.en??'').trim(),
       chapter:(data.chapter??'').trim(),
       chapterGroup:(data.section??'').trim(),
@@ -185,8 +185,8 @@ function _startTyping(k){
 
   Object.assign(TS,{
     content,
-    line1End:l1Keys.length, // key index at start of line2 (after line1)
-    kuralEnd:kuralKeys.length, // key index at start of urai
+    line1End:l1Keys.length,      // key index at start of line2 (after line1)
+    kuralEnd:kuralKeys.length,   // key index at start of urai
     pointer:0,totalKeys:0,correctKeys:0,
     startTime:null,pausedAt:null,elapsedMs:0,finished:false,
     syllables:[],sylMap:[],sylErrors:{},
@@ -199,10 +199,10 @@ function _startTyping(k){
 
 /* ── Render chars — structured kural display ──────────
    Structure:
-     <div class="kural-line-row"> ← line1 (4 words, nowrap, overflow hidden)
-     <div class="kural-line-row"> ← line2 (3 words, nowrap, overflow hidden)
+     <div class="kural-line-row">  ← line1 (4 words, nowrap, overflow hidden)
+     <div class="kural-line-row">  ← line2 (3 words, nowrap, overflow hidden)
      <div class="kural-divider">
-     <div class="kural-urai-row"> ← urai (wrapping, smaller font)
+     <div class="kural-urai-row">  ← urai (wrapping, smaller font)
 
    Each .kural-line-row is display:flex;flex-wrap:nowrap so its words
    NEVER wrap to a second line regardless of font size.
@@ -215,7 +215,7 @@ function _renderChars(){
 
   // Syllable index boundaries
   const line2SylStart = TS.line1End>0 && TS.line1End<TS.content.length ? map[TS.line1End] : -1;
-  const uraiSylStart = TS.kuralEnd<TS.content.length ? map[TS.kuralEnd] : -1;
+  const uraiSylStart  = TS.kuralEnd<TS.content.length ? map[TS.kuralEnd] : -1;
 
   // Determine section for each syllable index
   function sectionOf(si){
@@ -266,6 +266,60 @@ function _renderChars(){
 
   const first=box.querySelector('[data-si="0"]');if(first)first.classList.add('current');
   _resetScroll();
+  // Expand width to fit content — must run after DOM is in document
+  // so scrollWidth returns the real rendered width
+  requestAnimationFrame(_adjustWidth);
+}
+
+/**
+ * _adjustWidth()
+ * ──────────────
+ * The kural line rows (flex, nowrap) can be wider than the 860px
+ * max-width parent container. CSS alone cannot break out of a flex
+ * parent's max-width constraint, so we measure the actual rendered
+ * scrollWidth of the widest row and explicitly set the typing area
+ * and its wrapper to that width.
+ *
+ * This runs in a requestAnimationFrame after _renderChars() so that
+ * the browser has already laid out the DOM and scrollWidth is accurate.
+ */
+/** Exported so applyViewMode in practice.js can trigger a re-measure after zoom changes. */
+export function adjustKuralWidth() { _adjustWidth(); }
+
+function _adjustWidth() {
+  const area    = $('kural-typing-area');
+  const wrapper = $('kural-typing-wrapper');
+  const box     = $('kural-container');
+  const row1    = box?.querySelector('.kural-row-1');
+  const row2    = box?.querySelector('.kural-row-2');
+  const rowU    = box?.querySelector('.kural-urai-row');
+  if (!area || !wrapper) return;
+
+  // Reset previous overrides so we measure the natural (parent-constrained) width
+  area.style.width    = '';
+  wrapper.style.width = '';
+  if (rowU) rowU.style.width = '';
+
+  // Natural width = rendered width constrained by parent max-width (e.g. 860px)
+  const natural = area.offsetWidth;
+
+  // scrollWidth of each kural line row = full content width including overflow
+  const w1 = row1 ? row1.scrollWidth : 0;
+  const w2 = row2 ? row2.scrollWidth : 0;
+  const needed = Math.max(w1, w2);
+
+  if (needed > natural) {
+    // Expand area and wrapper so kural lines are fully visible
+    const px = needed + 'px';
+    area.style.width    = px;
+    wrapper.style.width = px;
+
+    // Give urai the same width as the kural lines so it can
+    // use the full expanded space for wrapping.
+    // The container width is NOT driven by urai because urai has
+    // explicit width set here — it won't push the container wider.
+    if (rowU) rowU.style.width = needed + 'px';
+  }
 }
 
 function _sylSpan(si){return $('kural-container').querySelector(`[data-si="${si}"]`);}
@@ -397,5 +451,23 @@ export function initKural(){
   inp?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();go();}});
   inp?.addEventListener('blur',go);
   $('btn-go-kural')?.addEventListener('click',go);
-  window.addEventListener('kural-tab-activated',()=>{if(!TS.kural)loadKural(null);else ta.focus();});
+  window.addEventListener('kural-tab-activated', () => {
+    // Called every time user switches to kural tab.
+    // We set the title TWICE: immediately (synchronous) and in the next rAF.
+    // The rAF catches any synchronous overwrite that happens after this event
+    // (e.g. applyViewMode or other title-setting code that may fire after dispatch).
+    function _applyKuralTitle() {
+      const el = document.getElementById('lesson-title-bar');
+      if (el && TS.kural) {
+        el.textContent = `குறள் ${TS.kural.number}${TS.kural.chapter ? ' — ' + TS.kural.chapter : ''}`;
+      }
+    }
+    if (!TS.kural) {
+      loadKural(null); // loadKural sets title internally via renderMeta
+    } else {
+      _applyKuralTitle();    // immediate
+      ta.focus();
+      requestAnimationFrame(_applyKuralTitle); // safety net — overrides any sync rewrite
+    }
+  });
 }

@@ -399,43 +399,53 @@
       </div>
 
       <div class="info-os-panel" data-os="linux">
+
         <div class="info-step">
           <div class="info-step-num">1</div>
           <div>
-            <div class="info-step-title">Install IBus with Tamil support (recommended)</div>
-            <p>Open a terminal and install IBus + the Tamil engine:</p>
-            <pre class="info-code">sudo apt install ibus ibus-m17n m17n-db
-# Then restart IBus:
-ibus restart</pre>
-            <p class="info-note">On Fedora/RHEL: use <code>dnf install ibus-m17n</code>. On Arch: <code>pacman -S ibus-m17n</code>.</p>
+            <div class="info-step-title">Install Keyman (recommended — official Tamil99 support)</div>
+            <p>Keyman is the easiest way to get Tamil99 on Linux with full Unicode support.</p>
+            <pre class="info-code">sudo add-apt-repository ppa:keymanapp/keyman
+sudo apt update
+sudo apt install keyman ibus-keyman</pre>
+            <p class="info-note">On Fedora: <code>sudo dnf install keyman ibus-keyman</code>. On Arch: <code>yay -S keyman</code>. Or download from <strong>keyman.com/linux</strong>.</p>
           </div>
         </div>
+
         <div class="info-step">
           <div class="info-step-num">2</div>
           <div>
-            <div class="info-step-title">Add Tamil99 input source</div>
-            <p>Open <strong>IBus Preferences</strong> → <em>Input Method</em> tab → click <strong>+</strong> → search <em>Tamil99</em> → select <code>ta:tam99</code> (m17n) → Add.</p>
-            <p class="info-note">On GNOME: use <strong>Settings → Keyboard → Input Sources</strong> instead.</p>
+            <div class="info-step-title">Install the Tamil99 keyboard package</div>
+            <p>Open the <strong>Keyman Configuration</strong> app → Download keyboards → search <em>Tamil99</em> → install <strong>Tamil99 (tam99)</strong>.</p>
+            <p class="info-note">Or install from terminal: <code>sudo keyman install tam99</code></p>
           </div>
         </div>
+
         <div class="info-step">
           <div class="info-step-num">3</div>
           <div>
-            <div class="info-step-title">Set IBus as the input method</div>
-            <p>Add these lines to your <code>~/.profile</code> or <code>~/.bashrc</code> and log out/in:</p>
-            <pre class="info-code">export GTK_IM_MODULE=ibus
-export QT_IM_MODULE=ibus
-export XMODIFIERS=@im=ibus</pre>
+            <div class="info-step-title">Alternative: IBus + m17n (lighter option)</div>
+            <p>If you prefer IBus without Keyman:</p>
+            <pre class="info-code">sudo apt install ibus ibus-m17n m17n-db
+ibus restart</pre>
+            <p>Then go to <strong>IBus Preferences → Input Method → +</strong> → search <em>Tamil</em> → select <code>ta - tam99 (m17n)</code>.</p>
+            <p class="info-note">GNOME users: <strong>Settings → Keyboard → Input Sources → +</strong> → Other → Tamil → Tamil (tam99).</p>
           </div>
         </div>
+
         <div class="info-step">
           <div class="info-step-num">4</div>
           <div>
-            <div class="info-step-title">Switch between layouts</div>
-            <p>Use <kbd class="info-kbd">Super</kbd> + <kbd class="info-kbd">Space</kbd> or the IBus tray icon to toggle between English and Tamil99.</p>
-            <div class="info-tip">💡 For this website, stay on <strong>English</strong> layout — Tamil mapping is in the browser. You only need Tamil99 for typing in other apps.</div>
+            <div class="info-step-title">Set IBus as default input method (if needed)</div>
+            <p>Add to <code>~/.profile</code> or <code>~/.bashrc</code>:</p>
+            <pre class="info-code">export GTK_IM_MODULE=ibus
+export QT_IM_MODULE=ibus
+export XMODIFIERS=@im=ibus</pre>
+            <p>Log out and back in. Use <kbd class="info-kbd">Super</kbd> + <kbd class="info-kbd">Space</kbd> to switch layouts.</p>
+            <div class="info-tip">💡 For this website, keep your OS layout on <strong>English</strong> — Tamil output is handled by the browser. You only need Tamil99 installed for typing in other apps.</div>
           </div>
         </div>
+
       </div>
 
     </div>
