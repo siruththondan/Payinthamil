@@ -634,16 +634,17 @@ body {
 @keyframes kpress { 0%{filter:brightness(1.4)} 100%{filter:brightness(1)} }
 
 /* ─ Finger zone colors (guide overlay mode) ─ */
+/* Finger guide: use exact SVG fill colors from Tamil99.svg */
 #keyboard.guide-mode svg g[data-finger] > rect:first-child { opacity: 1 !important; }
-#keyboard.guide-mode svg g[data-finger="lp"] > rect:first-child { fill: rgba(196,80,80,.5) !important; }
-#keyboard.guide-mode svg g[data-finger="lr"] > rect:first-child { fill: rgba(196,148,60,.5) !important; }
-#keyboard.guide-mode svg g[data-finger="lm"] > rect:first-child { fill: rgba(185,185,48,.5) !important; }
-#keyboard.guide-mode svg g[data-finger="li"] > rect:first-child { fill: rgba(62,162,78,.5) !important; }
-#keyboard.guide-mode svg g[data-finger="th"] > rect:first-child { fill: rgba(120,120,165,.44) !important; }
-#keyboard.guide-mode svg g[data-finger="ri"] > rect:first-child { fill: rgba(55,128,215,.5) !important; }
-#keyboard.guide-mode svg g[data-finger="rm"] > rect:first-child { fill: rgba(84,84,215,.5) !important; }
-#keyboard.guide-mode svg g[data-finger="rr"] > rect:first-child { fill: rgba(148,82,215,.5) !important; }
-#keyboard.guide-mode svg g[data-finger="rp"] > rect:first-child { fill: rgba(205,78,205,.5) !important; }
+#keyboard.guide-mode svg g[data-finger="lp"] > rect:first-child { fill: #BAF2BB !important; }
+#keyboard.guide-mode svg g[data-finger="lr"] > rect:first-child { fill: #C1FBA4 !important; }
+#keyboard.guide-mode svg g[data-finger="lm"] > rect:first-child { fill: #F2E2BA !important; }
+#keyboard.guide-mode svg g[data-finger="li"] > rect:first-child { fill: #BAD7F2 !important; }
+#keyboard.guide-mode svg g[data-finger="th"] > rect:first-child { fill: #cccccc !important; }
+#keyboard.guide-mode svg g[data-finger="ri"] > rect:first-child { fill: #F2BAC9 !important; }
+#keyboard.guide-mode svg g[data-finger="rm"] > rect:first-child { fill: #F2E2BA !important; }
+#keyboard.guide-mode svg g[data-finger="rr"] > rect:first-child { fill: #C1FBA4 !important; }
+#keyboard.guide-mode svg g[data-finger="rp"] > rect:first-child { fill: #BAF2BB !important; }
 
 /* ════════════════════════════════════════════════
    VIEW MODE OVERRIDES
@@ -951,7 +952,11 @@ body {
 /* ── Finger guide modal ── */
 #finger-kb-wrap { width: 100%; margin: .5rem 0; border-radius: 5px; overflow: hidden; border: 1px solid var(--border-sub); }
 #finger-kb-wrap svg { width: 100%; height: auto; display: block; }
+/* Two columns: left-hand fingers in left col, right-hand fingers in right col */
 #finger-legend  { display: grid; grid-template-columns: 1fr 1fr; gap: .3rem .75rem; margin-top: .4rem; }
+/* Left-hand rows go in column 1, right-hand rows in column 2 */
+.fg-row.fg-left  { grid-column: 1; }
+.fg-row.fg-right { grid-column: 2; }
 .fg-row   { display: flex; align-items: center; gap: .34rem; padding: .12rem 0; }
 .fg-swatch{ width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
 .fg-label { font-size: .65rem; color: var(--fg-2); min-width: 76px; }
@@ -992,7 +997,6 @@ body {
   #practice-main[data-view="1"] #typing-area { height: calc(var(--char-size) * 10.5); }
   #practice-main[data-view="2"] #typing-area { height: calc(var(--char-size) * 12.5); }
 }
-
 /* ═══════════════════════════════════════════════════════════════
    KEYBOARD LANGUAGE BANNER
    Shown when user presses a non-ASCII key (non-English layout).

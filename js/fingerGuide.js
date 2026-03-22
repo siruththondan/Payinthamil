@@ -26,15 +26,15 @@ export const FINGER_MAP = {
 
 /* ── Finger metadata: label, Tamil chars shown, zone colour ──── */
 export const FINGER_INFO = {
-  lp: { label: 'Left Pinky',   tamil: 'அ ஆ ஔ',           css: '#c97c7c' },
-  lr: { label: 'Left Ring',    tamil: 'இ ஈ ஓ',           css: '#c9a07c' },
-  lm: { label: 'Left Middle',  tamil: 'உ ஊ ஒ',           css: '#c9c07c' },
-  li: { label: 'Left Index',   tamil: 'ஐ ஏ எ வ ்',       css: '#7ca87c' },
-  th: { label: 'Thumbs',       tamil: '(space)',           css: '#888888' },
-  ri: { label: 'Right Index',  tamil: 'க ப ல ற ள ர',     css: '#7c9cc9' },
-  rm: { label: 'Right Middle', tamil: 'ம ன',              css: '#7c7cc9' },
-  rr: { label: 'Right Ring',   tamil: 'த ட',              css: '#9c7cc9' },
-  rp: { label: 'Right Pinky',  tamil: 'ந ய ண ச ஞ ழ',   css: '#bc7cbc' },
+  lp: { label: 'Left Pinky',   tamil: 'அ ஆ ஔ',           css: '#BAF2BB' },
+  lr: { label: 'Left Ring',    tamil: 'இ ஈ ஓ',           css: '#C1FBA4' },
+  lm: { label: 'Left Middle',  tamil: 'உ ஊ ஒ',           css: '#F2E2BA' },
+  li: { label: 'Left Index',   tamil: 'ஐ ஏ எ வ ்',       css: '#BAD7F2' },
+  th: { label: 'Thumbs',       tamil: '(space)',           css: '#cccccc' },
+  ri: { label: 'Right Index',  tamil: 'க ப ல ற ள ர',     css: '#F2BAC9' },
+  rm: { label: 'Right Middle', tamil: 'ம ன',              css: '#F2E2BA' },
+  rr: { label: 'Right Ring',   tamil: 'த ட',              css: '#C1FBA4' },
+  rp: { label: 'Right Pinky',  tamil: 'ந ய ண ச ஞ ழ',   css: '#BAF2BB' },
 };
 
 /**

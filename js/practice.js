@@ -431,13 +431,23 @@ function buildFingerLegend(){
     kbWrap.appendChild(c);
   }
   const legend=$('finger-legend');if(legend.children.length)return;
-  ['lp','lr','lm','li'].forEach(f=>legend.appendChild(mkFgRow(f)));
-  ['ri','rm','rr','rp'].forEach(f=>legend.appendChild(mkFgRow(f)));
+  // Pair left + right fingers so they appear side-by-side in the 2-column grid:
+  // lp (left col) | rp (right col)
+  // lr (left col) | rr (right col)
+  // lm (left col) | rm (right col)
+  // li (left col) | ri (right col)
+  // Left fingers in left column, right fingers in right column.
+  // Paired row by row: outer → inner (pinky→index on left, index→pinky on right)
+  const pairs=[['lp','ri'],['lr','rm'],['lm','rr'],['li','rp']];
+  pairs.forEach(([l,r])=>{
+    legend.appendChild(mkFgRow(l,'fg-left'));
+    legend.appendChild(mkFgRow(r,'fg-right'));
+  });
   const thumb=document.createElement('div');thumb.className='fg-thumb-row';
   thumb.innerHTML=`<span class="fg-swatch" style="background:${FINGER_INFO.th.css}"></span><span>Thumbs — Space bar</span>`;
   legend.appendChild(thumb);
 }
-function mkFgRow(f){const info=FINGER_INFO[f],div=document.createElement('div');div.className='fg-row';div.innerHTML=`<span class="fg-swatch" style="background:${info.css}"></span><span class="fg-label">${info.label}</span><span class="fg-chars">${info.tamil}</span>`;return div;}
+function mkFgRow(f,side=''){const info=FINGER_INFO[f],div=document.createElement('div');div.className='fg-row'+(side?' '+side:'');div.innerHTML=`<span class="fg-swatch" style="background:${info.css}"></span><span class="fg-label">${info.label}</span><span class="fg-chars">${info.tamil}</span>`;return div;}
 
 /* ── Init ────────────────────────────────────────── */
 
