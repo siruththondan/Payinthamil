@@ -185,36 +185,48 @@ export const LESSONS_DB = {
         for(let i=0;i<12;i++){if(i%4===3)out.push(...W3[ri(W3.length)],sp);else{const wl=2+ri(3);for(let j=0;j<wl;j++)out.push(...syl[ri(syl.length)]);out.push(sp);}}
         while(out.length&&out[out.length-1]===sp)out.pop();return out;
       } },
-    { id:'a07',order:7,level:'advanced',
-      title:'Tamil Numerals — ௧-௦',
-      description:'Shift+1..0 = ௧ ௨ ௩ ௪ ௫ ௬ ௭ ௮ ௯ ௦  (Tamil years & dates)',
-      focusKeys:['!','@','#','$','%','^','&','*','(',')',PU,...C_HR],targetWPM:22,
+    /**
+     * a07 — Tamil Accounting Symbols
+     * ─────────────────────────────────
+     * Traditional Tamil ledger markers used in financial records, dates,
+     * and historical documents. All require Shift.
+     *
+     * Key → Symbol → Meaning
+     *   Shift+Z → ௳  → நாள்      (day marker)
+     *   Shift+X → ௴  → மாதம்     (month marker)
+     *   Shift+C → ௵  → ஆண்டு     (year marker)
+     *   Shift+V → ௶  → பற்று     (debit)
+     *   Shift+B → ௷  → கடன்      (credit)
+     *   Shift+D → ௸  → மேலே      (as above / ditto)
+     *   Shift+A → ௹  → ரூபாய்    (rupee)
+     *   Shift+S → ௺  → எண்       (number sign)
+     */
+    { id:'a07', order:7, level:'advanced',
+      title:'கணக்கு குறிகள்',
+      description:'Shift+Z X C V B D A S — Tamil accounting symbols',
+      focusKeys:['Z','X','C','V','B','D','A','S'], targetWPM:18,
       generateContent(){
-        // Tamil numerals: ! @ # $ % ^ & * ( )
-        const nums=['!','@','#','$','%','^','&','*','(',')']; const ri=n=>Math.floor(Math.random()*n);
-        const out=[];
-        // 1. Drill each numeral individually
-        for(const n of nums)out.push(n,n,' ');
-        // 2. Groups of 2-4 numerals (like year digits)
-        for(let i=0;i<8;i++){
-          const len=2+ri(3);
-          for(let j=0;j<len;j++)out.push(nums[ri(10)]);
-          out.push(' ');
-        }
-        // 3. Numeral + consonant pairs (like ௧வது = 1st)
-        for(const c of ['h','j','k','l',';']){
-          out.push(...[nums[ri(10)],c,PU,' ']);
-        }
-        // 4. Year-like patterns: 4-digit groups
-        for(let i=0;i<6;i++){
-          out.push(nums[ri(2)],nums[ri(10)],nums[ri(10)],nums[ri(10)],' ');
-        }
-        // 5. Mixed numeral + Ayutham
-        out.push('F','h',' ','F','j',' ');
-        for(let i=0;i<4;i++)out.push(nums[ri(10)],nums[ri(10)],' ','F','h',' ');
-        // 6. All 10 in order twice
-        out.push(...nums,' ',...[...nums].reverse(),' ');
-        while(out.length&&out[out.length-1]===' ')out.pop();
+        const syms=['Z','X','C','V','B','D','A','S'];
+        const ri = n => Math.floor(Math.random() * n);
+        const out = [];
+        // 1. Introduce each symbol with triple repetition
+        for(const s of syms) out.push(s, s, s, ' ');
+        // 2. Traditional date format: day · month · year
+        for(let i=0;i<6;i++) out.push('Z','X','C',' ');
+        // 3. Shuffle-repeat all 8 symbols
+        const shuffled = [...syms].sort(()=>Math.random()-.5);
+        for(const s of shuffled) out.push(s, s, ' ');
+        // 4. Accounting pairs: debit/credit
+        for(let i=0;i<8;i++) out.push(i%2===0?'V':'B',' ');
+        // 5. Number + rupee combinations
+        for(let i=0;i<6;i++) out.push('S','A',' ');
+        // 6. Ditto (as above) sequence
+        for(let i=0;i<5;i++) out.push('D',' ');
+        // 7. Mixed random
+        for(let i=0;i<16;i++) out.push(syms[ri(8)],' ');
+        // 8. Full sequence forward and back
+        out.push(...syms,' ',...[...syms].reverse(),' ');
+        while(out.length && out[out.length-1]===' ') out.pop();
         return out;
       }
     },

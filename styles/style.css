@@ -654,8 +654,20 @@ body {
 ════════════════════════════════════════════════ */
 #practice-main[data-view="1"] #typing-area { height: calc(var(--char-size) * 10.5); }
 #practice-main[data-view="2"] #typing-area { height: calc(var(--char-size) * 12.5); }
+
+/* View modes 1 & 2: stats/top-bar stay at the top of the page (flex-start).
+   Only the typing wrapper is centered by using margin:auto on it.
+   Removing justify-content:center prevents the whole column from centering,
+   which was pushing the stats strip to the middle of the viewport. */
 #practice-main[data-view="1"],
-#practice-main[data-view="2"] { justify-content: center; }
+#practice-main[data-view="2"] {
+  justify-content: flex-start; /* stats always at top */
+}
+#practice-main[data-view="1"] #typing-wrapper,
+#practice-main[data-view="2"] #typing-wrapper {
+  margin-top: auto;    /* push typing area down from stats */
+  margin-bottom: auto; /* push it back up from bottom → vertically centered */
+}
 #practice-main[data-view="2"] #progress-row { opacity: 0; pointer-events: none; }
 
 /* Bottom fade adjusts with char size in view modes */
@@ -798,6 +810,29 @@ body {
 .kural-line-row .word { display: inline-flex; align-items: baseline; flex-wrap: nowrap; flex-shrink: 0; }
 .kural-line-row .char { font-size: var(--kural-sz); }
 
+
+/* ── Urai source attribution label ──────────────────────────────
+   Shows "முவா உரை" or similar between the kural lines and the
+   urai explanation. Has a dashed line extending to the right. */
+.kural-urai-label {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  font-size: .6rem;
+  color: var(--fg-3);
+  font-family: var(--font-tamil);
+  padding: .2rem 0 .08rem;
+  flex-shrink: 0;
+  opacity: .8;
+}
+/* Dashed line extends to the right of the label text */
+.kural-urai-label::after {
+  content: '';
+  flex: 1;
+  border-top: 1px dashed var(--border-sub);
+}
+
 /* Urai (commentary) — smaller, wraps freely */
 .kural-urai-row {
   display: flex; flex-wrap: wrap;
@@ -939,7 +974,61 @@ body {
 ════════════════════════════════════════════════ */
 .hidden { display: none !important; }
 
+/* ════════════════════════════════════════════════
+   RESPONSIVE — mobile ≤ 600px
+════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+  #practice-main, #kural-main { padding: .75rem .85rem .6rem; gap: .6rem; }
+  #navbar, #tab-bar { padding: 0 .85rem; }
+  .tb-goal { display: none; }
+  .kp-row { flex-wrap: wrap; }
+  .kp-cur-section { width: 100%; text-align: left; }
+  #kural-main { --kural-sz: 1.45rem; --urai-sz: 1rem; }
+  #kural-main[data-view="1"] { --kural-sz: 1.75rem; --urai-sz: 1.2rem; }
+  #kural-main[data-view="2"] { --kural-sz: 2.2rem; --urai-sz: 1.5rem; }
+  .km-english { display: none; }
+  #kural-controls { flex-wrap: wrap; gap: .2rem; }
+  .kr-inner { flex-direction: column; align-items: flex-start; gap: .4rem; }
+  #practice-main[data-view="1"] #typing-area { height: calc(var(--char-size) * 10.5); }
+  #practice-main[data-view="2"] #typing-area { height: calc(var(--char-size) * 12.5); }
+}
 
+/* ═══════════════════════════════════════════════════════════════
+   KEYBOARD LANGUAGE BANNER
+   Shown when user presses a non-ASCII key (non-English layout).
+═══════════════════════════════════════════════════════════════ */
+
+#kb-lang-banner {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  padding: .52rem 1.1rem;
+  background: rgba(212, 170, 114, .1);
+  border-bottom: 1px solid rgba(212, 170, 114, .25);
+  font-size: .74rem;
+  color: var(--warn);
+  line-height: 1.5;
+  flex-shrink: 0;
+  animation: slideDown .2s ease;
+}
+@keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: none; opacity: 1; } }
+
+#kb-lang-banner svg { flex-shrink: 0; opacity: .8; }
+#kb-lang-banner span { flex: 1; }
+#kb-lang-banner strong { color: var(--fg-2); }
+
+#btn-kb-banner-close {
+  all: unset;
+  cursor: pointer;
+  font-size: .7rem;
+  color: var(--warn);
+  opacity: .6;
+  padding: .1rem .3rem;
+  border-radius: 3px;
+  transition: opacity var(--t);
+  flex-shrink: 0;
+}
+#btn-kb-banner-close:hover { opacity: 1; }
 
 /* ═══════════════════════════════════════════════════════════════
    INFO MODAL — Setup Guide
@@ -1069,18 +1158,22 @@ body {
   gap: .65rem;
 }
 .info-step-num {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--bg-raised);
-  border: 1px solid var(--border-sub);
+  /* No oval/circle. Simple right-bordered inline number. */
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+  border-right: 1.5px solid var(--border-sub);
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: .65rem;
+  align-items: flex-start;
+  justify-content: flex-end;
+  font-size: .68rem;
   color: var(--fg-3);
   flex-shrink: 0;
-  margin-top: .1rem;
+  margin-top: .12rem;
+  padding-right: .42rem;
+  min-width: 1.4rem;
   font-variant-numeric: tabular-nums;
 }
 .info-step > div { flex: 1; min-width: 0; }
@@ -1159,25 +1252,10 @@ body {
   background: var(--bg-raised);
 }
 
-/* ════════════════════════════════════════════════
-   RESPONSIVE — mobile ≤ 600px
-════════════════════════════════════════════════ */
+/* ── Responsive ───────────────────────────────────── */
 @media (max-width: 600px) {
-    .info-shortcut-row { flex-direction: column; }
+  .info-shortcut-row { flex-direction: column; }
   .info-shortcut { min-width: 0; }
   .info-os-tabs { flex-wrap: wrap; }
-  #practice-main, #kural-main { padding: .75rem .85rem .6rem; gap: .6rem; }
-  #navbar, #tab-bar { padding: 0 .85rem; }
-  .tb-goal { display: none; }
-  .kp-row { flex-wrap: wrap; }
-  .kp-cur-section { width: 100%; text-align: left; }
-  #kural-main { --kural-sz: 1.45rem; --urai-sz: 1rem; }
-  #kural-main[data-view="1"] { --kural-sz: 1.75rem; --urai-sz: 1.2rem; }
-  #kural-main[data-view="2"] { --kural-sz: 2.2rem; --urai-sz: 1.5rem; }
-  .km-english { display: none; }
-  #kural-controls { flex-wrap: wrap; gap: .2rem; }
-  .kr-inner { flex-direction: column; align-items: flex-start; gap: .4rem; }
-  #practice-main[data-view="1"] #typing-area { height: calc(var(--char-size) * 10.5); }
-  #practice-main[data-view="2"] #typing-area { height: calc(var(--char-size) * 12.5); }
+  #kb-lang-banner { font-size: .68rem; }
 }
-

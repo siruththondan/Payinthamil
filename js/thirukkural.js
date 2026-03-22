@@ -71,6 +71,8 @@ const CHAR_TO_KEY=(()=>{
     '்':'f',
     'க':'h','ங':'b','ச':'[','ஞ':']','ட':'o','ண':'p','த':'l','ந':';','ன':'i','ப':'j','ம':'k','ய':"'",
     'ர':'m','ல':'n','வ':'v','ழ':'/','ள':'y','ற':'u','ஸ':'Q','ஷ':'W','ஜ':'E','ஹ':'R','ஃ':'F',
+    // Tamil accounting symbols
+    '௹':'A','௳':'Z','௴':'X','௵':'C','௶':'V','௷':'B','௸':'D','௺':'S',
   });
   return map;
 })();
@@ -100,8 +102,8 @@ function splitKuralWords(fullText) {
 /* ── API ─────────────────────────────────────────── */
 const API='https://tamil-kural-api.vercel.app/api/kural';
 const FALLBACK=[
-  {number:1,fullText:'அகர முதல எழுத்தெல்லாம் ஆதி பகவன் முதற்றே உலகு',urai:'எழுத்துக்கள் எல்லாவற்றிற்கும் அகரம் முதலாக இருப்பது போல உலகிற்கு கடவுளே ஆதி காரணமாக இருக்கிறான்',english:'As A is the first of all letters, so the eternal God is first in the world.',chapter:'கடவுள் வாழ்த்து',chapterGroup:'அறத்துப்பால்'},
-  {number:390,fullText:'கற்க கசடறக் கற்பவை கற்றபின் நிற்க அதற்குத் தக',urai:'கற்கத்தக்கவற்றை குற்றமறக் கற்க; கற்ற பிறகு அதற்குத் தக நடக்க',english:'Learn thoroughly what is worth learning; then live accordingly.',chapter:'கல்வி',chapterGroup:'பொருட்பால்'},
+  {number:1,fullText:'அகர முதல எழுத்தெல்லாம் ஆதி பகவன் முதற்றே உலகு',urai:'எழுத்துக்கள் எல்லாவற்றிற்கும் அகரம் முதலாக இருப்பது போல உலகிற்கு கடவுளே ஆதி காரணமாக இருக்கிறான்',uraiSource:'முவா',english:'As A is the first of all letters, so the eternal God is first in the world.',chapter:'கடவுள் வாழ்த்து',chapterGroup:'அறத்துப்பால்'},
+  {number:390,fullText:'கற்க கசடறக் கற்பவை கற்றபின் நிற்க அதற்குத் தக',urai:'கற்கத்தக்கவற்றை குற்றமறக் கற்க; கற்ற பிறகு அதற்குத் தக நடக்க',uraiSource:'முவா',english:'Learn thoroughly what is worth learning; then live accordingly.',chapter:'கல்வி',chapterGroup:'பொருட்பால்'},
 ];
 
 async function fetchKural(num){
@@ -113,10 +115,17 @@ async function fetchKural(num){
     const clean=s=>(s??'').trim().replace(/[.।]$/,'').trim();
     // Combine both lines, then split by word count
     const fullText=(clean(lines[0])+' '+clean(lines[1])).trim();
+    // Track urai source for attribution label in the divider
+    const rawMuVa = data.meaning?.ta_mu_va;
+    const rawTa   = data.meaning?.ta ?? '';
+    // .slice(7) removes "முவா :" prefix (7 Tamil chars) from Mu.Va. source only
+    const urai = rawMuVa ? clean(rawMuVa).slice(7) : clean(rawTa);
+    const uraiSource = rawMuVa ? 'முவா' : rawTa ? '' : '';
     return{
       number:data.number??n,
       fullText,
-      urai:clean(data.meaning?.ta_mu_va??data.meaning?.ta??'').slice(7),
+      urai,
+      uraiSource,
       english:(data.meaning?.en??'').trim(),
       chapter:(data.chapter??'').trim(),
       chapterGroup:(data.section??'').trim(),
@@ -228,7 +237,7 @@ function _renderChars(){
   const row1=document.createElement('div');row1.className='kural-line-row kural-row-1';
   const row2=document.createElement('div');row2.className='kural-line-row kural-row-2';
   const rowU=document.createElement('div');rowU.className='kural-urai-row';
-  const divider=document.createElement('div');divider.className='kural-divider';
+  // const divider=document.createElement('div');divider.className='kural-divider';
 
   // Distribute syllables into rows using word spans
   const rows={line1:row1,line2:row2,urai:rowU};
@@ -262,7 +271,16 @@ function _renderChars(){
   // Assemble into box
   box.appendChild(row1);
   if(row2.children.length) box.appendChild(row2);
-  if(rowU.children.length){ box.appendChild(divider); box.appendChild(rowU); }
+  if(rowU.children.length){
+    // Show urai attribution label above the dashed divider line
+    const uraiLabel = document.createElement('div');
+    uraiLabel.className = 'kural-urai-label';
+    const src = TS.kural?.uraiSource;
+    uraiLabel.textContent = src ? src + ' உரை' : 'உரை';
+    box.appendChild(uraiLabel);
+    // box.appendChild(divider);
+    box.appendChild(rowU);
+  }
 
   const first=box.querySelector('[data-si="0"]');if(first)first.classList.add('current');
   _resetScroll();

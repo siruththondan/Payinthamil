@@ -19,9 +19,26 @@ import { resetSession, recordKeypress,
 import { initKural, adjustKuralWidth } from './thirukkural.js';
 
 /* ── Tamil99 maps ─────────────────────────────── */
-const STANDALONE = {a:'அ',q:'ஆ',s:'இ',w:'ஈ',d:'உ',e:'ஊ',g:'எ',t:'ஏ',r:'ஐ',c:'ஒ',x:'ஓ',z:'ஔ',f:'்',h:'க',b:'ங','[':'ச',']':'ஞ',o:'ட',p:'ண',l:'த',';':'ந',i:'ன',j:'ப',k:'ம',"'":'ய',m:'ர',n:'ல',v:'வ','/':'ழ',y:'ள',u:'ற',Q:'ஸ',W:'ஷ',E:'ஜ',R:'ஹ',F:'ஃ',
-  // Tamil numerals — Shift+1..0 on Tamil99 keyboard
-  '!':'௧','@':'௨','#':'௩','$':'௪','%':'௫','^':'௬','&':'௭','*':'௮','(':'௯',')':'௦'};
+const STANDALONE = {
+  // Vowels (left hand)
+  a:'அ', q:'ஆ', s:'இ', w:'ஈ', d:'உ', e:'ஊ', g:'எ', t:'ஏ', r:'ஐ', c:'ஒ', x:'ஓ', z:'ஔ',
+  // Pulli
+  f:'்',
+  // Consonants (right hand)
+  h:'க', b:'ங', '[':'ச', ']':'ஞ', o:'ட', p:'ண', l:'த', ';':'ந',
+  i:'ன', j:'ப', k:'ம', "'":'ய', m:'ர', n:'ல', v:'வ', '/':'ழ', y:'ள', u:'ற',
+  // Grantha (Shift)
+  Q:'ஸ', W:'ஷ', E:'ஜ', R:'ஹ', T:'க்ஷ', Y:'ஸ்ரீ', F:'ஃ',
+  // Tamil accounting symbols (Shift + home/bottom row)
+  A:'₹',   // ரூபாய் (rupee)
+  Z:'௳',   // நாள் (day)
+  X:'௴',   // மாதம் (month)
+  C:'௵',   // ஆண்டு (year)
+  V:'௶',   // பற்று (debit)
+  B:'௷',   // கடன் (credit)
+  D:'௸',   // மேலே (as above/ditto)
+  S:'௺',   // எண் (number sign)
+};
 const MATRA = {q:'ா',s:'ி',w:'ீ',d:'ு',e:'ூ',g:'ெ',t:'ே',r:'ை',c:'ொ',x:'ோ',z:'ௌ'};
 const SYL_CONS = new Set(['h','j','k','l',';',"'",'n','v','u','i','o','p','[',']','b','y','/','m','Q','W','E','R','F']);
 const SYL_VOW  = new Set(['q','s','w','d','e','g','t','r','c','x','z','f']);
@@ -194,14 +211,39 @@ function renderChars(){
 
 function sylSpan(si){return $('lesson-container').querySelector(`[data-si="${si}"]`);}
 
-let currentLineY=-1;
-function scrollToSyllable(si){
-  const area=$('typing-area'),span=sylSpan(si);if(!span)return;
-  const y=span.offsetTop;
-  if(currentLineY<0){currentLineY=y;area.scrollTop=0;return;}
-  if(y>currentLineY){area.scrollTop=Math.max(0,area.scrollTop+(y-currentLineY));currentLineY=y;}
+let currentLineY = -1;
+function scrollToSyllable(si) {
+  const area = $('typing-area');
+  const span = sylSpan(si);
+  if (!span || !area) return;
+
+  // Use getBoundingClientRect relative to the area so we measure rendered position
+  // regardless of offsetParent chain. areaTop is the top of the visible window.
+  const areaRect = area.getBoundingClientRect();
+  const spanRect = span.getBoundingClientRect();
+
+  // Position of the span's top relative to the area's visible top, accounting for
+  // current scroll. This gives us the "logical" y in the scroll coordinate space.
+  const logicalY = spanRect.top - areaRect.top + area.scrollTop;
+
+  if (currentLineY < 0) {
+    // First character: establish baseline line position, no scroll needed yet
+    currentLineY = logicalY;
+    area.scrollTop = 0;
+    return;
+  }
+
+  if (logicalY > currentLineY + 2) {
+    // Moved to a new line (2px tolerance for sub-pixel rounding).
+    // Scroll by exactly the line height so the new current char sits at the
+    // same visual position where the previous line started — completed lines
+    // scroll smoothly off the top.
+    const delta = logicalY - currentLineY;
+    area.scrollTop = Math.max(0, area.scrollTop + delta);
+    currentLineY = logicalY;
+  }
 }
-function resetScroll(){currentLineY=-1;$('typing-area').scrollTop=0;}
+function resetScroll() { currentLineY = -1; $('typing-area').scrollTop = 0; }
 
 function setSylState(span,state,hadError){
   if(!span)return;
@@ -355,8 +397,17 @@ function renderLessonList(level){
     row.className=`lesson-row${isCur?' is-current':''}${locked?' locked':''}`;
     row.innerHTML=`<span class="row-num">${String(lesson.order).padStart(2,'0')}</span><span class="row-chars">${lessonDisplayChars(lesson)||lesson.title}</span><span class="row-right">${isCur?'<span class="row-dot"></span>':''}${done&&best?`<span class="row-wpm">${best.wpm}</span><span class="row-done">✓</span>`:''}${locked?'<span style="opacity:.25">🔒</span>':''}</span>`;
     if(!locked)row.addEventListener('click',()=>{
+      // Same guard as the nav arrow: if mid-lesson (typed but not finished), block
+      if(S.pointer > 0 && !S.finished && S.lesson?.id !== lesson.id){
+        hideModal('modal-lessons');
+        const ta=$('typing-area');
+        // Flash the typing area border red to signal "finish first"
+        ta.style.borderBottomColor='var(--wrong)';
+        setTimeout(()=>{ ta.style.borderBottomColor=''; ta.focus(); }, 700);
+        return;
+      }
       hideModal('modal-lessons');
-      switchToPracticeTab();   // always switch to practice tab
+      switchToPracticeTab();
       startLesson(lesson);
     });
     listEl.appendChild(row);
@@ -467,8 +518,25 @@ async function init(){
   });
   $('logo').addEventListener('click',openLessonsModal);
   $('btn-restart').addEventListener('click',restartLesson);
-  $('btn-prev-lesson').addEventListener('click',()=>{const p=getPrevLesson(S.lesson?.id);if(p)startLesson(p);});
-  $('btn-next-lesson-nav').addEventListener('click',()=>{const n=getNextLesson(S.lesson?.id);if(n)startLesson(n);});
+  $('btn-prev-lesson').addEventListener('click',()=>{
+    const p=getPrevLesson(S.lesson?.id);
+    if(!p)return;
+    // Allow going back freely — prev resets the current lesson naturally
+    startLesson(p);
+  });
+  $('btn-next-lesson-nav').addEventListener('click',()=>{
+    const n=getNextLesson(S.lesson?.id);
+    if(!n)return;
+    // Lock: once you've typed even one character (pointer > 0), you must finish the lesson.
+    // Allowed only when: lesson not yet started (pointer === 0) OR lesson finished.
+    if(S.pointer > 0 && !S.finished){
+      const btn = $('btn-next-lesson-nav');
+      btn.style.color='var(--wrong)';btn.style.borderColor='var(--wrong)';
+      setTimeout(()=>{btn.style.color='';btn.style.borderColor='';},700);
+      return;
+    }
+    startLesson(n);
+  });
 
   const ta=$('typing-area');
   ta.addEventListener('keydown',onKeyDown);
