@@ -43,7 +43,7 @@ let _mapBuilt = false; // true once _buildShiftMap found at least one key pair
 const shiftMap = new Map(); // groupId → {centerEl, topLeftEl, transforms…}
 
 // ─── Load ─────────────────────────────────────────────────────────────────────
-export async function loadKeyboard(containerId, svgPath = './assets/images/Tamil99.svg') {
+export async function loadKeyboard(containerId, svgPath = './assets/images/Tamil99.svg?v=20261109') {
   container = document.getElementById(containerId);
   if (!container) return;
   try {
@@ -62,10 +62,11 @@ export async function loadKeyboard(containerId, svgPath = './assets/images/Tamil
     requestAnimationFrame(() => requestAnimationFrame(() => {
       _buildShiftMap();
       loaded = true;
+      if (_pendingHint) { const k = _pendingHint; _pendingHint = null; showHint(k); }
     }));
   } catch (err) {
-    console.warn('[keyboard] SVG load failed:', err.message);
-    container.innerHTML = '<div style="padding:.5rem;font-size:.75rem;color:var(--fg-3)">Place Tamil99.svg in assets/images/</div>';
+    console.warn('[keyboard] SVG load failed — expected Tamil99.svg in assets/images/:', err.message);
+    container.innerHTML = '<div role="status" style="padding:.5rem;font-size:.75rem;color:var(--fg-3)">விசைப்பலகை வரைபடம் ஏற்ற முடியவில்லை — <span lang="en">Keyboard diagram unavailable</span></div>';
   }
 }
 
@@ -114,7 +115,6 @@ function _buildShiftMap() {
   });
 
   _mapBuilt = found > 0;
-  console.log(`[keyboard] shift map: ${found} keys`);
 }
 
 /**
@@ -153,14 +153,18 @@ function _findShiftKeys() {
 }
 
 // ─── Public API ───────────────────────────────────────────────────────────────
+// Hint requested before the SVG finished loading; re-applied once it is ready.
+let _pendingHint = null;
+
 export function clearHints() {
+  _pendingHint = null;
   if (!loaded || !container) return;
   container.querySelectorAll('.key-hint,.key-correct,.key-wrong,.key-shift,.key-pressed,.key-shift-held')
     .forEach(el => el.classList.remove('key-hint','key-correct','key-wrong','key-shift','key-pressed','key-shift-held'));
 }
 
 export function showHint(key) {
-  if (!loaded || !container) return;
+  if (!loaded || !container) { _pendingHint = key; return; }
   clearHints();
   const el = _findKey(key);
   if (!el) return;

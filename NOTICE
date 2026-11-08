@@ -1,0 +1,19 @@
+Payinthamil
+Copyright 2026 Gokul (mastergokul)
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Third-party material:
+
+- Fonts: Noto Sans Tamil, JetBrains Mono and Coiny are included as subsets
+  under the SIL Open Font License 1.1. See assets/fonts/OFL.txt and
+  assets/fonts/README.md.
+
+- Thirukkural: the verses are public-domain classical text. They are fetched
+  at runtime from the Thirukkural API (tamil-kural-api.vercel.app,
+  github.com/nramc/thirukkural-api), which is MIT licensed —
+  Copyright (c) 2026 Ramachandran Nellaiyappan. A 10-verse offline fallback
+  is kept in js/thirukkural.js.
+
+- Tamil99: the keyboard layout was standardised by the Government of Tamil
+  Nadu (1999).

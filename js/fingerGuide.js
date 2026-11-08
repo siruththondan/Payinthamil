@@ -76,7 +76,7 @@ export function setGuideMode(container, enabled) {
  */
 export function shouldAutoShow() {
   try {
-    return !localStorage.getItem('paintamil_finger_guide_shown');
+    return !localStorage.getItem('payinthamil_finger_guide_shown');
   } catch {
     return false;
   }
@@ -89,6 +89,6 @@ export function shouldAutoShow() {
  */
 export function markShown() {
   try {
-    localStorage.setItem('paintamil_finger_guide_shown', '1');
+    localStorage.setItem('payinthamil_finger_guide_shown', '1');
   } catch { /* localStorage not available in some environments */ }
 }

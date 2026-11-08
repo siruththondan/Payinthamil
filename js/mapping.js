@@ -93,7 +93,7 @@ export function svgIdOf(key) {
 
 /* ── Helper: does this key require Shift? ───────────────────────── */
 export function needsShift(key) {
-  return /^[A-Z]$/.test(key); // uppercase = shift-held key
+  return /^[A-Z?!:]$/.test(key); // uppercase letters and ? ! : need Shift
 }
 
 /* ── Display text for the hint bar ──────────────────────────────── */
@@ -102,7 +102,7 @@ export function hintLabel(key) {
   if (needsShift(key))    return `Shift + ${key.toLowerCase()}`;
   // Special labels for ambiguous keys
   const labels = {
-    f:   'f  (்)',
+    f:   'f  (க்)',
     "'": "' (ய)",
     '[': '[ (ச)',
     ']': '] (ஞ)',
@@ -111,4 +111,90 @@ export function hintLabel(key) {
     m:   'm (ர)',
   };
   return labels[key] ?? key;
+}
+
+// ── Tamil99 composition maps (used by practice and kural tabs) ──────────────
+
+export const STANDALONE = {
+  a:'அ',q:'ஆ',s:'இ',w:'ஈ',d:'உ',e:'ஊ',g:'எ',t:'ஏ',r:'ஐ',c:'ஒ',x:'ஓ',z:'ஔ',
+  f:'்',
+  h:'க',b:'ங','[':'ச',']':'ஞ',o:'ட',p:'ண',l:'த',';':'ந',
+  i:'ன',j:'ப',k:'ம',"'":'ய',m:'ர',n:'ல',v:'வ','/':'ழ',y:'ள',u:'ற',
+  Q:'ஸ',W:'ஷ',E:'ஜ',R:'ஹ',F:'ஃ',
+  // Tamil accounting symbols
+  A:'௹',Z:'௳',X:'௴',C:'௵',V:'௶',B:'௷',D:'௸',S:'௺',
+};
+
+export const MATRA = {q:'ா',s:'ி',w:'ீ',d:'ு',e:'ூ',g:'ெ',t:'ே',r:'ை',c:'ொ',x:'ோ',z:'ௌ'};
+
+export const SYL_CONS = new Set(['h','j','k','l',';',"'",'n','v','u','i','o','p','[',']','b','y','/','m','Q','W','E','R','F']);
+export const SYL_VOW  = new Set(['q','s','w','d','e','g','t','r','c','x','z','f']);
+
+export function composedForm(c, v) {
+  return (STANDALONE[c] ?? c) + (v === 'f' ? '்' : (MATRA[v] ?? ''));
+}
+
+export function buildSyls(keys) {
+  const syls = [], map = new Array(keys.length);
+  let i = 0;
+  while (i < keys.length) {
+    const k = keys[i], si = syls.length;
+    if (k === ' ') {
+      syls.push({ keys: [' '], isSpace: true, start: i, display: ' ' });
+      map[i] = si; i++;
+    } else if (SYL_CONS.has(k) && i + 1 < keys.length && SYL_VOW.has(keys[i + 1])) {
+      const v = keys[i + 1];
+      syls.push({ keys: [k, v], start: i, display: composedForm(k, v) });
+      map[i] = si; map[i + 1] = si; i += 2;
+    } else {
+      syls.push({ keys: [k], start: i, display: STANDALONE[k] ?? k });
+      map[i] = si; i++;
+    }
+  }
+  return { syls, map };
+}
+
+// ── Reverse maps: Tamil char → key (used by lessons and kural tabs) ────────
+
+const MATRA_R = {'ா':'q','ி':'s','ீ':'w','ு':'d','ூ':'e','ெ':'g','ே':'t','ை':'r','ொ':'c','ோ':'x','ௌ':'z'};
+const STANDALONE_R = (() => {
+  const m = {};
+  for (const [k, v] of Object.entries(STANDALONE)) {
+    if (typeof v === 'string' && v.length === 1) m[v] = k;
+  }
+  return m;
+})();
+
+export function tamilToKeys(text) {
+  text = text.normalize('NFC');
+  const keys = [];
+  for (const ch of text) {
+    if (MATRA_R[ch] !== undefined) { keys.push(MATRA_R[ch]); continue; }
+    if (STANDALONE_R[ch] !== undefined) { keys.push(STANDALONE_R[ch]); continue; }
+    keys.push(ch); // punctuation, spaces, numerals kept as-is
+  }
+  return keys;
+}
+/**
+ * tamilToTypeableKeys — like tamilToKeys, but for free-form typing content
+ * (e.g. Thirukkural). Strips zero-width characters, collapses whitespace to a
+ * single space, and drops any key the Tamil99 layout cannot produce, so an
+ * un-typeable key (punctuation, digits, ZWJ...) never enters the stream.
+ * Leading/trailing/duplicate spaces are removed.
+ */
+export function tamilToTypeableKeys(text) {
+  const cleaned = String(text ?? '')
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    // ASCII punctuation/letters in source text (e.g. ';' ',' '\'') would be mistaken for
+    // Tamil99 keys (';' = ந), so they are dropped before key conversion.
+    .replace(/[\x21-\x7E]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const out = [];
+  for (const k of tamilToKeys(cleaned)) {
+    if (k === ' ') { if (out.length && out[out.length - 1] !== ' ') out.push(k); continue; }
+    if (STANDALONE[k] !== undefined || MATRA[k] !== undefined) out.push(k);
+  }
+  while (out.length && out[out.length - 1] === ' ') out.pop();
+  return out;
 }

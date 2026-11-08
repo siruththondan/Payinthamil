@@ -1,0 +1,16 @@
+{
+  "name": "payinthamil",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A Tamil99 keyboard typing trainer in vanilla JavaScript. No build step.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mastergokul/payinthamil.git"
+  },
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "check": "node scripts/check.mjs"
+  }
+}

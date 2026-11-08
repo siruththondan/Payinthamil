@@ -4,21 +4,418 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>பைந்தமிழ் — Tamil Typing</title>
-  <meta name="description" content="Tamil typing practice — Tamil99 layout, 34 lessons, Thirukkural mode." />
-  <link rel="stylesheet" href="styles/style.css" />
+  <meta name="description" content="Tamil typing practice — Tamil99 layout, 35 lessons, Thirukkural mode." />
+  <meta name="theme-color" content="#141414" />
+  <meta property="og:title" content="பைந்தமிழ் — Tamil Typing" />
+  <meta property="og:description" content="Tamil typing practice — Tamil99 layout, 35 lessons, Thirukkural mode." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary" />
+  <!--
+    VERSION STRING (?v=20261109) appears in SIX places; bump all together:
+      1. importmap below            (static inter-module imports)
+      2. early head script `V`      (JS-injected modulepreloads + SVG preload)
+      3. inline module script       (import('./js/practice.js?v=...') at end of <body>)
+      4. js/practice.js             (dynamic imports: thirukkural, report, tour)
+      5. js/keyboard.js             (Tamil99.svg fetch -- must equal the preload URL)
+      6. the two styles/style.css links below
+    The module list in 1 and 2 must match the static imports of js/*.js.
+  -->
+
+  <!-- Fonts are self-hosted subsets (assets/fonts/), no third-party requests.
+       No <link rel=preload>: measured as a net loss; font-display:swap keeps text visible. -->
+  <style>
+  @font-face{font-family:'Noto Sans Tamil';font-style:normal;font-weight:100 900;font-display:swap;src:url(assets/fonts/nst-ta.woff2) format('woff2')}
+  @font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:100 900;font-display:swap;src:url(assets/fonts/jbm-ui.woff2) format('woff2')}
+  /* Coiny subset contains ONLY the glyphs of the logo string "பைந்தமிழ்" (used by #logo,
+     .mg-logo and .rpt-logo). Regenerate if the logo text changes, from the original Coiny-Regular.ttf:
+       pyftsubset Coiny-Regular.ttf --text="பைந்தமிழ்" --layout-features='*' \
+         --flavor=woff2 --output-file=assets/fonts/coiny-logo.woff2 */
+  @font-face{font-family:'Coiny';font-style:normal;font-weight:400;font-display:swap;src:url(assets/fonts/coiny-logo.woff2) format('woff2')}
+  </style>
+
+  <!-- CRITICAL CSS: the rules needed for the first frame, extracted verbatim (comments and
+       whitespace stripped) from styles/style.css, in the same source order. The full sheet
+       loads non-blocking below. This block MUST mirror style.css: when you edit a rule listed
+       here (root vars, shell, navbar, tab bar, stats strip, typing area, .hidden, modal-overlay
+       default, mobile gate), edit it in both places. -->
+  <style>
+:root{--bg:#141414;--bg-alt:#1c1c1c;--bg-raised:#242424;--bg-hover:#2c2c2c;--border:#333333;--border-sub:#222222;--fg:#e8e3d8;--fg-2:#888580;--fg-3:#807e7a;--correct:#6fcb81;--corrected:#6ba8e0;--wrong:#e06b6b;--warn:#c99a50;--cursor-bar:#9d99d8;--accent:#c47d56;--accent-dim:rgba(196,125,86,.12);--hint-fill:rgba(140,150,255,.48);--shift-fill:rgba(212,174,80,.46);--font-ui:'JetBrains Mono',monospace;--font-tamil:'Noto Sans Tamil','Latha',sans-serif;--font-logo:'Coiny',cursive;--char-size:2.2rem;--navbar-height:52px;--tabbar-padding:.5rem;--tabbar-font:.9rem;--t:0.13s ease;--t-slow:0.26s ease}
+[data-theme="light"]{--bg:#fdfdfd;--bg-alt:#f7f7f7;--bg-raised:#efefef;--bg-hover:#e8e8e8;--border:#dedede;--border-sub:#ebebeb;--fg:#1a1a1a;--fg-2:#555555;--fg-3:#777777;--correct:#1a7a35;--corrected:#1a4fa8;--wrong:#c03030;--warn:#966010;--cursor-bar:#5254b8;--accent:#b05020;--accent-dim:rgba(176,80,32,.09);--hint-fill:rgba(40,80,220,.42);--shift-fill:rgba(180,128,18,.42)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
+@media (min-width:900px){html{font-size:17px}}
+@media (min-width:1280px){html{font-size:18px}}
+@media (min-width:1440px){html{font-size:19px}}
+body{font-family:var(--font-ui);font-size:.875rem;background:var(--bg);color:var(--fg);height:100vh;height:100dvh;overflow:hidden;line-height:1.6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;transition:background var(--t-slow),color var(--t-slow)}
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
+#navbar{height:var(--navbar-height);padding:0 1.25rem;display:flex;align-items:center;background:var(--bg-alt);border-bottom:1px solid var(--border-sub);flex-shrink:0;position:relative}
+#logo{font-family:var(--font-logo);font-size:1.65rem;font-weight:400;color:var(--fg);opacity:.9;cursor:pointer;flex-shrink:0;letter-spacing:-0.02em;text-shadow:0 1px 0 rgba(0,0,0,.4);transition:opacity var(--t)}
+#nav-right{margin-left:auto;display:flex;align-items:center;gap:.25rem;white-space:nowrap}
+.icon-btn{all:unset;cursor:pointer;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:5px;color:var(--fg-3);transition:background var(--t),color var(--t)}
+.nav-pill-btn{all:unset;cursor:pointer;display:flex;align-items:center;gap:.3rem;padding:.26rem .62rem;border-radius:999px;border:1px solid transparent;color:var(--fg-3);font-family:var(--font-ui);font-size:.72rem;letter-spacing:.01em;white-space:nowrap;transition:background var(--t),color var(--t),border-color var(--t)}
+.nav-pill-btn svg{flex-shrink:0}
+#btn-view-icon{display:flex;align-items:center}
+.nav-sep{width:1px;height:18px;background:var(--border-sub);margin:0 .1rem;flex-shrink:0}
+.hints-label{display:flex;align-items:center;gap:.28rem;cursor:pointer;font-size:.74rem;color:var(--fg-2);transition:color var(--t)}
+.mini-toggle{position:relative;width:28px;height:16px;flex-shrink:0}
+.mini-toggle input{opacity:0;width:0;height:0;position:absolute}
+.mt-track{position:absolute;inset:0;background:var(--bg-raised);border:1px solid var(--border);border-radius:999px;cursor:pointer;transition:background .14s,border-color .14s}
+.mt-track::before{content:'';position:absolute;width:10px;height:10px;top:2px;left:2px;background:var(--fg-3);border-radius:50%;transition:transform .14s,background .14s}
+.mini-toggle input:checked + .mt-track{background:var(--cursor-bar);border-color:var(--cursor-bar)}
+.mini-toggle input:checked + .mt-track::before{transform:translateX(12px);background:var(--bg)}
+.hints-label:has(input:not(:checked))>span:first-child{opacity:.45;color:var(--fg-3)}
+#kb-lang-banner.hidden{display:none}
+#tab-bar{display:flex;align-items:center;height:var(--navbar-height);padding:0 1.25rem;background:var(--bg-alt);border-bottom:1px solid var(--border-sub);flex-shrink:0;gap:0}
+.tab-btn{all:unset;cursor:pointer;display:flex;align-items:center;height:100%;padding:0 1rem;font-family:var(--font-tamil);font-size:var(--tabbar-font);color:var(--fg-3);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:color var(--t),border-color var(--t)}
+.tab-btn.active{color:var(--fg);border-bottom-color:var(--accent);font-weight:500}
+.tab-list{display:flex;align-items:stretch;height:100%}
+#tab-bar{position:relative}
+#lesson-title-bar{position:absolute;left:50%;transform:translateX(-50%);font-size:.78rem;font-family:var(--font-tamil);color:var(--fg-3);letter-spacing:.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:40%;pointer-events:none}
+#practice-main,#kural-main{flex:1;display:flex;flex-direction:column;align-items:center;padding:.25rem 1.25rem .2rem;gap:.1rem;max-width:860px;width:100%;margin:0 auto;overflow:hidden}
+#top-bar{width:100%;display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+#stats-strip{flex:1;display:flex;align-items:center;gap:.05rem;font-variant-numeric:tabular-nums}
+.tb-stat{display:flex;align-items:center;gap:.22rem;padding:0 .42rem;flex-shrink:0}
+.tb-val{font-size:1.05rem;font-weight:600;color:var(--fg);min-width:1.8rem;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.tb-val-sm{font-size:.8rem;color:var(--fg-3);min-width:1.4rem;font-variant-numeric:tabular-nums}
+.tb-lbl{font-size:.58rem;color:var(--fg-3);letter-spacing:.06em;text-transform:uppercase}
+.tb-div{width:1px;height:.9rem;background:var(--border-sub);flex-shrink:0;margin:0 .3rem;align-self:center}
+.tb-goal{gap:.4rem;align-items:center}
+.tb-goal-track{width:52px;height:3px;background:var(--bg-raised);border-radius:999px;overflow:hidden;flex-shrink:0}
+.tb-goal-fill{height:100%;background:var(--accent);border-radius:999px;transition:width .5s ease}
+.tb-goallbl{font-size:.65rem;color:var(--fg-3);white-space:nowrap}
+.tb-secondary{opacity:.75}
+#top-right-nav{display:flex;align-items:center;gap:.2rem;flex-shrink:1;min-width:0}
+#stat-time{font-size:.72rem;color:var(--fg-3);min-width:2.4rem;text-align:right;font-variant-numeric:tabular-nums}
+#lesson-counter{font-size:.72rem;color:var(--fg-3);min-width:40px;text-align:center;font-variant-numeric:tabular-nums}
+.nav-btn{all:unset;cursor:pointer;padding:.18rem .5rem;border:1px solid var(--border-sub);border-radius:4px;font-size:.72rem;color:var(--fg-3);font-family:var(--font-ui);transition:all var(--t)}
+.nav-btn:disabled{opacity:.2;cursor:not-allowed}
+#key-panel{width:100%;max-width:860px}
+#key-panel.hidden{display:none}
+.kp-row{display:flex;gap:.6rem;padding:.4rem .6rem;align-items:flex-start;border-bottom:1px solid var(--border-sub)}
+.kp-section{flex:1;min-width:0}
+.kp-section:first-child{flex:3}
+.kp-section:last-child{flex:0 0 auto;width:5.5rem}
+.kp-cur-section{flex:0 0 auto;width:5rem;text-align:center}
+.kp-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;color:var(--fg-3);display:block;margin-bottom:.22rem}
+.kp-map{display:flex;flex-wrap:wrap;gap:.12rem;margin-bottom:.18rem;font-family:var(--font-tamil);align-items:flex-start}
+.kp-key{display:inline-flex;align-items:center;justify-content:center;width:1.45rem;height:1.45rem;border-radius:3px;font-size:.82rem;border:1px solid var(--border-sub);cursor:default;transition:all var(--t)}
+.kp-uk{color:var(--fg-3);background:transparent;border-color:var(--border-sub)}
+.kp-ok{color:var(--correct);background:color-mix(in srgb,var(--correct) 10%,transparent);border-color:color-mix(in srgb,var(--correct) 28%,transparent)}
+.kp-so{color:var(--warn);background:color-mix(in srgb,var(--warn) 10%,transparent);border-color:color-mix(in srgb,var(--warn) 28%,transparent)}
+.kp-no{color:var(--wrong);background:color-mix(in srgb,var(--wrong) 10%,transparent);border-color:color-mix(in srgb,var(--wrong) 28%,transparent)}
+.kp-cur{outline:2px solid var(--cursor-bar);outline-offset:1px}
+.kp-legend{display:flex;align-items:center;gap:.15rem;flex-wrap:wrap;margin-top:.22rem}
+.kp-dot{width:5px;height:5px;border-radius:1px;flex-shrink:0;display:inline-block;margin-right:3px}
+.kp-dot.kp-ok{background:var(--correct)}
+.kp-dot.kp-so{background:var(--warn)}
+.kp-dot.kp-no{background:var(--wrong)}
+.kp-dot.kp-uk{background:var(--fg-3)}
+.kp-pill{font-size:.58rem;white-space:nowrap}
+.kp-pill.kp-ok{color:var(--correct)}
+.kp-pill.kp-so{color:var(--warn)}
+.kp-pill.kp-no{color:var(--wrong)}
+.kp-pill.kp-uk{color:var(--fg-3)}
+.leg-item{font-size:.62rem;font-family:var(--font-ui);white-space:nowrap}
+.leg-item.kp-ok{color:var(--correct)}
+.leg-item.kp-so{color:var(--warn)}
+.leg-item.kp-no{color:var(--wrong)}
+.leg-item.kp-uk{color:var(--fg-3)}
+.leg-sep{font-size:.62rem;color:var(--fg-3);opacity:.4;margin:0 .15rem}
+.kp-dim{font-size:.68rem;color:var(--fg-3)}
+.kp-bigchar{font-family:var(--font-tamil);font-size:2.8rem;color:var(--fg);line-height:1.2;margin:.1rem 0}
+.kp-calib{font-size:.68rem;color:var(--fg-3);line-height:1.4;margin-top:.12rem}
+.kp-accbar{height:4px;background:var(--bg-raised);border-radius:999px;overflow:hidden;margin:.2rem 0;width:100%}
+.kp-accfill{height:100%;border-radius:999px;transition:width .4s ease}
+.kp-streak{font-size:.72rem;color:var(--correct);margin-top:.08rem}
+#progress-row{width:100%;display:flex;align-items:center;gap:.5rem}
+#lesson-label{font-size:.72rem;color:var(--fg-3);opacity:.7;white-space:nowrap;flex-shrink:0}
+#progress-track{flex:1;height:2px;background:var(--border-sub);border-radius:999px;overflow:hidden}
+#progress-fill{height:100%;width:0%;border-radius:999px;transition:width .2s ease;background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 70%,var(--cursor-bar)))}
+#progress-text{font-size:.72rem;color:var(--fg-3);white-space:nowrap;flex-shrink:0;font-variant-numeric:tabular-nums}
+#typing-wrapper{width:100%;position:relative}
+#focus-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:10;cursor:pointer;background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border-radius:0}
+#focus-overlay.hidden{display:none}
+#focus-overlay span{font-size:.74rem;color:var(--fg-2);letter-spacing:.05em;border:1px solid var(--border);padding:.3rem .75rem;border-radius:4px;background:var(--bg-raised)}
+#typing-area{width:100%;height:calc(var(--char-size) * 6.2);overflow:hidden;padding:.5rem 0;background:transparent;border:none;border-radius:0;outline:none;cursor:text;transition:border-color var(--t),box-shadow var(--t);position:relative;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
+#typing-wrapper::after{content:'';position:absolute;left:0;right:0;bottom:0;height:calc(var(--char-size) * 0.6);background:linear-gradient(to bottom,transparent 0%,var(--bg) 100%);pointer-events:none;z-index:4}
+#lesson-container{display:flex;flex-wrap:wrap;align-items:baseline;font-family:var(--font-tamil);font-size:var(--char-size);line-height:2.1;user-select:none;word-break:keep-all;overflow-wrap:normal;gap:0}
+.word{display:inline-flex;align-items:baseline;flex-wrap:nowrap}
+.char{display:inline-flex;align-items:center;justify-content:center;color:var(--fg-3);padding:0 .04em;border-radius:2px;transition:color .08s;position:relative}
+.char.space-char{min-width:.55em;color:transparent;font-family:var(--font-ui);font-size:.5em}
+.char.current{color:var(--fg);font-weight:500}
+.char.current::after{content:'';position:absolute;bottom:0;left:2%;right:2%;height:2.5px;background:var(--cursor-bar);border-radius:1px;animation:blink 1s step-end infinite;box-shadow:0 0 6px color-mix(in srgb,var(--cursor-bar) 40%,transparent)}
+@keyframes blink{0%,100%{opacity:1}
+50%{opacity:0}}
+.char-syl{position:relative}
+.char-syl.current::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--cursor-bar);border-radius:1px;animation:blink 1s step-end infinite}
+#key-guide{display:flex;align-items:center;gap:.4rem;min-height:24px;transition:opacity .2s}
+#key-guide.hint-hidden{opacity:0;pointer-events:none}
+.hk{display:inline-flex;align-items:center;justify-content:center;min-width:2rem;padding:.14rem .5rem;background:var(--bg-raised);border:1px solid var(--border);border-bottom:2px solid var(--border);border-radius:5px;font-size:.78rem;color:var(--fg-2);font-family:var(--font-ui);transition:color .12s,border-color .12s,background .12s,transform .12s}
+.hk.hk-next{color:var(--cursor-bar);border-color:var(--cursor-bar);border-bottom-color:var(--cursor-bar);background:color-mix(in srgb,var(--cursor-bar) 10%,transparent);transform:translateY(-1px);box-shadow:0 2px 8px color-mix(in srgb,var(--cursor-bar) 20%,transparent)}
+[data-theme="light"] .hk.hk-next{background:color-mix(in srgb,var(--cursor-bar) 8%,transparent)}
+.hk.hk-done{color:var(--correct);border-color:var(--correct);background:color-mix(in srgb,var(--correct) 7%,transparent);opacity:.85}
+.hk.hk-dim{opacity:.35}
+.hk-sep{font-size:.68rem;color:var(--fg-3);margin:0 .1rem;flex-shrink:0;line-height:1;align-self:center}
+.hk-char{font-family:var(--font-tamil);font-size:1.2rem;color:var(--fg-2);margin-left:.06rem;line-height:1;align-self:center}
+.hk-label{font-size:.7rem;color:var(--fg-3);margin-right:.06rem;line-height:1;align-self:center}
+.shift-badge{padding:.06rem .28rem;border:1px solid var(--border-sub);border-radius:3px;font-size:.62rem;color:var(--warn);background:var(--bg-raised)}
+#keyboard{width:100%;max-width:860px;flex:0 1 auto;min-height:0;display:flex;justify-content:center}
+#keyboard svg{width:100%;height:auto;display:block;flex:0 1 auto;min-height:0;max-height:100%;border-radius:6px;border:1px solid var(--border-sub)}
+#practice-main[data-view="1"] #typing-area{height:100%;flex:1 1 0;min-height:0}
+#practice-main[data-view="2"] #typing-area{height:100%;flex:1 1 0;min-height:0}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:100}
+.modal-overlay.visible{display:flex;animation:mfade .18s ease}
+#footer{padding:.55rem 1.25rem;font-size:.62rem;color:var(--fg-2);text-align:center;border-top:1px solid var(--border-sub);flex-shrink:0}
+#footer a{color:var(--fg-2);text-decoration:none;transition:color var(--t)}
+.hidden{display:none !important}
+@media (max-width:600px){#practice-main,#kural-main{padding:.75rem .85rem .6rem;gap:.6rem}
+#navbar,#tab-bar{padding:0 .85rem}
+.tb-goal{display:none}
+.kp-row{flex-wrap:wrap}
+.kp-cur-section{width:100%;text-align:left}
+#practice-main[data-view="1"] #typing-area{height:calc(var(--char-size) * 10.5)}
+#practice-main[data-view="2"] #typing-area{height:calc(var(--char-size) * 12.5)}}
+html{height:100%;height:100dvh;overflow:hidden}
+#app{min-height:unset;height:100%;height:100dvh;overflow:hidden}
+#practice-main,#kural-main{flex:1 1 0;min-height:0;overflow-y:hidden;overflow-x:hidden}
+@media (max-width:899px){:root{--char-size:1.9rem}}
+@media (max-width:599px){:root{--char-size:1.6rem}}
+@media (max-width:399px){:root{--char-size:1.4rem}}
+@media (max-height:820px){:root{--navbar-height:44px;--tabbar-padding:.32rem;--tabbar-font:.76rem;--char-size:2rem}
+#practice-main,#kural-main{padding:.55rem 1.25rem .5rem;gap:.45rem}
+#footer{padding:.35rem 1.25rem}}
+@media (max-height:780px){:root{--navbar-height:40px;--tabbar-padding:.26rem;--tabbar-font:.72rem;--char-size:1.8rem}
+#practice-main,#kural-main{padding:.4rem 1.25rem .4rem;gap:.35rem}
+#footer{padding:.28rem 1.25rem;font-size:.58rem}
+.kp-row{padding:.28rem .6rem}
+#typing-area{height:calc(var(--char-size) * 5.2)}}
+@media (max-height:700px){:root{--navbar-height:36px;--tabbar-padding:.2rem;--tabbar-font:.68rem;--char-size:1.6rem}
+#key-panel{display:none}
+#practice-main,#kural-main{padding:.3rem 1rem .3rem;gap:.3rem}
+#footer{display:none}
+#typing-area{height:calc(var(--char-size) * 4.5)}}
+@media (max-width:599px){.nav-pill-btn span{display:none}
+.nav-pill-btn{padding:.22rem .38rem;min-width:28px}
+#lesson-title-bar{display:none}
+#nav-right{gap:.08rem}
+.nav-sep{display:none}
+.hints-label>span:first-child{display:none}
+#btn-tour{display:none}
+#top-bar{gap:.3rem;overflow:hidden}
+#top-right-nav{gap:.08rem;flex-shrink:1;min-width:0;flex-wrap:nowrap}
+#lesson-counter{min-width:24px;font-size:.58rem}
+#stat-time{min-width:1.8rem;font-size:.58rem}
+.nav-btn{padding:.1rem .22rem;font-size:.58rem}}
+@media (max-width:480px){#btn-info{display:none}
+#btn-finger{display:none}
+#navbar{padding:0 .6rem}
+#tab-bar{padding:0 .6rem}
+#key-panel{display:none}
+.tab-btn{padding:0 .45rem;font-size:.72rem}}
+@media (max-width:600px){.nav-pill-btn span{display:none}
+.nav-pill-btn{padding:.22rem .32rem}}
+#mobile-gate{display:none}
+@media (max-width:600px),(pointer:coarse) and (hover:none){html:not([data-desktop-override]) #app{display:none !important}
+html[data-desktop-override] #mobile-gate{display:none !important}
+html:not([data-desktop-override]) #mobile-gate{display:flex;align-items:flex-start;justify-content:center;position:fixed;inset:0;z-index:9999;overflow-y:auto;padding:2rem 1.1rem 3rem;background:var(--bg);-webkit-overflow-scrolling:touch}
+.mg-card{width:100%;max-width:440px;display:flex;flex-direction:column;gap:1rem;text-align:center}
+.mg-logo{font-family:var(--font-logo);font-size:2rem;color:var(--fg);letter-spacing:-0.02em;opacity:.95}
+.mg-title{margin:0;font-family:var(--font-tamil);font-size:1.12rem;font-weight:500;line-height:1.5;color:var(--fg)}
+.mg-body{margin:0;font-family:var(--font-tamil);font-size:.85rem;line-height:1.75;color:var(--fg-2)}
+.mg-body strong{color:var(--fg);font-weight:500}
+.mg-figure{margin:.4rem 0 0;display:flex;flex-direction:column;gap:.55rem}
+.mg-figure img{width:100%;height:auto;display:block;border:1px solid var(--border);border-radius:10px;background:var(--bg-alt)}
+.mg-figure figcaption{font-family:var(--font-tamil);font-size:.7rem;color:var(--fg-3)}
+.mg-cta{display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:.3rem;padding:.7rem .9rem;background:var(--bg-raised);border:1px solid var(--border);border-radius:8px;font-family:var(--font-tamil);font-size:.82rem;color:var(--fg)}
+.mg-cta-icon{display:flex;color:var(--accent);flex-shrink:0}
+.mg-rule{width:100%;margin:.5rem 0 0;border:none;border-top:1px solid var(--border-sub)}
+.mg-en{margin:0;font-family:var(--font-ui);font-size:.72rem;line-height:1.7;color:var(--fg-3)}
+.mg-en strong{color:var(--fg-2);font-weight:500}
+.mg-continue{display:flex;flex-direction:column;align-items:center;gap:.15rem;width:100%;margin-top:.2rem;padding:.75rem 1rem;font-family:var(--font-tamil);font-size:.85rem;font-weight:500;line-height:1.5;color:var(--bg);background:var(--accent);border:1px solid var(--accent);border-radius:8px;cursor:pointer}
+.mg-continue:hover{filter:brightness(1.08)}
+.mg-continue:focus-visible{outline:2px solid var(--cursor-bar);outline-offset:2px}
+.mg-continue-en{font-family:var(--font-ui);font-size:.72rem;font-weight:400;opacity:.9}}
+/* NOT a mirror of style.css -- deliberate CLS reservation. #key-panel is filled by JS after the
+   module graph loads; without a reserved box everything below it (progress row, typing area,
+   keyboard) jumps down ~110-140px. Values sit slightly BELOW the measured populated height at each
+   breakpoint (7.41rem / 6.46rem / 6.23rem), so the final layout is unchanged. */
+#key-panel{min-height:7.4rem}
+@media (max-height:820px){#key-panel{min-height:6.4rem}}
+@media (max-height:780px){#key-panel{min-height:6.2rem}}
+  </style>
+
+  <!-- Full stylesheet, non-blocking (the inline block above paints the first frame). -->
+  <link rel="stylesheet" href="styles/style.css?v=20261109" media="print" onload="this.media='all'" />
+  <noscript><link rel="stylesheet" href="styles/style.css?v=20261109" /></noscript>
+
+  <!-- Import map: versions the modules' static imports (keys resolve relative to this page).
+       Must come before any module script or modulepreload. -->
+  <script type="importmap">
+  { "imports": {
+    "./js/storage.js": "./js/storage.js?v=20261109",
+    "./js/themes.js": "./js/themes.js?v=20261109",
+    "./js/mapping.js": "./js/mapping.js?v=20261109",
+    "./js/lessons.js": "./js/lessons.js?v=20261109",
+    "./js/keyboard.js": "./js/keyboard.js?v=20261109",
+    "./js/fingerGuide.js": "./js/fingerGuide.js?v=20261109",
+    "./js/metrics.js": "./js/metrics.js?v=20261109"
+  } }
+  </script>
+
+  <!-- Early script (must stay after the importmap):
+       1. Mobile-gate override: a user on a touch-primary device who has a physical keyboard can
+          continue (key read here so the gate never flashes).
+       2. If the page is NOT gated, inject modulepreloads for the app graph plus the keyboard SVG
+          preload. They are injected from JS (not static <link>s) so gated phones download none
+          of ~150 KB of app code. The gate query MUST equal the one in styles/style.css and in the
+          inline module script at the end of <body>. -->
+  <script>
+    (function () {
+      var d = document.documentElement;
+      try { if (sessionStorage.getItem('pt_desktop_override') === '1') d.setAttribute('data-desktop-override', ''); } catch (e) {}
+      var gated = matchMedia('(max-width: 600px), (pointer: coarse) and (hover: none)').matches &&
+                  !d.hasAttribute('data-desktop-override');
+      if (gated) return;
+      var V = '20261109', links = [];
+      ['practice', 'storage', 'themes', 'mapping', 'lessons', 'keyboard', 'fingerGuide', 'metrics'].forEach(function (m) {
+        var l = document.createElement('link');
+        l.rel = 'modulepreload'; l.href = 'js/' + m + '.js?v=' + V;
+        links.push(l);
+      });
+      // The keyboard SVG is the largest asset and keyboard.js fetch()es it during init;
+      // preloading starts the request in parallel with the module graph. URL must equal keyboard.js's.
+      var p = document.createElement('link');
+      p.rel = 'preload'; p.as = 'fetch'; p.crossOrigin = ''; p.href = 'assets/images/Tamil99.svg?v=' + V;
+      links.push(p);
+      document.head.append.apply(document.head, links);
+    })();
+  </script>
 </head>
 <body>
+
+<!-- ══ MOBILE GATE ══════════════════════════════════
+     Payinthamil teaches the Tamil99 *physical keyboard* layout. A touch
+     keyboard has no fixed key positions and no home row, so the lessons,
+     finger guide and WPM scoring are all meaningless there. Rather than
+     ship a broken small-screen experience, we explain why and show what
+     the app looks like on a desktop. Shown via CSS media query only —
+     no JS, no UA sniffing, so it works even before scripts run. -->
+<div id="mobile-gate" role="dialog" aria-modal="true" aria-labelledby="mg-title">
+  <div class="mg-card">
+    <div class="mg-logo">பைந்தமிழ்</div>
+
+    <h1 class="mg-title" id="mg-title">கணினி விசைப்பலகை தேவை</h1>
+
+    <p class="mg-body">
+      பைந்தமிழ் <strong>தமிழ்99 விசைப்பலகை</strong> தட்டச்சு கற்றுத்தரும் தளம்.
+      இது உண்மையான விசைப்பலகையின் விசை அமைவிடங்களை — நடுவரிசை, விரல் நிலைகள்,
+      தட்டச்சு வேகம் — பயிற்றுவிக்கிறது.
+    </p>
+    <p class="mg-body">
+      திரைத் தொடு விசைப்பலகையில் நிலையான விசை இடங்கள் இல்லை. எனவே இந்தப் பாடங்களைக்
+      கைபேசியில் பயன்படுத்த இயலாது.
+    </p>
+
+    <figure class="mg-figure">
+      <picture><source srcset="assets/images/preview.webp" type="image/webp" />
+      <img src="assets/images/preview.gif" alt="பைந்தமிழ் தட்டச்சுப் பயிற்சி — கணினித் திரை முன்னோட்டம்"
+           width="760" height="440" loading="lazy" decoding="async" /></picture>
+      <figcaption>கணினியில் பைந்தமிழ் இப்படித் தோன்றும்</figcaption>
+    </figure>
+
+    <div class="mg-cta">
+      <span class="mg-cta-icon" aria-hidden="true">
+        <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
+          <rect x=".7" y=".7" width="18.6" height="12.6" rx="1.6" stroke="currentColor" stroke-width="1.3"/>
+          <path d="M6 15.3h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span>கணினி அல்லது மடிக்கணினியில் திறக்கவும்</span>
+    </div>
+
+    <hr class="mg-rule" />
+
+    <p class="mg-en" lang="en">
+      <strong>Payinthamil needs a physical keyboard.</strong>
+      It teaches the Tamil99 layout — home row, finger placement and typing
+      speed — which a touchscreen keyboard can't reproduce. Please open this
+      on a desktop or laptop.
+    </p>
+
+    <button type="button" class="mg-continue" id="btn-desktop-override">
+      <span>நான் இயல்பான விசைப்பலகை பயன்படுத்துகிறேன் — தொடர்</span>
+      <span class="mg-continue-en" lang="en">I have a physical keyboard — continue</span>
+    </button>
+  </div>
+</div>
+<script>
+  (function () {
+    var b = document.getElementById('btn-desktop-override');
+    if (!b) return;
+    b.addEventListener('click', function () {
+      try { sessionStorage.setItem('pt_desktop_override', '1'); } catch (e) {}
+      document.documentElement.setAttribute('data-desktop-override', '');
+    });
+  })();
+</script>
+
 <div id="app">
 
   <!-- ══ NAVBAR ══════════════════════════════════════ -->
   <nav id="navbar">
-    <div id="logo">பைந்தமிழ்</div>
-    <span id="lesson-title-bar"></span>
+    <div id="logo"><span class="logo-main">பைந்தமிழ்</span></div>
     <div id="nav-right">
+
+      <!-- Lessons -->
+      <button class="nav-pill-btn" id="btn-lessons" title="All lessons">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="8" y1="6"  x2="21" y2="6"/>
+          <line x1="8" y1="12" x2="21" y2="12"/>
+          <line x1="8" y1="18" x2="21" y2="18"/>
+          <circle cx="3" cy="6"  r="1" fill="currentColor" stroke="none"/>
+          <circle cx="3" cy="12" r="1" fill="currentColor" stroke="none"/>
+          <circle cx="3" cy="18" r="1" fill="currentColor" stroke="none"/>
+        </svg>
+        <span lang="en">Lessons</span>
+      </button>
+
+      <!-- Finger guide -->
+      <button class="nav-pill-btn" id="btn-finger" title="Finger guide">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 11V6a2 2 0 0 0-4 0v0M14 10V4a2 2 0 0 0-4 0v2M10 10.5V6a2 2 0 0 0-4 0v8"/>
+          <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
+        </svg>
+        <span lang="en">Fingers</span>
+      </button>
+
+      <!-- Theme picker -->
+      <button class="nav-pill-btn" id="btn-theme-picker" title="Themes">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c.83 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.01-.23-.26-.38-.61-.38-.99 0-.83.67-1.5 1.5-1.5H16c2.76 0 5-2.24 5-5 0-4.42-4.03-8-9-8z"/>
+          <circle cx="8.5" cy="14.5" r="1.5" fill="currentColor" stroke="none"/>
+          <circle cx="10.5" cy="9.5" r="1.5" fill="currentColor" stroke="none"/>
+          <circle cx="15.5" cy="9.5" r="1.5" fill="currentColor" stroke="none"/>
+        </svg>
+        <span lang="en">Themes</span>
+      </button>
+
+      <!-- Info / Setup guide -->
+      <button class="nav-pill-btn" id="btn-info" title="Setup guide — Tamil keyboard install">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        <span lang="en">Setup</span>
+      </button>
+
+      <span class="nav-sep"></span>
 
       <!-- Hints toggle -->
       <label class="hints-label" title="Toggle key hints">
-        <span>Hints</span>
+        <span lang="en">Hints</span>
         <label class="mini-toggle">
           <input type="checkbox" id="toggle-hints" checked />
           <span class="mt-track"></span>
@@ -28,32 +425,22 @@
       <span class="nav-sep"></span>
 
       <!-- View cycle -->
-      <button class="icon-btn" id="btn-view" title="Cycle view"></button>
+      <button class="nav-pill-btn" id="btn-view" title="Cycle view">
+        <span id="btn-view-icon"></span>
+        <span id="btn-view-label" lang="en">View</span>
+      </button>
 
-      <!-- Lessons -->
-      <button class="icon-btn" id="btn-lessons" title="All lessons">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="8" y1="6"  x2="21" y2="6"/>
-          <line x1="8" y1="12" x2="21" y2="12"/>
-          <line x1="8" y1="18" x2="21" y2="18"/>
-          <circle cx="3" cy="6"  r="1" fill="currentColor" stroke="none"/>
-          <circle cx="3" cy="12" r="1" fill="currentColor" stroke="none"/>
-          <circle cx="3" cy="18" r="1" fill="currentColor" stroke="none"/>
+      <!-- Tour button -->
+      <button class="icon-btn" id="btn-tour" aria-label="Take a tour" title="Feature tour">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="8" cy="8" r="6.5"/>
+          <path d="M6 6c0-1.1.9-2 2-2s2 .9 2 2c0 1-.6 1.5-1.3 1.9C8 8.3 8 8.8 8 9.5"/>
+          <circle cx="8" cy="11.5" r=".6" fill="currentColor" stroke="none"/>
         </svg>
       </button>
 
-      <!-- Finger guide -->
-      <button class="icon-btn" id="btn-finger" title="Finger guide">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M18 11V6a2 2 0 0 0-4 0v0M14 10V4a2 2 0 0 0-4 0v2M10 10.5V6a2 2 0 0 0-4 0v8"/>
-          <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
-        </svg>
-      </button>
-
-      <!-- Theme -->
-      <button class="icon-btn" id="btn-theme" title="Toggle theme">
+      <!-- Theme dark/light quick toggle (hidden) -->
+      <button class="icon-btn" id="btn-theme" title="Toggle dark / light" style="display:none" aria-hidden="true">
         <svg id="icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
              style="display:block">
@@ -69,33 +456,27 @@
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
         </svg>
       </button>
-
-      <!-- Info / Setup guide -->
-      <button class="icon-btn" id="btn-info" title="Setup guide — Tamil keyboard install">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="12" y1="8" x2="12" y2="12"/>
-          <line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-      </button>
     </div>
   </nav>
 
+
+  <!-- ══ TAB BAR ══════════════════════════════════════ -->
+  <div id="tab-bar">
+    <div class="tab-list" role="tablist" aria-label="பிரிவுகள்">
+      <button class="tab-btn active" data-tab="practice" role="tab" aria-selected="true"  aria-controls="practice-main">பாடங்கள்</button>
+      <button class="tab-btn"        data-tab="kural"    role="tab" aria-selected="false" aria-controls="kural-main">திருக்குறள்</button>
+      <button class="tab-btn"        data-tab="report"   role="tab" aria-selected="false" aria-controls="report-main">அறிக்கை</button>
+    </div>
+    <span id="lesson-title-bar"></span>
+  </div>
 
   <!-- ══ KEYBOARD LANGUAGE BANNER ═════════════════
        Shown when a non-Latin key is detected.
        JS in practice.js detects and shows/hides this. -->
   <div id="kb-lang-banner" class="hidden">
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-    <span>Your keyboard appears to be in a non-English layout. Switch to <strong>English (US/UK)</strong> to type Tamil99 correctly.</span>
+    <span lang="en">Your keyboard appears to be in a non-English layout. Switch to <strong>English (US/UK)</strong> to type Tamil99 correctly.</span>
     <button id="btn-kb-banner-close" aria-label="Dismiss">✕</button>
-  </div>
-
-  <!-- ══ TAB BAR ════════════════════════════════════ -->
-  <div id="tab-bar">
-    <button class="tab-btn active" data-tab="practice">பயிற்சி</button>
-    <button class="tab-btn"        data-tab="kural">திருக்குறள்</button>
   </div>
 
   <!-- ══ PRACTICE ═══════════════════════════════════ -->
@@ -106,10 +487,10 @@
       <div id="stats-strip"><!-- rendered by metrics.js --></div>
       <div id="top-right-nav">
         <span id="stat-time">0:00</span>
-        <button class="nav-btn" id="btn-prev-lesson" disabled title="Previous">←</button>
-        <span id="lesson-counter">1 / 34</span>
-        <button class="nav-btn" id="btn-restart" title="Restart">↺</button>
-        <button class="nav-btn" id="btn-next-lesson-nav" title="Next">→</button>
+        <button class="nav-btn" id="btn-prev-lesson" disabled title="Previous" aria-label="முந்தைய பாடம் — Previous lesson">←</button>
+        <span id="lesson-counter">1 / 35</span>
+        <button class="nav-btn" id="btn-restart" title="Restart" aria-label="மீண்டும் தொடங்கு — Restart lesson">↺</button>
+        <button class="nav-btn" id="btn-next-lesson-nav" title="Next" aria-label="அடுத்த பாடம் — Next lesson">→</button>
       </div>
     </div>
 
@@ -126,9 +507,9 @@
     <!-- Typing area -->
     <div id="typing-wrapper">
       <div id="focus-overlay">
-        <span>click to type</span>
+        <span lang="en">click to type</span>
       </div>
-      <div id="typing-area" tabindex="0" role="textbox" aria-label="Tamil typing practice area">
+      <div id="typing-area" tabindex="0" aria-label="தட்டச்சுப் பகுதி — Tamil typing practice area">
         <div id="lesson-container"></div>
       </div>
     </div>
@@ -160,9 +541,9 @@
       </div>
       <div id="kural-controls">
         <div class="kural-num-wrap">
-          <input id="kural-num-input" class="kural-num-input" type="number"
+          <input id="kural-num-input" class="kural-num-input" type="number" aria-label="குறள் எண் — Kural number"
                  min="1" max="1330" placeholder="1–1330" title="கு எண் → Enter" />
-          <button id="btn-go-kural" class="kural-ctrl-btn kural-go-btn" title="Go">→</button>
+          <button id="btn-go-kural" class="kural-ctrl-btn kural-go-btn" title="Go" aria-label="குறளுக்குச் செல் — Go to kural">→</button>
         </div>
         <button class="kural-ctrl-btn" id="btn-random-kural">↺ Random</button>
         <button class="kural-ctrl-btn" id="btn-retry-kural">↺ Retry</button>
@@ -177,14 +558,14 @@
 
     <!-- Typing area -->
     <div id="kural-typing-wrapper">
-      <div id="kural-focus-overlay"><span>click to type</span></div>
-      <div id="kural-typing-area" tabindex="0" role="textbox"
-           aria-label="Thirukkural typing practice area">
+      <div id="kural-focus-overlay"><span lang="en">click to type</span></div>
+      <div id="kural-typing-area" tabindex="0"
+           aria-label="திருக்குறள் தட்டச்சுப் பகுதி — Thirukkural typing practice area">
         <div id="kural-container"></div>
       </div>
     </div>
 
-    <!-- Hint bar: hidden — keyboard is the guide -->
+    <!-- Hint bar: live key hint (hidden only in Zen view or when hints are off) -->
     <div id="kural-key-guide"></div>
 
     <!-- Result panel -->
@@ -195,20 +576,23 @@
 
   </main>
 
+  <!-- ══ REPORT ═══════════════════════════════════ -->
+  <main id="report-main" class="hidden"></main>
+
   <!-- ══ FOOTER ─────────────────────────────────── -->
-  <footer id="footer">
+  <footer id="footer" lang="en">
     Made with care in Tamil Nadu &nbsp;·&nbsp;
-    <a href="https://github.com/mastergokul/thattachu" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://github.com/mastergokul/payinthamil" target="_blank" rel="noopener">GitHub</a>
   </footer>
 
 </div><!-- /app -->
 
 <!-- ══ LESSONS MODAL ══════════════════════════════ -->
-<div id="modal-lessons" class="modal-overlay">
+<div id="modal-lessons" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-lessons-title">
   <div class="modal-box wide">
     <div class="modal-header">
-      <span class="modal-title">Lessons — 35 total</span>
-      <button class="modal-close" id="btn-close-lessons">✕</button>
+      <span class="modal-title" id="modal-lessons-title" lang="en">Lessons — 35 total</span>
+      <button class="modal-close" id="btn-close-lessons" aria-label="மூடு — Close">✕</button>
     </div>
     <div class="modal-body">
       <div id="level-tabs">
@@ -222,11 +606,11 @@
 </div>
 
 <!-- ══ FINGER GUIDE MODAL ════════════════════════ -->
-<div id="modal-finger" class="modal-overlay">
+<div id="modal-finger" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-finger-title">
   <div class="modal-box wide">
     <div class="modal-header">
-      <span class="modal-title">கை வழிகாட்டி — Finger Guide</span>
-      <button class="modal-close" id="btn-close-finger">✕</button>
+      <span class="modal-title" id="modal-finger-title">கை வழிகாட்டி — Finger Guide</span>
+      <button class="modal-close" id="btn-close-finger" aria-label="மூடு — Close">✕</button>
     </div>
     <div class="modal-body">
       <p style="font-size:.72rem;color:var(--fg-3);margin-bottom:.5rem;line-height:1.6">
@@ -240,15 +624,14 @@
 </div>
 
 <!-- ══ RESULTS MODAL ══════════════════════════════ -->
-<div id="modal-results" class="modal-overlay">
+<div id="modal-results" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="result-msg">
   <div class="modal-box">
     <div class="modal-header">
       <span class="modal-title" id="result-msg"></span>
-      <button class="modal-close"
-              onclick="document.getElementById('modal-results').classList.remove('visible')">✕</button>
+      <button class="modal-close" id="btn-close-results" aria-label="மூடு — Close">✕</button>
     </div>
     <div class="modal-body">
-      <span id="results-stars"></span>
+      <span id="results-stars" role="img" aria-label="மதிப்பீடு — Rating"></span>
       <div class="results-grid">
         <div class="result-cell">
           <span class="rc-val" id="results-wpm">0</span>
@@ -258,7 +641,7 @@
           <span class="rc-val" id="results-accuracy">100%</span>
           <span class="rc-lbl">Accuracy</span>
         </div>
-        <div class="result-cell" style="flex:none;width:100%">
+        <div class="result-cell">
           <span class="rc-val" id="results-time">0:00</span>
           <span class="rc-lbl">Time</span>
         </div>
@@ -268,22 +651,28 @@
         <button class="mbtn"         id="btn-retry">↺ Retry</button>
         <button class="mbtn"         id="btn-back-lessons">All Lessons</button>
       </div>
+      <div id="results-problem-keys" class="results-problem-keys hidden"></div>
     </div>
   </div>
 </div>
 
 <!-- ══ INFO / SETUP MODAL ════════════════════════════ -->
-<div id="modal-info" class="modal-overlay">
+<div id="modal-info" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-info-title">
   <div class="modal-box wide info-modal-box">
     <div class="modal-header">
-      <span class="modal-title">Setup Guide — Tamil99 Keyboard</span>
-      <button class="modal-close" id="btn-close-info">✕</button>
+      <span class="modal-title" id="modal-info-title" lang="en">Setup Guide — Tamil99 Keyboard</span>
+      <button class="modal-close" id="btn-close-info" aria-label="மூடு — Close">✕</button>
     </div>
-    <div class="modal-body info-body">
+    <div class="modal-body info-body" lang="en">
 
       <!-- Keyboard language notice -->
       <div class="info-notice">
-        <div class="info-notice-icon">⌨️</div>
+        <div class="info-notice-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="12" rx="2"/>
+            <path d="M6 11h.01M10 11h.01M14 11h.01M18 11h.01M6 15h.01M10 15h.01M14 15h.01M18 15h.01M8 7V5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/>
+          </svg>
+        </div>
         <div>
           <strong>Use English keyboard layout</strong>
           <p>This app uses the Tamil99 layout on top of a standard English (QWERTY) keyboard. Make sure your OS input is set to <em>English</em> before typing — Tamil output happens automatically via the Tamil99 key mapping.</p>
@@ -292,18 +681,11 @@
 
       <!-- Quick keyboard shortcut reference -->
       <div class="info-shortcut-row">
-        <div class="info-shortcut">
-          <kbd class="info-kbd">Win</kbd> <kbd class="info-kbd">Space</kbd>
-          <span>Switch input on Windows</span>
-        </div>
-        <div class="info-shortcut">
-          <kbd class="info-kbd">⌘</kbd> <kbd class="info-kbd">Space</kbd>
-          <span>Switch input on macOS</span>
-        </div>
-        <div class="info-shortcut">
-          <kbd class="info-kbd">Super</kbd> <kbd class="info-kbd">Space</kbd>
-          <span>Switch input on Linux</span>
-        </div>
+        <span class="info-shortcut"><kbd class="info-kbd">Win</kbd><kbd class="info-kbd">Space</kbd><span class="info-kbd-label">Windows</span></span>
+        <span class="info-sep">·</span>
+        <span class="info-shortcut"><kbd class="info-kbd">⌘</kbd><kbd class="info-kbd">Space</kbd><span class="info-kbd-label">macOS</span></span>
+        <span class="info-sep">·</span>
+        <span class="info-shortcut"><kbd class="info-kbd">Super</kbd><kbd class="info-kbd">Space</kbd><span class="info-kbd-label">Linux</span></span>
       </div>
 
       <div class="info-divider"></div>
@@ -361,7 +743,7 @@
           <div>
             <div class="info-step-title">Switch between layouts</div>
             <p>Use <kbd class="info-kbd">Win</kbd> + <kbd class="info-kbd">Space</kbd> to toggle between English and Tamil99. The taskbar language indicator shows the current layout.</p>
-            <div class="info-tip">💡 For this website, keep your layout set to <strong>English</strong> — the Tamil99 mapping is handled in the browser.</div>
+            <div class="info-tip">For this website, keep your layout set to <strong>English</strong> — the Tamil99 mapping is handled in the browser.</div>
           </div>
         </div>
       </div>
@@ -393,7 +775,7 @@
           <div>
             <div class="info-step-title">Switch between layouts</div>
             <p>Use <kbd class="info-kbd">⌘</kbd> + <kbd class="info-kbd">Space</kbd> (or the menu bar icon) to toggle between English and Tamil99.</p>
-            <div class="info-tip">💡 For this website, keep your layout on <strong>English (ABC)</strong> — Tamil output happens automatically.</div>
+            <div class="info-tip">For this website, keep your layout on <strong>English (ABC)</strong> — Tamil output happens automatically.</div>
           </div>
         </div>
       </div>
@@ -442,7 +824,7 @@ ibus restart</pre>
 export QT_IM_MODULE=ibus
 export XMODIFIERS=@im=ibus</pre>
             <p>Log out and back in. Use <kbd class="info-kbd">Super</kbd> + <kbd class="info-kbd">Space</kbd> to switch layouts.</p>
-            <div class="info-tip">💡 For this website, keep your OS layout on <strong>English</strong> — Tamil output is handled by the browser. You only need Tamil99 installed for typing in other apps.</div>
+            <div class="info-tip">For this website, keep your OS layout on <strong>English</strong> — Tamil output is handled by the browser. You only need Tamil99 installed for typing in other apps.</div>
           </div>
         </div>
 
@@ -453,6 +835,48 @@ export XMODIFIERS=@im=ibus</pre>
 </div>
 
 
-<script type="module" src="js/practice.js"></script>
+<!-- ══ THEME MODAL ══════════════════════════════════ -->
+<div id="modal-theme" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-theme-title">
+  <div class="modal-box wide" style="max-width:540px">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-theme-title">வண்ணமை · Themes</span>
+      <button class="modal-close" id="btn-close-theme" aria-label="மூடு — Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="theme-grid" id="theme-grid"></div>
+      <div class="theme-custom-section hidden" id="theme-custom-section">
+        <div class="theme-custom-label">Customize colors</div>
+        <div class="theme-custom-grid" id="theme-custom-grid"></div>
+        <div class="theme-custom-actions">
+          <button class="mbtn" id="btn-theme-reset">Reset to Dark</button>
+          <button class="mbtn primary" id="btn-theme-save">Apply Custom</button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="mbtn" id="btn-reset-data">முன்னேற்றத்தை அழி — Reset progress</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- App entry. Not loaded behind the mobile gate: on a gated device (same query as styles/style.css)
+     no app JS or keyboard SVG is fetched. The app starts as soon as the gate no longer applies:
+     override button, or the viewport/pointer changing so the query stops matching. -->
+<script type="module">
+  const mq = matchMedia('(max-width: 600px), (pointer: coarse) and (hover: none)');
+  const gated = () => mq.matches && !document.documentElement.hasAttribute('data-desktop-override');
+  let started = false;
+  const start = () => {
+    if (started) return;
+    started = true;
+    import('./js/practice.js?v=20261109');
+  };
+  if (!gated()) start();
+  else {
+    // The gate's own handler (earlier inline script) sets the override attribute and sessionStorage key first.
+    document.getElementById('btn-desktop-override')?.addEventListener('click', start);
+    mq.addEventListener('change', () => { if (!gated()) start(); });
+  }
+</script>
 </body>
 </html>
