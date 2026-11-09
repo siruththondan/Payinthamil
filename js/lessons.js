@@ -7,8 +7,8 @@ import { tamilToKeys } from './mapping.js';
  *
  * DESIGN RULES (strictly enforced):
  *  1. ZERO future-key leakage — a lesson only uses keys unlocked so far.
- *  2. Pulli (f = ்) is introduced in Lesson 1 so short words like கல், பல்
- *     can appear from the very first lesson.
+ *  2. Pulli (f = ்) is introduced in Lesson 1 so short words like பக்க, கப்பா,
+  *      அப்பா, அக்கா can appear from the very first lesson.
  *  3. 75 % real Tamil words · 25 % syllable drills (only in early lessons;
  *     Intermediate+ is 100 % words).
  *  4. Words are filtered at runtime against `ALLOWED` — the cumulative set
@@ -130,9 +130,6 @@ function keybr(syls, chars) {
   return out;
 }
 
-function wKeybr(np, rp, chars) {
-  return keybr([...np, ...np, ...np, ...np, ...np, ...rp, ...rp], chars);
-}
 
 /** Brief intro: show each syllable twice then space */
 function intro(syl) {
@@ -873,6 +870,15 @@ const W14 = [
 // ── COMMON EVERYDAY WORDS (b08 scope — ல வ available) ────────────────────────
 // All use only keys available by b08
 export const W_EVERYDAY_BASIC = [
+	'அம்மா', 'அப்பா', 'தம்பி', 'அக்கா', 'தாத்தா', 'மாமா',
+	'தலை', 'கை', 'கால்', 'வாய்', 'காது', 'மூக்கு', 'பல்', 'நாக்கு', 'முகம்',
+	'இலை', 'பூ', 'காய்', 'பால்', 'உப்பு', 'வா', 'போ', 'நில்', 'வை',
+	'புது', 'கதவு', 'மாலை', 'காலை', 'பகல்', 'இப்போது', 'அப்போது', 'எப்போது',
+	'ஐந்து', 'பத்து', 'இல்லை', 'ஆம்', 'நல்ல', 'வந்து', 'வேலை'
+];
+
+// ── FULL EVERYDAY WORDS (b14 scope — all consonants available) ────────────────
+export const W_EVERYDAY_FULL = [
 	'அம்மா', 'அப்பா', 'அண்ணா', 'தம்பி', 'அக்கா', 'தங்கை',
 	'தாத்தா', 'பாட்டி', 'மகன்', 'மகள்', 'குழந்தை', 'மாமா',
 	'நன்றி', 'வணக்கம்', 'சரி', 'இல்லை', 'ஆம்', 'வாழ்க',
@@ -888,12 +894,7 @@ export const W_EVERYDAY_BASIC = [
 	'கதவு', 'மேசை', 'மாலை', 'காலை', 'இரவு', 'பகல்',
 	'இன்று', 'நாளை', 'நேற்று', 'இப்போது', 'அப்போது', 'எப்போது',
 	'அங்கு', 'இங்கு', 'எங்கு', 'யார்', 'என்ன', 'ஏன்',
-	'ஒன்று', 'இரண்டு', 'மூன்று', 'நான்கு', 'ஐந்து', 'பத்து'
-];
-
-// ── FULL EVERYDAY WORDS (b14 scope — all consonants available) ────────────────
-export const W_EVERYDAY_FULL = [
-	...W_EVERYDAY_BASIC,
+	'ஒன்று', 'இரண்டு', 'மூன்று', 'நான்கு', 'ஐந்து', 'பத்து',
 	'கழுத்து', 'முதுகு', 'வயிறு', 'விரல்', 'நகம்', 'நெற்றி',
 	'கன்னம்', 'தோள்', 'மார்பு', 'இடுப்பு', 'தொடை', 'முழங்கால்',
 	'கடல்', 'மலை', 'நதி', 'ஆறு', 'ஏரி', 'குளம்',
@@ -908,7 +909,7 @@ export const W_EVERYDAY_FULL = [
 	'குளிர்', 'கனம்', 'லேசு', 'நீளம்', 'குட்டை', 'உயரம்',
 	'பள்ளி', 'கல்லூரி', 'கோவில்', 'சந்தை', 'கடை', 'மருத்துவமனை',
 	'நூலகம்', 'பூங்கா', 'பாதை', 'பாலம்', 'வண்டி', 'பேருந்து',
-	'நாற்காலி', 'ஜன்னல்', 'கண்ணாடி', 'பாய்', 'போர்வை', 'தலையணை',
+	'நாற்காலி', 'கண்ணாடி', 'பாய்', 'போர்வை', 'தலையணை',
 	'தட்டு', 'கிண்ணம்', 'கரண்டி', 'துணி', 'ஆடை', 'பை',
 	'குடை', 'செருப்பு', 'கடிகாரம்', 'சாவி', 'பூட்டு', 'பெட்டி',
 	'நாய்', 'பூனை', 'மாடு', 'ஆடு', 'குதிரை', 'யானை',
@@ -921,7 +922,7 @@ export const W_INTER = [
 	'பண்பு', 'நட்பு', 'புத்தகம்', 'அகராதி', 'கணினி', 'விவசாயம்',
 	'பெருமை', 'சமுதாயம்', 'இணையம்', 'வரலாறு', 'பண்பாடு', 'கலாச்சாரம்',
 	'கல்வி', 'தொழில்', 'குடும்பம்', 'திருமணம்', 'பிறந்தநாள்', 'நிகழ்ச்சி',
-	'கொண்டாட்டம்', 'மகிழ்ச்சி', 'சந்தோஷம்', 'ஆனந்தம்', 'இன்பம்', 'துன்பம்',
+	'கொண்டாட்டம்', 'மகிழ்ச்சி', 'ஆனந்தம்', 'இன்பம்', 'துன்பம்',
 	'நேர்மை', 'உண்மை', 'அன்பு', 'கருணை', 'தயவு', 'இரக்கம்',
 	'முயற்சி', 'திறமை', 'சாதனை', 'வெற்றி', 'தோல்வி', 'சவால்',
 	'சிரிப்பு', 'அழுகை', 'மகிழ்வு', 'கலக்கம்', 'நம்பிக்கை', 'பொறுமை',
@@ -965,7 +966,7 @@ export const W_GRANTHA = [
 	'நஷ்டம்', 'இஷ்டம்', 'வருஷம்', 'தனுஷ்கோடி', 'விஷம்', 'கோஷம்',
 	'பாஷை', 'ஆக்ரோஷம்', 'புருஷன்', 'மனுஷன்', 'வேஷம்', 'சிஷ்யன்',
 	'ஹரி', 'ஹரிதம்', 'ஹாஸ்பிடல்', 'ஹோட்டல்', 'ஹிந்தி', 'ஹிமாலயம்',
-	'ஹிருதயம்', 'மோஹனம்', 'சிம்ஹம்', 'மகாத்மா', 'சாகஸம்', 'ஆஹாரம்',
+	'ஹிருதயம்', 'மோஹனம்', 'சிம்ஹம்', 'சாகஸம்', 'ஆஹாரம்',
 	'மோக்ஷம்', 'ரக்ஷை', 'லக்ஷம்', 'அக்ஷரம்', 'தீக்ஷை', 'பரீக்ஷை',
 	'நக்ஷத்திரம்', 'சாக்ஷி', 'ஸ்ரீராமர்', 'ஸ்ரீரங்கம்', 'ஸ்ரீதேவி', 'ஜெயஸ்ரீ'
 ];
@@ -977,7 +978,6 @@ const W_AYUTHA = ['அஃது', 'இஃது', 'எஃகு', 'அஃறி�
 // ─────────────────────────────────────────────────────────────────────────────
 // Each entry = the FULL set of allowed keys at that lesson's point.
 // Space is always allowed.
-const _base = new Set([sp]);
 
 function makeAllowed(...keyArrays) {
   const s = new Set([sp]);
@@ -1007,6 +1007,7 @@ const A_FULL = makeAllowed([...C_ALL, ...V_ALL, PU]);
 const A_GRANTHA = makeAllowed([...C_ALL, ...V_ALL, PU, 'Q', 'W', 'E', 'R']);
 const A_AYUTHA = makeAllowed([...C_ALL, ...V_ALL, PU, 'Q', 'W', 'E', 'R', 'F']);
 const A_ALL = makeAllowed([...C_ALL, ...V_ALL, PU, 'Q', 'W', 'E', 'R', 'F', 'Z', 'X', 'C', 'V', 'B', 'D', 'A', 'S']);
+const getKeys = set => Array.from(set).filter(k => k !== sp);
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  LESSON FACTORY
@@ -1055,11 +1056,14 @@ function buildLesson(allowed, drillSyls, mainWords, extraWords, wordCount, drill
 
   // Prevent adjacent identical words without dropping tokens
   for (let i = 1; i < tokens.length; i++) {
-    if (tokens[i] === tokens[i - 1] && tokens.length > 2) {
-      const swapIdx = (i + 1) % tokens.length;
-      [tokens[i], tokens[swapIdx]] = [tokens[swapIdx], tokens[i]];
-    }
-  }
+	  if (tokens[i] === tokens[i - 1] && tokens.length > 2) {
+	    // Find an index that doesn't match tokens[i - 1]
+	    const swapIdx = tokens.findIndex((t, idx) => idx !== i && idx !== i - 1 && t !== tokens[i - 1]);
+	    if (swapIdx !== -1) {
+	      [tokens[i], tokens[swapIdx]] = [tokens[swapIdx], tokens[i]];
+	    }
+	  }
+	}
 
   const wordPart = [];
   tokens.forEach(w => wordPart.push(...tamilToKeys(w), sp));
@@ -1083,7 +1087,7 @@ export const LESSONS_DB = {
       description: 'h j — க ப with அ ஆ and pulli ்',
       focusKeys: ['h', 'j', 'a', 'q', 'f'], targetWPM: 10,
       generateContent() {
-        const syls = [...pool(['h', 'j'], V_A, true), ['a']]; // CV + pulli + standalone அ
+        const syls = [...pool(['h', 'j'], V_A, true), ['a'], ['q']]; // CV + pulli + standalone அ
         const drill = intro(syls);
         const words = filterWords(W01, A.b01);
         const wordOut = wordsGen(words, 8);
@@ -1155,7 +1159,8 @@ export const LESSONS_DB = {
       id: 'b07', order: 7, level: 'beginner',
       title: 'ஒ ஓ ஔ',
       description: 'c x z — all 12 vowels now complete',
-      focusKeys: ['h', 'j', 'k', 'l', ';', "'", 'c', 'x', 'z', 'f', 't', 's', 'r', 'd', 'e', 'w', 'q', 'g'], targetWPM: 14,
+      focusKeys: Array.from(A.b07).filter(k => k !== sp),
+      targetWPM: 14,
       generateContent() {
         const newSyls = pool(C_HR, V_O);
         return buildLesson(A.b07, newSyls, W07, [...W06, ...W05, ...W04], 20, 25);
@@ -1169,7 +1174,7 @@ export const LESSONS_DB = {
       description: 'n v — very frequent in Tamil; words now dominate',
       focusKeys: ['n', 'v', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x', 'h', 'j', 'k', 'l', ';', "'", 'f'], targetWPM: 14,
       generateContent() {
-        const newSyls = pool(['n', 'v'], [...V_A, ...V_I, ...V_U]);
+        const newSyls = pool(['n', 'v'], [...V_A, ...V_I, ...V_U], true);
         return buildLesson(A.b08, newSyls, W08, [...W07, ...W_EVERYDAY_BASIC], 24, 22);
       }
     },
@@ -1495,14 +1500,14 @@ export const LESSONS_DB = {
       focusKeys: ['Z', 'X', 'C', 'V', 'B', 'D', 'A', 'S', ';', 'q', 'y', 'f', 'k', 'l', 'v', 'm', 'd', 'o', 'h', 'i', 'j', 'u', 'e', "'", 'g', 'p', 't', 'n'], targetWPM: 18,
       generateContent() {
         const out = [];
-        const symWords = ['நாள்', 'மாதம்', 'வருடம்', 'கடன்', 'பற்று', 'ரூபாய்', 'எண்', 'மேலே'];
-        const symKeys = { 'நாள்': 'Z', 'மாதம்': 'X', 'வருடம்': 'C', 'கடன்': 'V', 'பற்று': 'B', 'ரூபாய்': 'A', 'எண்': 'S', 'மேலே': 'D' };
+	const symWords = ['நாள்', 'மாதம்', 'வருடம்', 'பற்று', 'கடன்', 'ரூபாய்', 'எண்', 'மேலே'];
+        const symKeys = { 'நாள்': 'Z', 'மாதம்': 'X', 'வருடம்': 'C', 'பற்று': 'V', 'கடன்': 'B', 'ரூபாய்': 'A', 'எண்': 'S', 'மேலே': 'D' };
         function pw(w) { out.push(...tamilToKeys(w), sp); }
         for (let i = 0; i < 8; i++) {
           pw('நாள்'); out.push('Z', sp);
           pw('மாதம்'); out.push('X', sp);
           pw('வருடம்'); out.push('C', sp);
-          if (i % 2 === 0) { pw('கடன்'); out.push('V', sp); pw('பற்று'); out.push('B', sp); }
+          if (i % 2 === 0) { pw('பற்று'); out.push('V', sp); pw('கடன்'); out.push('B', sp); }
           pw('ரூபாய்'); out.push('A', sp);
           pw('எண்'); out.push('S', sp);
           if (i % 3 === 0) { pw('மேலே'); out.push('D', sp); }
