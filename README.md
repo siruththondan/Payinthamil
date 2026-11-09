@@ -334,6 +334,10 @@ Found a bug? [Open an issue](https://github.com/siruththondan/Payinthamil/issues
 ### Roadmap
 
 - **Complete offline Thirukkural support:** Bundle all 1,330 Thirukkural verses into the application so that the feature works fully offline without depending on the third-party Kural API.
+- **Typing speed test:** Dedicated timed typing tests with different durations, such as 1, 3 and 5 minutes, with WPM, accuracy and consistency scores.
+- **Friend challenges:** Challenge friends to Tamil99 typing tests, share test results and compare scores.
+- **Leaderboards:** Compete with friends and other learners through score-based rankings and typing achievements.
+- **Personal bests and achievements:** Track personal records, milestones and improvements over time.
 
 ---
 
