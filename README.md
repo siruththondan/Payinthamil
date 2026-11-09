@@ -1,14 +1,15 @@
+<div align="center">
 # பைந்தமிழ் · Payinthamil
 
 **தமிழ்99 விசைப்பலகையில் தமிழ்த் தட்டச்சுப் பயிற்சி**
 
 *A Tamil99 keyboard typing trainer*
 
-[![CI](https://github.com/siruththondan/Payinthamil/actions/workflows/ci.yml/badge.svg)](https://github.com/siruththondan/Payinthamil/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-c47d56.svg?style=flat-square)](LICENSE)
 ![No build step](https://img.shields.io/badge/build-none_required-6fcb81?style=flat-square)
 ![Vanilla JS](https://img.shields.io/badge/vanilla-JS-9d99d8?style=flat-square)
 ![Offline first](https://img.shields.io/badge/data-stays_in_your_browser-6ba8e0?style=flat-square)
+</div>
 
 <div align="center">
   <img src="assets/images/preview.gif" alt="பைந்தமிழ் தட்டச்சுப் பயிற்சி" width="760" />
@@ -351,8 +352,8 @@ Found a bug? [Open an issue](https://github.com/siruththondan/Payinthamil/issues
 
 <div align="center">
 
-**தமிழ்நாட்டில் அன்புடன் உருவாக்கப்பட்டது**
+*Made in Tamil Nadu · with ❤️ · Siruththondan*
 
-*Made with care in Tamil Nadu*
+**தமிழ்நாட்டில் உருவாக்கப்பட்டது · அன்புடன் ♥️ · சிறுத்தொண்டன்**
 
 </div>
