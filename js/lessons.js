@@ -1083,8 +1083,8 @@ export const LESSONS_DB = {
     // Pulli introduced here so first real words (கல் பல்) appear immediately.
     {
       id: 'b01', order: 1, level: 'beginner',
-      title: 'க ப + ்',
-      description: 'h j — க ப with அ ஆ and pulli ்',
+      title: 'தொடக்கப் பயிற்சி — க, ப',
+      description: 'அடிப்படை மெய், அ, ஆ மற்றும் புள்ளி (்)',
       focusKeys: ['h', 'j', 'a', 'q', 'f'], targetWPM: 10,
       generateContent() {
         const syls = [...pool(['h', 'j'], V_A, true), ['a'], ['q']]; // CV + pulli + standalone அ
@@ -1098,8 +1098,8 @@ export const LESSONS_DB = {
     // ── b02: ம த ந ய ──────────────────────────────────────────────────────
     {
       id: 'b02', order: 2, level: 'beginner',
-      title: 'ம த ந ய',
-      description: "k l ; ' — home row complete",
+      title: 'மெய் எழுத்துகள் 1',
+      description: 'ம, த, ந, ய — நடுவரிசை நிறைவு',
       focusKeys: ['k', 'l', ';', "'", 'a', 'q', 'f', 'h', 'j'], targetWPM: 10,
       generateContent() {
 	  const newSyls = pool(['k', 'l', ';', "'"], V_A, true);
@@ -1110,8 +1110,8 @@ export const LESSONS_DB = {
     // ── b03: Home Row Speed ────────────────────────────────────────────────
     {
       id: 'b03', order: 3, level: 'beginner',
-      title: 'Home Row Speed',
-      description: 'All 6 home consonants — speed up with real words',
+      title: 'நடுவரிசை வேகப் பயிற்சி',
+      description: 'நடுவரிசை 6 மெய்கள் — சொல் பயிற்சி',
       focusKeys: [...C_HR, 'a', 'q', 'f'], targetWPM: 12,
       generateContent() {
         return buildLesson(A.b03, pool(C_HR, V_A, true), W02, W01, 22, 25);
@@ -1121,8 +1121,8 @@ export const LESSONS_DB = {
     // ── b04: இ ஈ ──────────────────────────────────────────────────────────
     {
       id: 'b04', order: 4, level: 'beginner',
-      title: 'இ ஈ',
-      description: 's w — left ring finger',
+      title: 'உயிர் எழுத்துகள் 1',
+      description: 'இ, ஈ — குறில் & நெடில்',
       focusKeys: ['h', 'j', 'k', 'l', ';', "'", 's', 'w', 'f', 'a', 'q'], targetWPM: 12,
       generateContent() {
         const newSyls = pool(C_HR, V_I);
@@ -1133,8 +1133,8 @@ export const LESSONS_DB = {
     // ── b05: உ ஊ ──────────────────────────────────────────────────────────
     {
       id: 'b05', order: 5, level: 'beginner',
-      title: 'உ ஊ',
-      description: 'd e — left middle finger',
+      title: 'உயிர் எழுத்துகள் 2',
+      description: 'உ, ஊ — குறில் & நெடில்',
       focusKeys: ['h', 'j', 'k', 'l', ';', "'", 'd', 'e', 'f', 'q', 's', 'w', 'a'], targetWPM: 12,
       generateContent() {
         const newSyls = pool(C_HR, V_U);
@@ -1145,8 +1145,8 @@ export const LESSONS_DB = {
     // ── b06: எ ஏ ஐ ────────────────────────────────────────────────────────
     {
       id: 'b06', order: 6, level: 'beginner',
-      title: 'எ ஏ ஐ',
-      description: 'g t r — left index finger',
+      title: 'உயிர் எழுத்துகள் 3',
+      description: 'எ, ஏ, ஐ — இடது ஆள்காட்டி விரல்',
       focusKeys: ['h', 'j', 'k', 'l', ';', "'", 'g', 't', 'r', 'f', 'q', 's', 'a', 'd', 'e', 'w'], targetWPM: 14,
       generateContent() {
         const newSyls = pool(C_HR, V_E);
@@ -1157,8 +1157,8 @@ export const LESSONS_DB = {
     // ── b07: ஒ ஓ ஔ — all 12 vowels ────────────────────────────────────────
     {
       id: 'b07', order: 7, level: 'beginner',
-      title: 'ஒ ஓ ஔ',
-      description: 'c x z — all 12 vowels now complete',
+      title: 'உயிர் எழுத்துகள் 4',
+      description: 'ஒ, ஓ, ஔ — 12 உயிரெழுத்துகள் நிறைவு',
       focusKeys: Array.from(A.b07).filter(k => k !== sp),
       targetWPM: 14,
       generateContent() {
@@ -1170,8 +1170,8 @@ export const LESSONS_DB = {
     // ── b08: ல வ ──────────────────────────────────────────────────────────
     {
       id: 'b08', order: 8, level: 'beginner',
-      title: 'ல வ',
-      description: 'n v — very frequent in Tamil; words now dominate',
+      title: 'மெய் எழுத்துகள் 2',
+      description: 'ல, வ — பயன்பாட்டுச் சொற்கள்',
       focusKeys: ['n', 'v', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x', 'h', 'j', 'k', 'l', ';', "'", 'f'], targetWPM: 14,
       generateContent() {
         const newSyls = pool(['n', 'v'], [...V_A, ...V_I, ...V_U], true);
@@ -1182,8 +1182,8 @@ export const LESSONS_DB = {
     // ── b09: ற ன ──────────────────────────────────────────────────────────
     {
       id: 'b09', order: 9, level: 'beginner',
-      title: 'ற ன',
-      description: 'u i — word-endings; mostly real words',
+      title: 'மெய் எழுத்துகள் 3',
+      description: 'ற, ன — சொல்லிறுதி எழுத்துகள்',
       focusKeys: ['u', 'i', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'x', 'h', 'j', 'k', 'l', ';', "'", 'n', 'v', 'f'], targetWPM: 14,
       generateContent() {
         const newSyls = pool(['u', 'i'], [...V_A, ...V_I]);
@@ -1194,8 +1194,8 @@ export const LESSONS_DB = {
     // ── b10: ட ண ──────────────────────────────────────────────────────────
     {
       id: 'b10', order: 10, level: 'beginner',
-      title: 'ட ண',
-      description: 'o p — retroflex stops',
+      title: 'மெய் எழுத்துகள் 4',
+      description: 'ட, ண — டகர, ணகர எழுத்துகள்',
       focusKeys: ['o', 'p', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x', 'h', 'j', 'k', 'l', ';', "'", 'n', 'v', 'u', 'i', 'f'], targetWPM: 14,
       generateContent() {
         const newSyls = pool(['o', 'p'], [...V_A, ...V_I, 'd']);
@@ -1206,8 +1206,8 @@ export const LESSONS_DB = {
     // ── b11: ச ─────────────────────────────────────────────────────────────
     {
       id: 'b11', order: 11, level: 'beginner',
-      title: 'ச',
-      description: '[ — most common sibilant in Tamil',
+      title: 'மெய் எழுத்துகள் 5',
+      description: 'ச — சகர எழுத்து',
       focusKeys: ['[', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x', 'h', 'j', 'k', 'l', ';', "'", 'n', 'v', 'u', 'i', 'o', 'p', 'f'], targetWPM: 14,
       generateContent() {
         const newSyls = pool(['['], [...V_A, ...V_I, ...V_U, ...V_E]);
@@ -1218,8 +1218,8 @@ export const LESSONS_DB = {
     // ── b12: ர ─────────────────────────────────────────────────────────────
     {
       id: 'b12', order: 12, level: 'beginner',
-      title: 'ர',
-      description: 'm — used in many common nouns',
+      title: 'மெய் எழுத்துகள் 6',
+      description: 'ர — இடை ரகரம்',
       focusKeys: ['m', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x', 'h', 'j', 'k', 'l', ';', "'", 'n', 'v', 'u', 'i', 'o', 'p', '[', 'f'], targetWPM: 14,
       generateContent() {
         const newSyls = pool(['m'], [...V_A, ...V_I, ...V_U]);
@@ -1230,8 +1230,8 @@ export const LESSONS_DB = {
     // ── b13: ள ழ ───────────────────────────────────────────────────────────
     {
       id: 'b13', order: 13, level: 'beginner',
-      title: 'ள ழ',
-      description: 'y / — unique Tamil letters',
+      title: 'மெய் எழுத்துகள் 7',
+      description: 'ள, ழ — சிறப்பு ழகரம் மற்றும் ளகரம்',
       focusKeys: ['y', '/', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x', 'h', 'j', 'k', 'l', ';', "'", 'n', 'v', 'u', 'i', 'o', 'p', '[', 'm', 'f'], targetWPM: 14,
       generateContent() {
         const newSyls = pool(['y', '/'], [...V_A, ...V_I, ...V_U]);
@@ -1242,8 +1242,8 @@ export const LESSONS_DB = {
     // ── b14: ஞ ங ───────────────────────────────────────────────────────────
     {
       id: 'b14', order: 14, level: 'beginner',
-      title: 'ஞ ங',
-      description: '] b — rare; all consonants now unlocked',
+      title: 'மெய் எழுத்துகள் 8',
+      description: 'ஞ, ங — 18 மெய்யெழுத்துகள் நிறைவு',
       focusKeys: [']', 'b', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x', 'h', 'j', 'k', 'l', ';', "'", 'n', 'v', 'u', 'i', 'o', 'p', '[', 'm', 'y', '/', 'f'], targetWPM: 14,
       generateContent() {
         const newSyls = pool([']', 'b'], V_A);
@@ -1254,8 +1254,8 @@ export const LESSONS_DB = {
     // ── b15–b19: Uyirmei grids + words (no new keys) ─────────────────────
     {
       id: 'b15', order: 15, level: 'beginner',
-      title: 'உயிர்மெய் — க ப',
-      description: 'க கா கி கீ கு கூ கெ கே கை கொ கோ கௌ … ப …',
+      title: 'உயிர்மெய் பயிற்சி 1',
+      description: 'க, ப வரிசை உயிர்மெய்கள்',
       focusKeys: ['h', 'j', 'f', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x', 'z', 'v', 'k', 'o', '/', 'l', ';', '[', 'y', "'", 'i', 'n', 'u', 'm', 'p', 'b'], targetWPM: 16,
       generateContent() {
         const grid = uyirmeiGrid(['h', 'j'], V_ALL);
@@ -1266,8 +1266,8 @@ export const LESSONS_DB = {
 
     {
       id: 'b16', order: 16, level: 'beginner',
-      title: 'உயிர்மெய் — ம த',
-      description: 'ம மா மி மீ மு மூ மெ மே மை மொ மோ மௌ … த …',
+      title: 'உயிர்மெய் பயிற்சி 2',
+      description: 'ம, த வரிசை உயிர்மெய்கள்',
       focusKeys: ['k', 'l', 'f', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x', 'z', 'h', 'v', 'u', 'i', 'o', 'j', 'n', 'b', "'", 'p', 'm', '[', ';', '/', 'y'], targetWPM: 16,
       generateContent() {
         const grid = uyirmeiGrid(['k', 'l'], V_ALL);
@@ -1278,8 +1278,8 @@ export const LESSONS_DB = {
 
     {
       id: 'b17', order: 17, level: 'beginner',
-      title: 'உயிர்மெய் — ந ய',
-      description: 'ந நா நி நீ … ய யா யி யீ …',
+      title: 'உயிர்மெய் பயிற்சி 3',
+      description: 'ந, ய வரிசை உயிர்மெய்கள்',
       focusKeys: [';', "'", 'f', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x', 'z', 'h', 'k', 'y', 'v', 'l', 'b', 'o', 'n', '/', 'j', 'i', 'u', 'p', 'm', '['], targetWPM: 16,
       generateContent() {
         const grid = uyirmeiGrid([';', "'"], V_ALL);
@@ -1290,8 +1290,8 @@ export const LESSONS_DB = {
 
     {
       id: 'b18', order: 18, level: 'beginner',
-      title: 'உயிர்மெய் — ல வ',
-      description: 'ல லா லி லீ … வ வா வி வீ …',
+      title: 'உயிர்மெய் பயிற்சி 4',
+      description: 'ல, வ வரிசை உயிர்மெய்கள்',
       focusKeys: ['n', 'v', 'f', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x', 'z', 'l', 'o', 'h', 'k', ';', 'm', 'j', '[', 'u', "'", '/', 'i', 'p', 'b', 'y', ']'], targetWPM: 18,
       generateContent() {
         const grid = uyirmeiGrid(['n', 'v'], V_ALL);
@@ -1302,8 +1302,8 @@ export const LESSONS_DB = {
 
     {
       id: 'b19', order: 19, level: 'beginner',
-      title: 'உயிர்மெய் — ற ன',
-      description: 'ற றா றி றீ … ன னா னி னீ …',
+      title: 'உயிர்மெய் பயிற்சி 5',
+      description: 'ற, ன வரிசை உயிர்மெய்கள்',
       focusKeys: ['u', 'i', 'f', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x', 'z', ';', 'j', 'y', 'k', 'h', 'p', 'o', 'v', '/', 'l', 'b', 'n', "'", '[', 'm'], targetWPM: 18,
       generateContent() {
         const grid = uyirmeiGrid(['u', 'i'], V_ALL);
@@ -1315,8 +1315,8 @@ export const LESSONS_DB = {
     // ── b20: Beginner Final — 100 % words ─────────────────────────────────
     {
       id: 'b20', order: 20, level: 'beginner',
-      title: 'பொதுவான சொற்கள்',
-      description: 'All beginner keys — real words only',
+      title: 'சொல் பயிற்சி 1',
+      description: 'அடிப்படைச் சொற்கள் (தொடக்க நிலை நிறைவு)',
       focusKeys: ['a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x', 'h', 'j', 'k', 'l', ';', "'", 'n', 'v', 'u', 'i', 'o', 'p', '[', 'm', 'y', '/', 'b', 'f'], targetWPM: 22,
       generateContent() {
         const all = filterWords([...W_EVERYDAY_FULL, ...W_INTER.slice(0, 20)], A_FULL);
@@ -1330,8 +1330,8 @@ export const LESSONS_DB = {
 
     {
       id: 'i01', order: 1, level: 'intermediate',
-      title: 'உயிர்மெய் — ட ண',
-      description: 'ட டா டி … ண ணா ணி … + words',
+      title: 'உயிர்மெய் பயிற்சி 6',
+      description: 'ட, ண வரிசை உயிர்மெய்கள்',
       focusKeys: ['o', 'p', 'f', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x', 'z', 'l', 'm', ';', 'u', 'h', 'n', 'k', 'y', '/', 'v', "'", 'j', '[', 'b', 'i'], targetWPM: 20,
       generateContent() {
         const grid = uyirmeiGrid(['o', 'p'], V_ALL);
@@ -1342,8 +1342,8 @@ export const LESSONS_DB = {
 
     {
       id: 'i02', order: 2, level: 'intermediate',
-      title: 'உயிர்மெய் — ச ர',
-      description: 'ச சா சி … ர ரா ரி … + words',
+      title: 'உயிர்மெய் பயிற்சி 7',
+      description: 'ச, ர வரிசை உயிர்மெய்கள்',
       focusKeys: ['[', 'm', 'f', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x', 'z', 'k', 'n', 'l', 'h', 'o', 'b', 'j', 'v', 'i', ';', 'y', 'u', "'", '/', 'p'], targetWPM: 20,
       generateContent() {
         const grid = uyirmeiGrid(['[', 'm'], V_ALL);
@@ -1354,8 +1354,8 @@ export const LESSONS_DB = {
 
     {
       id: 'i03', order: 3, level: 'intermediate',
-      title: 'உயிர்மெய் — ள ழ',
-      description: 'ள ளா ளி … ழ ழா ழி … + words',
+      title: 'உயிர்மெய் பயிற்சி 8',
+      description: 'ள, ழ வரிசை உயிர்மெய்கள்',
       focusKeys: ['y', '/', 'f', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x', 'z', 'k', 'v', 'n', 'h', "'", 'p', 'j', 'o', 'l', ';', 'b', 'm', 'i', '[', 'u'], targetWPM: 20,
       generateContent() {
         const grid = uyirmeiGrid(['y', '/'], V_ALL);
@@ -1366,8 +1366,8 @@ export const LESSONS_DB = {
 
     {
       id: 'i04', order: 4, level: 'intermediate',
-      title: 'உயிர்மெய் — ஞ ங',
-      description: 'ஞ ஞா ஞி … ங ங்  + full word review',
+      title: 'உயிர்மெய் பயிற்சி 9',
+      description: 'ஞ, ங வரிசை உயிர்மெய்கள்',
       focusKeys: [']', 'b', 'f', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x', 'z', 'n', 'k', 'j', 'l', ';', 'h', 'm', '[', 'v', 'y', 'u', 'o', "'", 'i', 'p', '/'], targetWPM: 20,
       generateContent() {
         const grid = uyirmeiGrid([']', 'b'], V_ALL);
@@ -1378,8 +1378,8 @@ export const LESSONS_DB = {
 
     {
       id: 'i05', order: 5, level: 'intermediate',
-      title: 'All Uyirmei Speed',
-      description: 'All consonants × all vowels — words only',
+      title: 'சொல் பயிற்சி 2',
+      description: 'முழு உயிர்மெய் சொல் பயிற்சி (24 WPM)',
       focusKeys: ['h', 'j', 'k', 'l', ';', "'", 'n', 'v', 'u', 'i', 'o', 'p', '[', 'm', 'y', '/', ']', 'b', 'f', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x'], targetWPM: 24,
       generateContent() {
         const words = filterWords([...W_EVERYDAY_FULL, ...W_INTER], A_FULL);
@@ -1389,8 +1389,8 @@ export const LESSONS_DB = {
 
     {
       id: 'i06', order: 6, level: 'intermediate',
-      title: 'Words — Speed I',
-      description: 'Common Tamil words at 26 WPM',
+      title: 'சொல் பயிற்சி 3',
+      description: 'அன்றாடச் சொற்கள் வேகப் பயிற்சி (26 WPM)',
       focusKeys: ['h', 'j', 'k', 'l', ';', "'", 'n', 'v', 'u', 'i', 'o', 'p', '[', 'm', 'y', '/', ']', 'b', 'f', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x'], targetWPM: 26,
       generateContent() {
         const words = filterWords([...W_INTER, ...W_EVERYDAY_FULL], A_FULL);
@@ -1400,8 +1400,8 @@ export const LESSONS_DB = {
 
     {
       id: 'i07', order: 7, level: 'intermediate',
-      title: 'Words — Speed II',
-      description: 'Richer vocabulary at 28 WPM',
+      title: 'சொல் பயிற்சி 4',
+      description: 'விரிவான சொல் பயிற்சி (28 WPM)',
       focusKeys: ['h', 'j', 'k', 'l', ';', "'", 'n', 'v', 'u', 'i', 'o', 'p', '[', 'm', 'y', '/', ']', 'b', 'f', 'a', 'q', 's', 'd', 'g', 't', 'r', 'c', 'x'], targetWPM: 28,
       generateContent() {
         const words = filterWords([...W_INTER, ...W_ADV.slice(0, 20)], A_FULL);
@@ -1411,8 +1411,8 @@ export const LESSONS_DB = {
 
     {
       id: 'i08', order: 8, level: 'intermediate',
-      title: 'Intermediate Speed',
-      description: 'Full vocabulary — 30 WPM',
+      title: 'சொல் பயிற்சி 5',
+      description: 'இடைநிலை நிறைவு வேகப் பயிற்சி (30 WPM)',
       focusKeys: ['h', 'j', 'k', 'l', ';', "'", 'n', 'v', 'u', 'i', 'o', 'p', '[', 'm', 'y', '/', ']', 'b', 'f', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x'], targetWPM: 30,
       generateContent() {
         const words = filterWords([...W_INTER, ...W_ADV], A_FULL);
@@ -1426,8 +1426,8 @@ export const LESSONS_DB = {
 
     {
       id: 'a01', order: 1, level: 'advanced',
-      title: 'Grantha — ஸ ஷ ஜ ஹ',
-      description: 'Shift+Q W E R — borrowed consonants',
+      title: 'கிரந்த எழுத்துகள்',
+      description: 'ஸ, ஷ, ஜ, ஹ — பிறமொழி ஒலி எழுத்துகள்',
       focusKeys: ['Q', 'W', 'E', 'R', 'f', 'q', 's', 'w', 'l', 'd', 'p', 'v', 'h', 'o', 'k', 'j', ';', 'x', 'm', 'n', "'", 'r', 'i', 'e', 'a', '[', 'u', 't', '/', 'g'], targetWPM: 26,
       generateContent() {
         const gGrid = uyirmeiGrid(['Q', 'W', 'E', 'R'], [...V_A, ...V_I]);
@@ -1438,8 +1438,8 @@ export const LESSONS_DB = {
 
     {
       id: 'a02', order: 2, level: 'advanced',
-      title: 'ஃ Ayutha Ezhuthu',
-      description: 'Shift+F — unique aspirate letter',
+      title: 'ஆய்த எழுத்து',
+      description: 'ஃ — தனிநிலை / ஆய்த எழுத்து பயிற்சி',
       focusKeys: ['F', 'f', 'h', 'j', 'k', 'l', ';', "'", 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x', 'p', 'o', 'i', 'm', 'v', '[', 'u', 'n', 'b', '/', 'W', ']', 'y', 'E'], targetWPM: 28,
       generateContent() {
         const np = C_HR.map(c => ['F', c]);
@@ -1451,8 +1451,8 @@ export const LESSONS_DB = {
 
     {
       id: 'a03', order: 3, level: 'advanced',
-      title: 'Speed Drill I',
-      description: 'Home row + all vowels — 32 WPM',
+      title: 'வேகப் பயிற்சி 1',
+      description: 'நடுவரிசை & உயிர் எழுத்துகள் (32 WPM)',
       focusKeys: ['h', 'j', 'k', 'l', ';', "'", 'n', 'v', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x', 'f', ']', 'u', 'i', 'p', 'o', 'm', '[', '/', 'b', 'y'], targetWPM: 32,
       generateContent() {
         const words = filterWords([...W_ADV, ...W_INTER], A_FULL);
@@ -1462,8 +1462,8 @@ export const LESSONS_DB = {
 
     {
       id: 'a04', order: 4, level: 'advanced',
-      title: 'Speed Drill II',
-      description: 'Full keyboard — 36 WPM — words only',
+      title: 'வேகப் பயிற்சி 2',
+      description: 'முழு விசைப்பலகை வேகப் பயிற்சி (36 WPM)',
       focusKeys: ['h', 'j', 'k', 'l', ';', "'", 'n', 'v', 'u', 'i', 'o', 'p', '[', 'm', 'y', '/', ']', 'b', 'f', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x'], targetWPM: 36,
       generateContent() {
         const words = filterWords([...W_ADV, ...W_INTER, ...W_EVERYDAY_FULL], A_FULL);
@@ -1473,8 +1473,8 @@ export const LESSONS_DB = {
 
     {
       id: 'a05', order: 5, level: 'advanced',
-      title: 'Marathon',
-      description: 'All keys — 38 WPM',
+      title: 'வேகப் பயிற்சி 3',
+      description: 'தொடர் மாரத்தான் பயிற்சி (38 WPM)',
       focusKeys: ['a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x', 'h', 'j', 'k', 'l', ';', "'", 'n', 'v', 'u', 'i', 'o', 'p', '[', 'm', 'y', '/', ']', 'b', 'f', 'Q', 'W', 'E', 'R'], targetWPM: 38,
       generateContent() {
         const words = filterWords([...W_ADV, ...W_GRANTHA, ...W_INTER], A_GRANTHA);
@@ -1484,8 +1484,8 @@ export const LESSONS_DB = {
 
     {
       id: 'a06', order: 6, level: 'advanced',
-      title: 'Tamil Text Speed',
-      description: 'Literary and complex words — 40 WPM',
+      title: 'உரைநடைப் பயிற்சி',
+      description: 'இலக்கியம் & தூய தமிழ் உரைநடை (40 WPM)',
       focusKeys: ['h', 'j', 'k', 'l', ';', "'", 'n', 'v', 'u', 'i', 'o', 'p', '[', 'm', 'y', '/', ']', 'b', 'f', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x'], targetWPM: 40,
       generateContent() {
         const words = filterWords([...W_ADV, ...W_INTER], A_FULL);
@@ -1495,8 +1495,8 @@ export const LESSONS_DB = {
 
     {
       id: 'a07', order: 7, level: 'advanced',
-      title: 'கணக்கு குறிகள்',
-      description: 'Shift+Z X C V B D A S — Tamil accounting symbols',
+      title: 'தமிழ்க் குறியீடுகள்',
+      description: 'பழங்காலக் கணக்குக் குறிகள் & எண்கள்',
       focusKeys: ['Z', 'X', 'C', 'V', 'B', 'D', 'A', 'S', ';', 'q', 'y', 'f', 'k', 'l', 'v', 'm', 'd', 'o', 'h', 'i', 'j', 'u', 'e', "'", 'g', 'p', 't', 'n'], targetWPM: 18,
       generateContent() {
         const out = [];
