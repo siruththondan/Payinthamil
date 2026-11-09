@@ -5,7 +5,7 @@
 **தமிழ்99 விசைப்பலகை தட்டச்சுப் பயிற்சி**
 *A Tamil99 keyboard typing trainer*
 
-[![CI](https://github.com/mastergokul/payinthamil/actions/workflows/ci.yml/badge.svg)](https://github.com/mastergokul/payinthamil/actions/workflows/ci.yml)
+[![CI](https://github.com/siruththondan/Payinthamil/actions/workflows/ci.yml/badge.svg)](https://github.com/siruththondan/Payinthamil/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-c47d56.svg?style=flat-square)](LICENSE)
 ![No build step](https://img.shields.io/badge/build-none_required-6fcb81?style=flat-square)
 ![Vanilla JS](https://img.shields.io/badge/vanilla-JS-9d99d8?style=flat-square)
@@ -65,8 +65,8 @@
 `file://` வழியாகத் திறக்க முடியாது — ஏதேனும் ஒரு HTTP சேவையகம் தேவை.
 
 ```bash
-git clone https://github.com/mastergokul/payinthamil.git
-cd payinthamil
+git clone https://github.com/siruththondan/Payinthamil.git
+cd Payinthamil
 python3 -m http.server 5501
 ```
 
@@ -98,7 +98,7 @@ VS Code பயன்படுத்தினால் **Live Server** நீட�
 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). பாதுகாப்புக் குறைபாடுகளைப்
 புகாரளிக்க: [SECURITY.md](SECURITY.md).
 
-பிழை கண்டால் [issue](https://github.com/mastergokul/payinthamil/issues) திறக்கவும்.
+பிழை கண்டால் [issue](https://github.com/siruththondan/Payinthamil/issues) திறக்கவும்.
 உங்கள் உலாவி, திரை அளவு, மற்றும் என்ன நடந்தது என்பதைக் குறிப்பிடுங்கள்.
 
 ---
@@ -153,8 +153,8 @@ No build step. But it uses ES modules, so `file://` won't work — you need
 any HTTP server.
 
 ```bash
-git clone https://github.com/mastergokul/payinthamil.git
-cd payinthamil
+git clone https://github.com/siruththondan/Payinthamil.git
+cd Payinthamil
 python3 -m http.server 5501
 ```
 
@@ -286,7 +286,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details, the
 [Code of Conduct](CODE_OF_CONDUCT.md), and [SECURITY.md](SECURITY.md) for
 reporting vulnerabilities.
 
-Found a bug? [Open an issue](https://github.com/mastergokul/payinthamil/issues)
+Found a bug? [Open an issue](https://github.com/siruththondan/Payinthamil/issues)
 with your browser, screen size, and what happened.
 
 ### Roadmap
