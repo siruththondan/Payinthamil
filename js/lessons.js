@@ -149,15 +149,16 @@ function intro(syl) {
 /** Full uyirmei grid for given consonants × vowels */
 function uyirmeiGrid(cons, vows) {
   vows = vows || V_ALL;
-  const bare = vows.includes('q');        // bare consonant (inherent a): 1 + 11 = 12 forms
-  vows = vows.filter(v => v !== 'a');     // standalone அ is not a consonant+vowel form
+  const bare = vows.includes('q');
+  const activeVowels = vows.filter(v => v !== 'a');
   const sc = [...cons];
   for (let i = sc.length - 1; i > 0; i--) { const j = ri(i + 1); [sc[i], sc[j]] = [sc[j], sc[i]]; }
   const out = [];
   for (const c of sc) {
-    if (bare) out.push(c);
-    for (const v of vows) out.push(c, v);
-    out.push(sp);
+    if (bare) out.push(c, sp);
+    for (const v of activeVowels) {
+      out.push(c, v, sp);
+    }
   }
   while (out.length && out[out.length - 1] === sp) out.pop();
   return out;
@@ -194,15 +195,21 @@ function lessonBlock(allowed, drillSyls, mainWords, reviewWords, totalWords, dri
   // 70 % main, 30 % review (of the word portion)
   const mainN = Math.round(totalWords * 0.70);
   const reviewN = totalWords - mainN;
-  const tokens = [];
   const safeMain = main.length ? main : (review.length ? review : []);
   const safeReview = review.length ? review : safeMain;
-  for (let i = 0; i < mainN; i++) tokens.push(safeMain[ri(safeMain.length)]);
-  for (let i = 0; i < reviewN; i++) tokens.push(safeReview[ri(safeReview.length)]);
-  // Shuffle
-  for (let i = tokens.length - 1; i > 0; i--) {
-    const j = ri(i + 1);[tokens[i], tokens[j]] = [tokens[j], tokens[i]];
+  const tokens = [];
+  let lastPick = null;
+
+  for (let i = 0; i < totalWords; i++) {
+    const pool = (i < mainN) ? safeMain : safeReview;
+    let word = pool[ri(pool.length)];
+    if (word === lastPick && pool.length > 1) {
+      word = pool[(pool.indexOf(word) + 1) % pool.length];
+    }
+    tokens.push(word);
+    lastPick = word;
   }
+
   const wordPart = [];
   tokens.forEach(w => wordPart.push(...tamilToKeys(w), sp));
   while (wordPart.length && wordPart[wordPart.length - 1] === sp) wordPart.pop();
@@ -226,7 +233,7 @@ const W01 = [
 	'காக்க', 'காக', 'காப்ப', 'கப்பா', 'காகா',
 
 	// Starts with: ப
-	'பக்க', 'பாக', 'பாப்பா', 'பாகா', 'பாக', 'பாக்க', 'பக', 'பாபா',
+	'பக்க', 'பாக', 'பாப்பா', 'பாகா', 'பாக்க', 'பக', 'பாபா',
 
 	// Starts with: அ
 	'அப்பா', 'அக்கா', 'அப்ப', 'ஆப்ப', 'அக', 'அக்க', 'அப்பப்பா',
@@ -257,10 +264,10 @@ const W02 = [
 	'மகாத்மா', 'மகா', 'மாதம்', 'மாய', 'மாத', 'மாமா', 'மயக்கம்', 'மாயம்', 'மயம்', 'மதம்', 'மந்தம்', 'மகம்', 'மாய்ந்த',
 
 	// Starts with: த
-	'தம்', 'தாம்', 'தந்த', 'தாய்', 'தக்க', 'தாத்தா', 'தாயம்',  'தந்தம்', 'தாகம்',  'தம்மம்', 'தயக்கம்', 'தந்தை',
+	'தம்', 'தாம்', 'தந்த', 'தாய்', 'தக்க', 'தாத்தா', 'தாயம்',  'தந்தம்', 'தாகம்',  'தம்மம்', 'தயக்கம்',
 
 	// Starts with: ந
-	'நாம்', 'நம்', 'நாத', 'நாமம்', 'நம்ப', 'நாயக', 'நாய்', 'நாகம்', 'நாயம்',  'நயம்', 'நாதம்', 'நாகம்', 'நகம்', 'நத்தை',
+	'நாம்', 'நம்', 'நாத', 'நாமம்', 'நம்ப', 'நாயக', 'நாய்', 'நாகம்', 'நாயம்',  'நயம்', 'நாதம்', 'நாகம்', 'நகம்',
 
 	// Starts with: ய
 	'யாம்', 'யாக', 'யாத', 'யாய', 'யாத்த', 'யாய்', 'யாமம்', 'யாகம்',
@@ -278,7 +285,7 @@ const W04 = [
 	'பாதி', 'பத்தி', 'பதிகம்', 'பாக்கியம்', 'பதி', 'பக்தி', 'பீதி', 'பித்த', 'பதிந்த',
 
 	// Starts with: ம
-	'மிக்க', 'மிக', 'மதி', 'மாகி', 'மாகிய', 'மாதி', 'மாதி', 'மிகி', 'மிதி', 'மதியம்', 'மீதி', 'மதாதீத',
+	'மிக்க', 'மிக', 'மதி', 'மாகி', 'மாகிய', 'மாதி', 'மிகி', 'மிதி', 'மதியம்', 'மீதி', 'மதாதீத',
 
 	// Starts with: த
 	'திப', 'தம்பி', 'தீய', 'தப்பி', 'தகதிமி', 'தாக்கி', 'தப்பிப்', 'தந்தி', 'தீபம்', 'தத்தி', 'தாபித்த', 'தாமதி', 'திதி', 'தீ',
@@ -299,7 +306,7 @@ const W04 = [
 	'இந்த', 'இந்திய', 'இப்', 'இந்', 'இப்ப', 'இதி','இப்பி','இம்மி',
 
 	// Starts with: ஈ
-	'ஈந்த', 'ஈய', 'ஈத்த', 'ஈத', 'ஈயா', 'ஈக', 'ஈந்த', 'ஈமம்', 'ஈதி', 'ஈ',
+	'ஈய', 'ஈத்த', 'ஈத', 'ஈயா', 'ஈக', 'ஈந்த', 'ஈமம்', 'ஈதி', 'ஈ',
 
 ];
 
@@ -353,16 +360,16 @@ const W06 = [
 	'கையை', 'கையும்', 'கைது', 'குப்பை', 'கை',
 
 	// Starts with: ப
-	'பேதை', 'பேய்', 'பேது', 'புகை', 'புதுமை', 'பெய்து', 'பேதைமை', 'பேதை',
+	'பேய்', 'பேது', 'புகை', 'புதுமை', 'பெய்து', 'பேதைமை', 'பேதை',
 
 	// Starts with: ம
 	'மெய்', 'மெய்யே', 'மெய்ம்மை', 'முந்தை', 'முகை', 'மும்மை',
 
 	// Starts with: த
-	'தூய்மை', 'தும்பை', 'தேய்ந்து', 'தேம்', 'தேத்தும்', 'தெந்தை', 'தேயும்',
+	'தூய்மை', 'தும்பை', 'தேய்ந்து', 'தேம்', 'தேத்தும்', 'தெந்தை', 'தேயும்', 'தந்தை',
 
 	// Starts with: ந
-	'நெய்', 'நைந்து', 'நுந்தை', 'நேக்கு', 'நெய்யும்', 'நும்மை', 'நையும்', 'நேத்து',
+	'நெய்', 'நைந்து', 'நுந்தை', 'நேக்கு', 'நெய்யும்', 'நும்மை', 'நையும்', 'நேத்து', 'நத்தை',
 
 	// Starts with: ய
 	'யெந்தை', 'யேத்தும்', 'யேது', 'யெய்து',
@@ -997,6 +1004,8 @@ export const W_GRANTHA = [
 	'நக்ஷத்திரம்', 'சாக்ஷி', 'ஸ்ரீராமர்', 'ஸ்ரீரங்கம்', 'ஸ்ரீதேவி', 'ஜெயஸ்ரீ'
 ];
 
+const W_AYUTHA = ['அஃது', 'இஃது', 'எஃகு', 'அஃறிணை', 'எஃகம்'];
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  CUMULATIVE KEY SETS  (built once, reused by each lesson)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1095,7 +1104,7 @@ export const LESSONS_DB = {
       generateContent() {
         const syls = [...pool(['h', 'j'], V_A, true), ['a']]; // CV + pulli + standalone அ
         const drill = intro(syls);
-        const words = filterWords(W01_SAFE, A.b01);
+        const words = filterWords(W01, A.b01);
         const wordOut = wordsGen(words, 8);
         return [...drill, sp, ...wordOut];
       }
@@ -1108,11 +1117,9 @@ export const LESSONS_DB = {
       description: "k l ; ' — home row complete",
       focusKeys: ['k', 'l', ';', "'", 'a', 'q', 'f', 'h', 'j'], targetWPM: 10,
       generateContent() {
-        const newSyls = pool(['k', 'l', ';', "'"], V_A, true);
-        const drill = wKeybr(newSyls, pool(['h', 'j'], V_A, true), 30);
-        const words = filterWords(W02, A.b02);
-        return buildLesson(A.b02, newSyls, W02, W01_SAFE, 18, 30);
-      }
+	  const newSyls = pool(['k', 'l', ';', "'"], V_A, true);
+	  return buildLesson(A.b02, newSyls, W02, W01_SAFE, 18, 30);
+	}
     },
 
     // ── b03: Home Row Speed ────────────────────────────────────────────────
@@ -1122,7 +1129,7 @@ export const LESSONS_DB = {
       description: 'All 6 home consonants — speed up with real words',
       focusKeys: [...C_HR, 'a', 'q', 'f'], targetWPM: 12,
       generateContent() {
-        return buildLesson(A.b03, pool(C_HR, V_A, true), W02, W01_SAFE, 22, 25);
+        return buildLesson(A.b03, pool(C_HR, V_A, true), W02, W01, 22, 25);
       }
     },
 
@@ -1266,7 +1273,7 @@ export const LESSONS_DB = {
       focusKeys: ['h', 'j', 'f', 'a', 'q', 's', 'w', 'd', 'e', 'g', 't', 'r', 'c', 'x', 'z', 'v', 'k', 'o', '/', 'l', ';', '[', 'y', "'", 'i', 'n', 'u', 'm', 'p', 'b'], targetWPM: 16,
       generateContent() {
         const grid = uyirmeiGrid(['h', 'j'], V_ALL);
-        const words = filterWords([...W01_SAFE, ...W02, ...W04, ...W_EVERYDAY_FULL], A_FULL);
+        const words = filterWords([...W01, ...W02, ...W04, ...W_EVERYDAY_FULL], A_FULL);
         return [...grid, sp, ...wordsGen(words, 18)];
       }
     },
@@ -1451,7 +1458,7 @@ export const LESSONS_DB = {
       generateContent() {
         const np = C_HR.map(c => ['F', c]);
         const drill = intro(np);
-        const words = filterWords([...W_ADV, ...W_INTER], A_GRANTHA);
+        const words = filterWords([...W_AYUTHA, ...W_ADV, ...W_INTER], A_GRANTHA);
         return [...drill, sp, ...wordsGen(words, 20)];
       }
     },
@@ -1515,7 +1522,7 @@ export const LESSONS_DB = {
           pw('மாதம்'); out.push('X', sp);
           pw('வருடம்'); out.push('C', sp);
           if (i % 2 === 0) { pw('கடன்'); out.push('V', sp); pw('பற்று'); out.push('B', sp); }
-          pw('ரூபாய்'); out.push('S', 'A', sp);
+          pw('ரூபாய்'); out.push('A', sp);
           pw('எண்'); out.push('S', sp);
           if (i % 3 === 0) { pw('மேலே'); out.push('D', sp); }
         }
