@@ -492,19 +492,6 @@ function finishLesson(){
 let activeLevelTab='beginner';
 function openLessonsModal(){renderLessonList(activeLevelTab);showModal('modal-lessons');}
 
-function lessonDisplayChars(lesson){
-  const uyirIds=new Set(['b13','b14','b15','b16','b17','i01','i02','i03','i04','i05']);
-  if(uyirIds.has(lesson.id)){
-    const c=lesson.focusKeys.find(k=>SYL_CONS.has(k));
-    if(c)return['q','s','w','d','e','g','t','r'].slice(0,6).map(v=>composedForm(c,v)).join(' ');
-  }
-  return lesson.focusKeys
-    .filter(k=>k!=='f'&&k!==' ')
-    .slice(0,7)
-    .map(k=>MAPPING[k]??(k.length===1?(STANDALONE[k]??''):''))
-    .filter(Boolean).join(' ');
-}
-
 function switchToPracticeTab(){
   activeTab='practice';
   setActiveTabSession('practice');
@@ -568,8 +555,19 @@ function renderLessonList(level){
       row.tabIndex=-1;
       row.title='முந்தைய பாடத்தை முடிக்கவும் — Finish the previous lesson first';
     }
-    row.innerHTML=`<span class="row-num">${String(lesson.order).padStart(2,'0')}</span><span class="row-chars">${lessonDisplayChars(lesson)||lesson.title}</span><span class="row-right">${isCur?'<span class="row-dot"></span>':''}${done&&best?`<span class="row-wpm">${best.wpm}</span><span class="row-done">✓</span>`:''}${locked?'<svg class="row-lock" width="10" height="12" viewBox="0 0 10 12" fill="none" aria-label="Locked"><path d="M2.5 5V3.2a2.5 2.5 0 015 0V5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><rect x="1" y="5" width="8" height="6.2" rx="1.4" fill="currentColor"/></svg>':''}</span>`;
-    row.addEventListener('click',()=>{
+         row.innerHTML = `
+           <span class="row-num">${String(lesson.order).padStart(2, '0')}</span>
+           <span class="row-chars" style="display:flex; flex-direction:column; gap:2px; text-align:left;">
+             <strong style="font-size:1rem;">${lesson.title}</strong>
+             <small style="font-size:0.75rem; opacity:0.6;">${lesson.description}</small>
+           </span>
+           <span class="row-right">
+             ${isCur ? '<span class="row-dot"></span>' : ''}
+             ${done && best ? `<span class="row-wpm">${best.wpm}</span><span class="row-done">✓</span>` : ''}
+             ${locked ? '<svg class="row-lock" width="10" height="12" viewBox="0 0 10 12" fill="none" aria-label="Locked"><path d="M2.5 5V3.2a2.5 2.5 0 015 0V5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><rect x="1" y="5" width="8" height="6.2" rx="1.4" fill="currentColor"/></svg>' : ''}
+           </span>
+         `;
+      row.addEventListener('click',()=>{
       // Locked rows: close the modal and announce why (aria-live).
       if(locked){
         hideModal('modal-lessons');
