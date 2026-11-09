@@ -8,7 +8,7 @@ Only the latest commit on `main` is supported.
 
 Please do not open a public issue for security problems. Use GitHub's private vulnerability reporting instead:
 
-1. Go to https://github.com/mastergokul/payinthamil
+1. Go to https://github.com/siruththondan/Payinthamil
 2. Open the **Security** tab
 3. Click **Report a vulnerability**
 
