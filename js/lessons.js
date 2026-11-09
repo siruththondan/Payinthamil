@@ -170,51 +170,17 @@ function uyirmeiGrid(cons, vows) {
 function wordsGen(wordList, count) {
   if (!wordList.length || count <= 0) return [];
   const out = [];
-  for (let i = 0; i < count; i++)
-    out.push(...tamilToKeys(wordList[ri(wordList.length)]), sp);
+  let lastWord = null;
+  for (let i = 0; i < count; i++) {
+    let w = wordList[ri(wordList.length)];
+    if (w === lastWord && wordList.length > 1) {
+      w = wordList[(wordList.indexOf(w) + 1) % wordList.length];
+    }
+    out.push(...tamilToKeys(w), sp);
+    lastWord = w;
+  }
   while (out.length && out[out.length - 1] === sp) out.pop();
   return out;
-}
-
-/**
- * Build a lesson block: 25% drill, 75% words — both filtered to `allowed`.
- * `drillSyls`  — syllable array for keybr() (pass [] for word-only lessons)
- * `mainWords`  — primary word pool (lesson-focused)
- * `reviewWords`— secondary word pool (prior lessons, for variety)
- * `totalWords` — how many word tokens to emit
- * `drillChars` — how many drill keystrokes (≈ 25 % of total)
- */
-function lessonBlock(allowed, drillSyls, mainWords, reviewWords, totalWords, drillChars) {
-  // Filter every word list to allowed keys
-  const main = filterWords(mainWords, allowed);
-  const review = filterWords(reviewWords, allowed);
-  const drill = drillSyls.length
-    ? keybr(drillSyls.filter(s => s.every(k => allowed.has(k))), drillChars)
-    : [];
-
-  // 70 % main, 30 % review (of the word portion)
-  const mainN = Math.round(totalWords * 0.70);
-  const reviewN = totalWords - mainN;
-  const safeMain = main.length ? main : (review.length ? review : []);
-  const safeReview = review.length ? review : safeMain;
-  const tokens = [];
-  let lastPick = null;
-
-  for (let i = 0; i < totalWords; i++) {
-    const pool = (i < mainN) ? safeMain : safeReview;
-    let word = pool[ri(pool.length)];
-    if (word === lastPick && pool.length > 1) {
-      word = pool[(pool.indexOf(word) + 1) % pool.length];
-    }
-    tokens.push(word);
-    lastPick = word;
-  }
-
-  const wordPart = [];
-  tokens.forEach(w => wordPart.push(...tamilToKeys(w), sp));
-  while (wordPart.length && wordPart[wordPart.length - 1] === sp) wordPart.pop();
-
-  return drill.length ? [...drill, sp, ...wordPart] : wordPart;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -267,7 +233,7 @@ const W02 = [
 	'தம்', 'தாம்', 'தந்த', 'தாய்', 'தக்க', 'தாத்தா', 'தாயம்',  'தந்தம்', 'தாகம்',  'தம்மம்', 'தயக்கம்',
 
 	// Starts with: ந
-	'நாம்', 'நம்', 'நாத', 'நாமம்', 'நம்ப', 'நாயக', 'நாய்', 'நாகம்', 'நாயம்',  'நயம்', 'நாதம்', 'நாகம்', 'நகம்',
+	'நாம்', 'நம்', 'நாத', 'நாமம்', 'நம்ப', 'நாயக', 'நாய்', 'நாகம்', 'நாயம்',  'நயம்', 'நாதம்', 'நகம்',
 
 	// Starts with: ய
 	'யாம்', 'யாக', 'யாத', 'யாய', 'யாத்த', 'யாய்', 'யாமம்', 'யாகம்',
@@ -414,13 +380,13 @@ const W07 = [
 	'யாக்கோபு', 'யோக', 'யோகம்', 'யோகி', 'யாதோ', 'யோபு', 'யொத்த', 'யோதி',
 
 	// Starts with: அ
-	'அப்போது', 'அதோ', 'அந்தோ', 'அப்போ', 'அப்போது', 'அப்போதே', 'அய்யோ',
+	'அப்போது', 'அதோ', 'அந்தோ', 'அப்போ', 'அப்போதே', 'அய்யோ',
 
 	// Starts with: ஆ
 	'ஆகுமோ', 'ஆமோ', 'ஆகாதோ', 'ஆபேத்நெகோ', 'ஆபோகி', 'ஆதியோ', 'ஆயோ', 'ஆக்காயோ',
 
 	// Starts with: இ
-	'இப்போது', 'இதோ', 'இப்போ', 'இப்போதே', 'இப்போதும்', 'இதோ',
+	'இப்போது', 'இதோ', 'இப்போ', 'இப்போதே', 'இப்போதும்',
 
 	// Starts with: ஈ
 	'ஈதோ', 'ஈயோ', 'ஈதுபோ', 'ஈந்தோ', 'ஈதுகொ', 'ஈதொப்ப', 'ஈயாயோ',
@@ -432,7 +398,7 @@ const W07 = [
 	'ஊதுகொம்பு', 'ஊதும்போது', 'ஊமையோ', 'ஊகமோ', 'ஊதாயோ', 'ஊக்கமோ',
 
 	// Starts with: எ
-	'எப்போதும்', 'எப்போது', 'எதையோ', 'எப்போது', 'எப்போ', 'எப்போதோ', 'எப்போதுமே',
+	'எப்போது', 'எப்போதும்', 'எதையோ', 'எப்போ', 'எப்போதோ', 'எப்போதுமே',
 
 	// Starts with: ஏ
 	'ஏதோ', 'ஏதேதோ', 'ஏதுக்கோ',
@@ -795,7 +761,7 @@ const W13 = [
 	'வழி', 'வாழும்', 'வெளியே', 'விழுந்து', 'வாழ்க்கை', 'வாழி',
 
 	// Starts with: ச
-	'சோழ', 'சொன்னாள்', 'சூழ்ந்து', 'சூழ்ந்த', 'செய்யுள்', 'சோழ',
+	'சோழ', 'சொன்னாள்', 'சூழ்ந்து', 'சூழ்ந்த', 'செய்யுள்',
 
 	// Starts with: அ
 	'அவர்கள்', 'அவள்', 'அவளுடைய', 'அவர்களை', 'அவ்வளவு', 'அருள்',
@@ -936,7 +902,7 @@ export const W_EVERYDAY_FULL = [
 	'பருப்பு', 'காய்கறி', 'இனிப்பு', 'புளிப்பு', 'கசப்பு', 'துவர்ப்பு',
 	'வெங்காயம்', 'தக்காளி', 'மிளகாய்', 'இஞ்சி', 'பூண்டு', 'கீரை',
 	'ஓடு', 'தூங்கு', 'விழி', 'விளையாடு', 'சிரி', 'அழு',
-	'பாடு', 'ஆடு', 'குதி', 'தள்ளு', 'இழு', 'திற',
+	'பாடு', 'குதி', 'தள்ளு', 'இழு', 'திற',
 	'மூடு', 'துடை', 'கழுவு', 'சமை', 'வெட்டு', 'சும',
 	'அழகு', 'வலிமை', 'மென்மை', 'வேகம்', 'மெது', 'சூடு',
 	'குளிர்', 'கனம்', 'லேசு', 'நீளம்', 'குட்டை', 'உயரம்',
@@ -978,7 +944,7 @@ export const W_ADV = [
 	'யாப்பிலக்கணம்', 'அணியிலக்கணம்', 'நன்னூல்', 'தண்டியலங்காரம்', 'ஒலிப்பியல்', 'தொடரியல்',
 	'முன்னேற்றம்', 'பல்கலைக்கழகம்', 'தொழில்நுட்பம்', 'தகவல்நுட்பம்', 'செயற்கைநுண்ணறிவு', 'ஆராய்ச்சியாளர்',
 	'அரசாங்கம்', 'நிர்வாகம்', 'பொருளாதாரம்', 'பாராளுமன்றம்', 'சட்டமன்றம்', 'நீதித்துறை',
-	'ஜனநாயகம்', 'மக்களாட்சி', 'அரசியலமைப்பு', 'இறையாண்மை', 'குடியரசு', 'குடியுரிமை',
+	'மக்களாட்சி', 'அரசியலமைப்பு', 'இறையாண்மை', 'குடியரசு', 'குடியுரிமை',
 	'பொதுவுடைமை', 'சமத்துவம்', 'மனிதஉரிமை', 'சமூகநீதி', 'மதச்சார்பின்மை', 'அமைச்சரவை',
 	'இயற்பியல்', 'வேதியியல்', 'உயிரியல்', 'கணிதவியல்', 'வானியல்', 'புவியியல்',
 	'மூலக்கூறு', 'அணுக்கரு', 'ஈர்ப்புவிசை', 'ஒளிச்சேர்க்கை', 'மரபணுவியல்', 'பரிணாமவளர்ச்சி',
@@ -1039,6 +1005,7 @@ const A = {
 // b15–b20 and beyond: same as b14
 const A_FULL = makeAllowed([...C_ALL, ...V_ALL, PU]);
 const A_GRANTHA = makeAllowed([...C_ALL, ...V_ALL, PU, 'Q', 'W', 'E', 'R']);
+const A_AYUTHA = makeAllowed([...C_ALL, ...V_ALL, PU, 'Q', 'W', 'E', 'R', 'F']);
 const A_ALL = makeAllowed([...C_ALL, ...V_ALL, PU, 'Q', 'W', 'E', 'R', 'F', 'Z', 'X', 'C', 'V', 'B', 'D', 'A', 'S']);
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1057,36 +1024,50 @@ const A_ALL = makeAllowed([...C_ALL, ...V_ALL, PU, 'Q', 'W', 'E', 'R', 'F', 'Z',
  * @param {number} drillLen   - drill section length in keystrokes  (≈25%)
  */
 function buildLesson(allowed, drillSyls, mainWords, extraWords, wordCount, drillLen) {
-  // 1. Filter words to allowed keys
   const main = filterWords(mainWords, allowed);
   const extra = filterWords(extraWords, allowed);
-  const safe = main.length ? main : extra;
-  if (!safe.length) return [];   // shouldn't happen
+  const safeMain = main.length ? main : (extra.length ? extra : []);
+  const safeReview = extra.length ? extra : safeMain;
+  if (!safeMain.length) return [];
 
-  // 2. Syllable drill  (25 %)
   const safeSyls = drillSyls.filter(s => s.every(k => allowed.has(k)));
   const drillOut = safeSyls.length ? keybr(safeSyls, drillLen) : [];
 
-  // 3. Word portion  (75 %) — 70% main + 30% extra, shuffled
   const mainN = Math.round(wordCount * 0.70);
-  const extraN = wordCount - mainN;
   const tokens = [];
-  for (let i = 0; i < mainN; i++) tokens.push(safe[ri(safe.length)]);
-  for (let i = 0; i < extraN; i++) tokens.push((extra.length ? extra : safe)[ri((extra.length ? extra : safe).length)]);
-  for (let i = tokens.length - 1; i > 0; i--) {
-    const j = ri(i + 1);[tokens[i], tokens[j]] = [tokens[j], tokens[i]];
+  let lastPick = null;
+
+  for (let i = 0; i < wordCount; i++) {
+    const p = (i < mainN) ? safeMain : safeReview;
+    let word = p[ri(p.length)];
+    if (word === lastPick && p.length > 1) {
+      word = p[(p.indexOf(word) + 1) % p.length];
+    }
+    tokens.push(word);
+    lastPick = word;
   }
-  const wordOut = [];
-  tokens.forEach(w => wordOut.push(...tamilToKeys(w), sp));
-  while (wordOut.length && wordOut[wordOut.length - 1] === sp) wordOut.pop();
 
-  return drillOut.length ? [...drillOut, sp, ...wordOut] : wordOut;
+  // Shuffle
+  for (let i = tokens.length - 1; i > 0; i--) {
+    const j = ri(i + 1);
+    [tokens[i], tokens[j]] = [tokens[j], tokens[i]];
+  }
+
+  // Prevent adjacent identical words without dropping tokens
+  for (let i = 1; i < tokens.length; i++) {
+    if (tokens[i] === tokens[i - 1] && tokens.length > 2) {
+      const swapIdx = (i + 1) % tokens.length;
+      [tokens[i], tokens[swapIdx]] = [tokens[swapIdx], tokens[i]];
+    }
+  }
+
+  const wordPart = [];
+  tokens.forEach(w => wordPart.push(...tamilToKeys(w), sp));
+  while (wordPart.length && wordPart[wordPart.length - 1] === sp) wordPart.pop();
+
+  return drillOut.length ? [...drillOut, sp, ...wordPart] : wordPart;
 }
 
-/** 100% word lesson (no drill) — for intermediate and advanced */
-function buildWordOnly(allowed, mainWords, extraWords, wordCount) {
-  return buildLesson(allowed, [], mainWords, extraWords, wordCount, 0);
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  LESSONS DB
@@ -1118,7 +1099,7 @@ export const LESSONS_DB = {
       focusKeys: ['k', 'l', ';', "'", 'a', 'q', 'f', 'h', 'j'], targetWPM: 10,
       generateContent() {
 	  const newSyls = pool(['k', 'l', ';', "'"], V_A, true);
-	  return buildLesson(A.b02, newSyls, W02, W01_SAFE, 18, 30);
+	  return buildLesson(A.b02, newSyls, W02, W01, 18, 30);
 	}
     },
 
@@ -1458,7 +1439,7 @@ export const LESSONS_DB = {
       generateContent() {
         const np = C_HR.map(c => ['F', c]);
         const drill = intro(np);
-        const words = filterWords([...W_AYUTHA, ...W_ADV, ...W_INTER], A_GRANTHA);
+        const words = filterWords([...W_AYUTHA, ...W_ADV, ...W_INTER], A_AYUTHA);
         return [...drill, sp, ...wordsGen(words, 20)];
       }
     },
