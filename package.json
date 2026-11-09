@@ -7,7 +7,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mastergokul/payinthamil.git"
+    "url": "https://github.com/siruththondan/Payinthamil.git"
   },
   "scripts": {
     "start": "python3 -m http.server 8000",
